@@ -876,37 +876,6 @@
   resolved "https://registry.yarnpkg.com/@kwsites/promise-deferred/-/promise-deferred-1.1.1.tgz#8ace5259254426ccef57f3175bc64ed7095ed919"
   integrity sha512-GaHYm+c0O9MjZRu0ongGBRbinu8gVAMd2UZjji6jVmqKtZluZnptXGWhz1E8j8D2HJ3f/yMxKAUC0b+57wncIw==
 
-"@leazyhub/editor@^0.0.4":
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/@leazyhub/editor/-/editor-0.0.4.tgz#72cf614e512f1ec1cedb867db7c35ffc2cf68ac3"
-  integrity sha512-txl1LrMRLylHNuS7HTx46ji6Q1nic+LrV+TDDqxCg0XBh5irXfI/IuCx5eMVXjOyiByJ05JKv1zL4U9/VLWzgw==
-  dependencies:
-    "@headlessui/vue" "^1.7.19"
-    "@nuxt/kit" "^3.11.1"
-    "@tiptap-pro/extension-unique-id" "^2.7.5"
-    "@tiptap/extension-color" "^2.2.4"
-    "@tiptap/extension-highlight" "^2.2.4"
-    "@tiptap/extension-horizontal-rule" "^2.2.4"
-    "@tiptap/extension-image" "^2.2.4"
-    "@tiptap/extension-link" "^2.2.4"
-    "@tiptap/extension-placeholder" "^2.2.4"
-    "@tiptap/extension-task-item" "^2.2.4"
-    "@tiptap/extension-task-list" "^2.2.4"
-    "@tiptap/extension-text-style" "^2.2.4"
-    "@tiptap/extension-underline" "^2.2.4"
-    "@tiptap/pm" "^2.2.4"
-    "@tiptap/starter-kit" "^2.2.4"
-    "@tiptap/suggestion" "^2.2.4"
-    "@tiptap/vue-3" "^2.2.4"
-    "@vercel/blob" "^0.22.1"
-    "@vueuse/core" "^10.9.0"
-    ai "^2.2.37"
-    lucide-vue-next "^0.363.0"
-    tailwindcss-animate "^1.0.7"
-    tippy.js "^6.3.7"
-    tiptap-markdown "^0.8.10"
-    vue-sonner "^1.1.2"
-
 "@mapbox/geojson-rewind@^0.5.2":
   version "0.5.2"
   resolved "https://registry.yarnpkg.com/@mapbox/geojson-rewind/-/geojson-rewind-0.5.2.tgz#591a5d71a9cd1da1a0bf3420b3bea31b0fc7946a"
@@ -6334,46 +6303,6 @@ leaflet@1.7.1:
   resolved "https://registry.yarnpkg.com/leaflet/-/leaflet-1.7.1.tgz#10d684916edfe1bf41d688a3b97127c0322a2a19"
   integrity sha512-/xwPEBidtg69Q3HlqPdU3DnrXQOvQU/CCHA1tcDQVzOwm91YMYaILjNp7L4Eaw5Z4sOYdbBz6koWyibppd8Zqw==
 
-leazy-nuxt-layer@^0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/leazy-nuxt-layer/-/leazy-nuxt-layer-0.0.1.tgz#a7e3e6f41cc444b023c445b3d62b80dc02a4817f"
-  integrity sha512-zi9nDcpd1gjwwdYSTy8R4JxbeEEsBW9cXXMSy2K+tc4zNECNlNSGb1OX1stMybMVO3fUMVDJqZTL623657VcHg==
-  dependencies:
-    "@headlessui/vue" "^1.7.19"
-    "@nuxt/kit" "^3.11.1"
-    "@tiptap-pro/extension-unique-id" "^2.7.5"
-    "@tiptap/extension-character-count" "^2.2.4"
-    "@tiptap/extension-color" "^2.2.4"
-    "@tiptap/extension-font-family" "^2.2.4"
-    "@tiptap/extension-highlight" "^2.2.4"
-    "@tiptap/extension-horizontal-rule" "^2.2.4"
-    "@tiptap/extension-image" "^2.2.4"
-    "@tiptap/extension-link" "^2.2.4"
-    "@tiptap/extension-placeholder" "^2.2.4"
-    "@tiptap/extension-subscript" "^2.2.4"
-    "@tiptap/extension-superscript" "^2.2.4"
-    "@tiptap/extension-table" "^2.2.4"
-    "@tiptap/extension-table-cell" "^2.2.4"
-    "@tiptap/extension-table-header" "^2.2.4"
-    "@tiptap/extension-table-row" "^2.2.4"
-    "@tiptap/extension-task-item" "^2.2.4"
-    "@tiptap/extension-task-list" "^2.2.4"
-    "@tiptap/extension-text-style" "^2.2.4"
-    "@tiptap/extension-typography" "^2.2.4"
-    "@tiptap/extension-underline" "^2.2.4"
-    "@tiptap/pm" "^2.2.4"
-    "@tiptap/starter-kit" "^2.2.4"
-    "@tiptap/suggestion" "^2.2.4"
-    "@tiptap/vue-3" "^2.2.4"
-    "@vercel/blob" "^0.22.1"
-    "@vueuse/core" "^10.9.0"
-    ai "^2.2.37"
-    lucide-vue-next "^0.363.0"
-    tailwindcss-animate "^1.0.7"
-    tippy.js "^6.3.7"
-    tiptap-markdown "^0.8.10"
-    vue-sonner "^1.1.2"
-
 "legacy-swc-helpers@npm:@swc/helpers@=0.4.14":
   version "0.4.14"
   resolved "https://registry.yarnpkg.com/@swc/helpers/-/helpers-0.4.14.tgz#1352ac6d95e3617ccb7c1498ff019654f1e12a74"
@@ -6533,11 +6462,6 @@ lucide-vue-next@^0.343.0:
   version "0.343.0"
   resolved "https://registry.yarnpkg.com/lucide-vue-next/-/lucide-vue-next-0.343.0.tgz#3535e987c65ffb99bee8536ff8ff90a6806ac701"
   integrity sha512-mDp/hL7HM5tGuoa8AcJMfbcpmJWxZT917RMeS4/dPTqiUS+fVxD0UT2qKuuYlEzvJedkJTApuDJ6N2ZbsJMAYA==
-
-lucide-vue-next@^0.363.0:
-  version "0.363.0"
-  resolved "https://registry.yarnpkg.com/lucide-vue-next/-/lucide-vue-next-0.363.0.tgz#c838b274d04a98f59e22244a07f8692580794d64"
-  integrity sha512-dc5KgrXhCPMEzKz6voDVvxXkwEr7n+Q4b7qLyS2e3DTlH9GMFydS4fHoSvpZR/a5M7i1EOpFI8/BA8SPjAOwEQ==
 
 magic-regexp@^0.7.0:
   version "0.7.0"
@@ -9781,7 +9705,7 @@ tippy.js@^6.3.7:
   dependencies:
     "@popperjs/core" "^2.9.0"
 
-tiptap-markdown@^0.8.10, tiptap-markdown@^0.8.9:
+tiptap-markdown@^0.8.9:
   version "0.8.10"
   resolved "https://registry.yarnpkg.com/tiptap-markdown/-/tiptap-markdown-0.8.10.tgz#864a54befc17b25e7f475ff6072de3d49814f09b"
   integrity sha512-iDVkR2BjAqkTDtFX0h94yVvE2AihCXlF0Q7RIXSJPRSR5I0PA1TMuAg6FHFpmqTn4tPxJ0by0CK7PUMlnFLGEQ==
@@ -10476,7 +10400,7 @@ vue-screen-utils@^1.0.0-beta.13:
   resolved "https://registry.yarnpkg.com/vue-screen-utils/-/vue-screen-utils-1.0.0-beta.13.tgz#0c739e19f6ffbffab63184aba7b6d710b6a63681"
   integrity sha512-EJ/8TANKhFj+LefDuOvZykwMr3rrLFPLNb++lNBqPOpVigT2ActRg6icH9RFQVm4nHwlHIHSGm5OY/Clar9yIg==
 
-vue-sonner@^1.1.1, vue-sonner@^1.1.2:
+vue-sonner@^1.1.1:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/vue-sonner/-/vue-sonner-1.1.2.tgz#996c662d817b150e67770272e1d1d7f8a2d3a0c6"
   integrity sha512-yg4f5s0a3oiiI7cNvO0Dajux1Y7s04lxww3vnQtnwQawJ3KqaKA9RIRMdI9wGTosRGIOwgYFniFRGl4+IuKPZw==
