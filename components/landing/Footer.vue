@@ -55,7 +55,7 @@ function onSubmit () {
 
 <template>
   <UFooter>
-    <template #top>
+    <template v-if="false" #top>
       <UFooterColumns :links="links">
         <template #right>
           <form @submit.prevent="onSubmit">
@@ -80,7 +80,7 @@ function onSubmit () {
     <template #right>
       <UColorModeButton size="sm" />
 
-      <UButton to="https://github.com/nuxt-ui-pro/landing" target="_blank" icon="i-simple-icons-github" aria-label="GitHub" color="gray" variant="ghost" />
+      <UButton v-if="false" to="https://github.com/nuxt-ui-pro/landing" target="_blank" icon="i-simple-icons-github" aria-label="GitHub" color="gray" variant="ghost" />
     </template>
   </UFooter>
 </template>

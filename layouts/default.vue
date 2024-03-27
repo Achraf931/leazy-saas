@@ -2,10 +2,13 @@
 const route = useRoute()
 const appConfig = useAppConfig()
 const { isHelpSlideoverOpen } = useDashboard()
+const { toggleDashboardSearch } = useUIState()
+const isNewUserModalOpen = ref(false)
+const isNewFeedbackModalOpen = ref(false)
 
 const links = [{
   id: 'home',
-  label: 'Home',
+  label: 'Accueil',
   icon: 'i-heroicons-home',
   to: '/',
   tooltip: {
@@ -14,7 +17,7 @@ const links = [{
   }
 }, {
   id: 'inbox',
-  label: 'Inbox',
+  label: 'Messages',
   icon: 'i-heroicons-inbox',
   to: '/inbox',
   badge: '4',
@@ -23,47 +26,49 @@ const links = [{
     shortcuts: ['G', 'I']
   }
 }, {
-  id: 'users',
-  label: 'Users',
-  icon: 'i-heroicons-user-group',
-  to: '/users',
-  tooltip: {
-    text: 'Users',
-    shortcuts: ['G', 'U']
-  }
-}, {
   id: 'settings',
-  label: 'Settings',
+  label: 'Médias',
   to: '/settings',
-  icon: 'i-heroicons-cog-8-tooth',
-  children: [
-    {
-      label: 'General',
-      to: '/settings',
-      exact: true
-    },
-    {
-      label: 'Members',
-      to: '/settings/members'
-    },
-    {
-      label: 'Notifications',
-      to: '/settings/notifications'
-    }],
+  icon: 'i-heroicons-photo',
   tooltip: {
     text: 'Settings',
     shortcuts: ['G', 'S']
   }
+}, {
+  id: 'users',
+  label: 'Bibliothèque',
+  icon: 'i-heroicons-document-text',
+  to: '/library',
+  collapsible: false,
+  children: [
+    {
+      label: 'Thèmes',
+      to: '/library/themes'
+    },
+    {
+      label: 'Chapitres',
+      to: '/library/chapters'
+    },
+    {
+      label: 'Leçons',
+      to: '/library/lessons'
+    }],
+  tooltip: {
+    text: 'Leçons',
+    shortcuts: ['G', 'L']
+  }
+}, {
+  id: 'feedbacks',
+  label: 'Signaler un problème',
+  icon: 'i-heroicons-exclamation-triangle',
+  click: () => {
+    isNewFeedbackModalOpen.value = true
+  },
 }]
 
 const footerLinks = [
   {
-    label: 'Invite people',
-    icon: 'i-heroicons-plus',
-    to: '/settings/members'
-  },
-  {
-    label: 'Help & Support',
+    label: 'Aide & Support',
     icon: 'i-heroicons-question-mark-circle',
     click: () => isHelpSlideoverOpen.value = true
   }
@@ -106,14 +111,22 @@ const colors = computed(() => defaultColors.value.map(color => ({ ...color, acti
 
       <UDashboardSidebar>
         <template #header>
-          <UDashboardSearchButton />
+          <div class="flex items-center gap-2">
+            <UButtonGroup size="sm" orientation="horizontal" class="w-full">
+              <UButton class="flex-1" label="Nouvelle leçon" icon="i-heroicons-plus" color="gray" @click="isNewUserModalOpen = true" />
+              <UDropdown :items="[[{ label: 'Nouveau thème', icon: 'i-heroicons-plus', click: () => console.log('new theme') }, { label: 'Nouveau chapitre', icon: 'i-heroicons-plus', click: () => console.log('new chapter') }]]" :ui="{ width: 'w-auto', item: { disabled: 'cursor-text select-text' } }" :popper="{ strategy: 'absolute', placement: 'top-end' }">
+                <UButton icon="i-heroicons-chevron-down-20-solid" color="gray" />
+              </UDropdown>
+            </UButtonGroup>
+            <UButton trailing-icon="i-heroicons-magnifying-glass" color="gray" @click="toggleDashboardSearch" />
+          </div>
         </template>
 
         <UDashboardSidebarLinks :links="links" />
 
         <UDivider />
 
-        <UDashboardSidebarLinks :links="[{ label: 'Colors', draggable: true, children: colors }]" @update:links="colors => defaultColors = colors" />
+        <UDashboardSidebarLinks :links="[{ label: 'Couleurs', draggable: true, children: colors }]" @update:links="colors => defaultColors = colors" />
 
         <div class="flex-1" />
 
@@ -126,6 +139,16 @@ const colors = computed(() => defaultColors.value.map(color => ({ ...color, acti
     </UDashboardPanel>
 
     <slot />
+
+    <UDashboardModal v-model="isNewUserModalOpen" title="New user" description="Add a new user to your database" :ui="{ width: 'sm:max-w-md' }">
+      <!-- ~/components/users/UsersForm.vue -->
+      <UsersForm @close="isNewUserModalOpen = false" />
+    </UDashboardModal>
+
+    <UDashboardModal v-model="isNewFeedbackModalOpen" title="Nouveau feedback" description="Signalez-nous un problème rencontré" :ui="{ width: 'sm:max-w-md' }">
+      <!-- ~/components/feedbacks/FeedbacksForm.vue -->
+      <FeedbacksForm @close="isNewFeedbackModalOpen = false" />
+    </UDashboardModal>
 
     <HelpSlideover />
 
