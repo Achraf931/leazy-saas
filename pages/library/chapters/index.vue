@@ -12,13 +12,15 @@ const links = [
 </script>
 
 <template>
-  <UDashboardNavbar>
-    <template v-slot:title>
-      <UBreadcrumb :links="links" />
-    </template>
-  </UDashboardNavbar>
+  <UDashboardPanel grow>
+    <UDashboardNavbar>
+      <template v-slot:title>
+        <UBreadcrumb :links="links" />
+      </template>
+    </UDashboardNavbar>
 
-  <UDashboardPanelContent>
-    <p>Ma page chapitres</p>
-  </UDashboardPanelContent>
+    <UDashboardPanelContent>
+      <p>Ma page chapitres</p>
+    </UDashboardPanelContent>
+  </UDashboardPanel>
 </template>

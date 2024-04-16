@@ -1,0 +1,87 @@
+{
+  "drawer": {
+    "profile": {
+      "connected_as": "Connecté en tant que",
+      "logout": "Me déconnecter"
+    },
+    "home": "Accueil",
+    "inbox": "Messages",
+    "medias": "Médias",
+    "library": {
+      "label": "Bibliothèque",
+      "themes": "Thèmes",
+      "chapters": "Chapitres",
+      "lessons": "Leçons"
+    },
+    "community": "Communauté",
+    "feedbacks": "Signaler un problème"
+  },
+  "commons": {
+    "see_all": "Voir tout",
+    "help": "Aide & Support",
+    "settings": "Réglages",
+    "search": "Rechercher"
+  },
+  "page": {
+    "library": {
+      "lessons": {
+        "label": "Mes leçons",
+        "description": "Retrouvez ici toutes vos leçons !"
+      }
+    },
+    "settings": {
+      "general": {
+        "label": "Général",
+        "language": {
+          "label": "Langue",
+          "description": "Choisissez votre langue préférée."
+        },
+        "theme": {
+          "label": "Thème",
+          "description": "Personnalisez l'aspect et la convivialité de votre tableau de bord."
+        },
+        "profile": {
+          "label": "Profil",
+          "description": "Gérez vos informations personnelles.",
+          "button": "Enregistrer les modifications"
+        },
+        "form": {
+          "lastname": {
+            "label": "Nom",
+            "description": "Apparaîtra sur les reçus, les factures et autres communications."
+          },
+          "firstname": {
+            "label": "Prénom",
+            "description": "Apparaîtra sur les reçus, les factures et autres communications."
+          },
+          "email": {
+            "label": "Email",
+            "description": "Utilisé pour s'identifier, pour recevoir des emails et des mises à jour."
+          },
+          "username": {
+            "label": "Nom d'utilisateur",
+            "description": "Utilisé pour s'identifier."
+          },
+          "avatar": {
+            "label": "Avatar",
+            "description": "Apparaîtra sur votre profil et vos contributions.",
+            "button": "Choisir",
+            "supported_ext": "JPG, GIF, PNG ou WEBP. 1MB Max."
+          },
+          "password": {
+            "label": "Mot de passe",
+            "description": "Confirmez votre mot de passe actuel avant d'en définir un nouveau.",
+            "current": "Mot de passe actuel",
+            "new": "Nouveau mot de passe"
+          }
+        }
+      },
+      "members": {
+        "label": "Membres"
+      },
+      "notifications": {
+        "label": "Notifications"
+      }
+    }
+  }
+}

@@ -1,3 +1,5 @@
 <template>
-  <p>Page d'un thème</p>
+  <UDashboardPanel grow>
+    <p>Page d'un thème</p>
+  </UDashboardPanel>
 </template>

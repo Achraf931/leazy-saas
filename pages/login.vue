@@ -10,6 +10,8 @@ useSeoMeta({
   description: 'Connectez-vous à votre compte'
 })
 
+const { login } = useSanctumAuth()
+
 const fields = [
   {
     name: 'email',
@@ -30,9 +32,9 @@ const fields = [
 const validate = (state: any) => {
   const errors: FormError[] = []
 
-  if (!state.email) errors.push({path: 'email', message: 'Veuillez entrer votre email'})
+  if (!state.email) errors.push({path: 'email', message: 'Veuillez entrer votre email.'})
 
-  if (!state.password) errors.push({path: 'password', message: 'Veuillez entrer votre mot de passe'})
+  if (!state.password) errors.push({path: 'password', message: 'Veuillez entrer votre mot de passe.'})
 
   return errors
 }
@@ -46,8 +48,25 @@ const providers = [
   }
 ]
 
-const onSubmit = (data: any) => {
+const onSubmit = async (data: any) => {
   console.log('Envoyé', data)
+  await login(data)
+  /*await fetch('http://leazy.local:8000/sanctum/csrf-cookie')
+  const { token } = await fetch('http://leazy.local:8000/api/login', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  }).then(res => res.json())
+  console.log(token)
+  await fetch('http://leazy.local:8000/api/user', {
+    credentials: 'include',
+    headers: {
+      Authorization: 'Bearer ' + token
+    }
+  })*/
 }
 </script>
 

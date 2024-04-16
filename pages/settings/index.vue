@@ -1,15 +1,18 @@
 <script setup lang="ts">
 import type { FormError, FormSubmitEvent } from '#ui/types'
 
+const { locales, setLocale, localeProperties } = useI18n()
 const fileRef = ref<{ input: HTMLInputElement }>()
 const isDeleteAccountModalOpen = ref(false)
 
+const locale = shallowRef(localeProperties.value)
+
 const state = reactive({
-  name: 'Benjamin Canac',
-  email: 'ben@nuxtlabs.com',
-  username: 'benjamincanac',
-  avatar: '',
-  bio: '',
+  lastname: 'Hamrouni',
+  firstname: 'Charfeddine',
+  email: 'hamrouni.pro@outlook.fr',
+  username: 'chamrouni',
+  avatar: 'https://avatars.githubusercontent.com/u/45672435?v=4',
   password_current: '',
   password_new: ''
 })
@@ -18,9 +21,10 @@ const toast = useToast()
 
 function validate (state: any): FormError[] {
   const errors = []
-  if (!state.name) errors.push({ path: 'name', message: 'Please enter your name.' })
-  if (!state.email) errors.push({ path: 'email', message: 'Please enter your email.' })
-  if ((state.password_current && !state.password_new) || (!state.password_current && state.password_new)) errors.push({ path: 'password', message: 'Please enter a valid password.' })
+  if (!state.lastname) errors.push({ path: 'lastname', message: 'Veuillez entrer votre nom.' })
+  if (!state.firstname) errors.push({ path: 'fisrtname', message: 'Veuillez entrer votre prénom.' })
+  if (!state.email) errors.push({ path: 'email', message: 'Veuillez entrer votre email.' })
+  if ((state.password_current && !state.password_new) || (!state.password_current && state.password_new)) errors.push({ path: 'password', message: 'Veuillez entrer votre mot de passe.' })
   return errors
 }
 
@@ -42,13 +46,27 @@ async function onSubmit (event: FormSubmitEvent<any>) {
   // Do something with data
   console.log(event.data)
 
-  toast.add({ title: 'Profile updated', icon: 'i-heroicons-check-circle' })
+  toast.add({ title: 'Profil modifié !', icon: 'i-heroicons-check-circle' })
 }
 </script>
 
 <template>
   <UDashboardPanelContent class="pb-24">
-    <UDashboardSection title="Theme" description="Customize the look and feel of your dashboard.">
+    <UDashboardSection :title="$t('page.settings.general.language.label')" :description="$t('page.settings.general.language.description')">
+      <template #links>
+        <USelectMenu @change="setLocale($event.code)" icon="i-heroicons-globe-alt" v-model="locale" :options="locales">
+          <template #option="{ option: language }">
+            <div class="flex items-center">
+              <span>{{ language.label }}</span>
+            </div>
+          </template>
+        </USelectMenu>
+      </template>
+    </UDashboardSection>
+
+    <UDivider class="mb-4" />
+
+    <UDashboardSection :title="$t('page.settings.general.theme.label')" :description="$t('page.settings.general.theme.description')">
       <template #links>
         <UColorModeSelect color="gray" />
       </template>
@@ -57,26 +75,37 @@ async function onSubmit (event: FormSubmitEvent<any>) {
     <UDivider class="mb-4" />
 
     <UForm :state="state" :validate="validate" :validate-on="['submit']" @submit="onSubmit">
-      <UDashboardSection title="Profile" description="This information will be displayed publicly so be careful what you share.">
+      <UDashboardSection :title="$t('page.settings.general.profile.label')" :description="$t('page.settings.general.profile.description')">
         <template #links>
-          <UButton type="submit" label="Save changes" color="black" />
+          <UButton type="submit" :label="$t('page.settings.general.profile.button')" color="black" />
         </template>
 
         <UFormGroup
-          name="name"
-          label="Name"
-          description="Will appear on receipts, invoices, and other communication."
+          name="lastname"
+          :label="$t('page.settings.general.form.lastname.label')"
+          :description="$t('page.settings.general.form.lastname.description')"
           required
           class="grid grid-cols-2 gap-2 items-center"
           :ui="{ container: '' }"
         >
-          <UInput v-model="state.name" autocomplete="off" icon="i-heroicons-user" size="md" />
+          <UInput v-model="state.lastname" autocomplete="off" icon="i-heroicons-user" size="md" />
+        </UFormGroup>
+
+        <UFormGroup
+          name="firstname"
+          :label="$t('page.settings.general.form.firstname.label')"
+          :description="$t('page.settings.general.form.firstname.description')"
+          required
+          class="grid grid-cols-2 gap-2 items-center"
+          :ui="{ container: '' }"
+        >
+          <UInput v-model="state.firstname" autocomplete="off" icon="i-heroicons-user" size="md" />
         </UFormGroup>
 
         <UFormGroup
           name="email"
-          label="Email"
-          description="Used to sign in, for email receipts and product updates."
+          :label="$t('page.settings.general.form.email.label')"
+          :description="$t('page.settings.general.form.email.description')"
           required
           class="grid grid-cols-2 gap-2"
           :ui="{ container: '' }"
@@ -86,66 +115,45 @@ async function onSubmit (event: FormSubmitEvent<any>) {
 
         <UFormGroup
           name="username"
-          label="Username"
-          description="Your unique username for logging in and your profile URL."
+          :label="$t('page.settings.general.form.username.label')"
+          :description="$t('page.settings.general.form.username.description')"
           required
           class="grid grid-cols-2 gap-2"
           :ui="{ container: '' }"
         >
           <UInput v-model="state.username" type="username" autocomplete="off" size="md" input-class="ps-[77px]">
             <template #leading>
-              <span class="text-gray-500 dark:text-gray-400 text-sm">nuxt.com/</span>
+              <span class="text-gray-500 dark:text-gray-400 text-sm">leazy.net/</span>
             </template>
           </UInput>
         </UFormGroup>
 
-        <UFormGroup name="avatar" label="Avatar" class="grid grid-cols-2 gap-2" help="JPG, GIF or PNG. 1MB Max." :ui="{ container: 'flex flex-wrap items-center gap-3', help: 'mt-0' }">
+        <UFormGroup name="avatar" :label="$t('page.settings.general.form.avatar.label')" :description="$t('page.settings.general.form.avatar.description')" class="grid grid-cols-2 gap-2" :help="$t('page.settings.general.form.avatar.supported_ext')" :ui="{ container: 'flex flex-wrap items-center gap-3', help: 'mt-0' }">
           <UAvatar :src="state.avatar" :alt="state.name" size="lg" />
 
-          <UButton label="Choose" color="white" size="md" @click="onFileClick" />
+          <UButton :label="$t('page.settings.general.form.avatar.button')" color="white" size="md" @click="onFileClick" />
 
-          <UInput ref="fileRef" type="file" class="hidden" accept=".jpg, .jpeg, .png, .gif" @change="onFileChange" />
-        </UFormGroup>
-
-        <UFormGroup
-          name="bio"
-          label="Bio"
-          description="Brief description for your profile. URLs are hyperlinked."
-          class="grid grid-cols-2 gap-2"
-          :ui="{ container: '' }"
-        >
-          <UTextarea v-model="state.bio" :rows="5" autoresize size="md" />
+          <UInput ref="fileRef" type="file" class="hidden" accept=".jpg, .jpeg, .png, .gif, .webp" @change="onFileChange" />
         </UFormGroup>
 
         <UFormGroup
           name="password"
-          label="Password"
-          description="Confirm your current password before setting a new one."
+          :label="$t('page.settings.general.form.password.label')"
+          :description="$t('page.settings.general.form.password.description')"
           class="grid grid-cols-2 gap-2"
           :ui="{ container: '' }"
         >
-          <UInput id="password" v-model="state.password_current" type="password" placeholder="Current password" size="md" />
+          <UInput id="password" v-model="state.password_current" type="password" :placeholder="$t('page.settings.general.form.password.current')" size="md" />
           <UInput
             id="password_new"
             v-model="state.password_new"
             type="password"
-            placeholder="New password"
+            :placeholder="$t('page.settings.general.form.password.new')"
             size="md"
             class="mt-2"
           />
         </UFormGroup>
       </UDashboardSection>
     </UForm>
-
-    <UDivider class="mb-4" />
-
-    <UDashboardSection title="Account" description="No longer want to use our service? You can delete your account here. This action is not reversible. All information related to this account will be deleted permanently.">
-      <div>
-        <UButton color="red" label="Delete account" size="md" @click="isDeleteAccountModalOpen = true" />
-      </div>
-    </UDashboardSection>
-
-    <!-- ~/components/settings/DeleteAccountModal.vue -->
-    <SettingsDeleteAccountModal v-model="isDeleteAccountModalOpen" />
   </UDashboardPanelContent>
 </template>

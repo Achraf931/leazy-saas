@@ -1,14 +1,16 @@
 <script setup lang="ts">
 const route = useRoute()
 const appConfig = useAppConfig()
-const { isHelpSlideoverOpen } = useDashboard()
+const { isHelpSlideoverOpen, isDrawerSlideoverMode, isDrawerSlideoverOpen } = useDashboard()
 const { toggleDashboardSearch } = useUIState()
 const isNewUserModalOpen = ref(false)
 const isNewFeedbackModalOpen = ref(false)
+const localePath = useLocalePath()
+const { t } = useI18n()
 
-const links = [{
+const links = computed(() => [{
   id: 'home',
-  label: 'Accueil',
+  label: t('drawer.home'),
   icon: 'i-heroicons-home',
   to: '/',
   tooltip: {
@@ -17,58 +19,85 @@ const links = [{
   }
 }, {
   id: 'inbox',
-  label: 'Messages',
+  label: t('drawer.inbox'),
   icon: 'i-heroicons-inbox',
-  to: '/inbox',
+  to: localePath({ name: 'inbox' }),
   badge: '4',
   tooltip: {
     text: 'Inbox',
     shortcuts: ['G', 'I']
   }
 }, {
-  id: 'settings',
-  label: 'Médias',
-  to: '/settings',
+  id: 'medias',
+  label: t('drawer.medias'),
+  to: localePath({ name: 'media' }),
   icon: 'i-heroicons-photo',
   tooltip: {
     text: 'Settings',
-    shortcuts: ['G', 'S']
+    shortcuts: ['G', 'M']
   }
 }, {
-  id: 'users',
-  label: 'Bibliothèque',
+  id: 'library',
+  label: t('drawer.library.label'),
   icon: 'i-heroicons-document-text',
-  to: '/library',
+  to: localePath({ name: 'library' }),
   collapsible: false,
   children: [
     {
-      label: 'Thèmes',
-      to: '/library/themes'
+      label: t('drawer.library.themes'),
+      badge: {
+        label: '+',
+        variant: 'ghost',
+        padded: false
+      },
+      to: localePath({ name: 'library-themes' })
     },
     {
-      label: 'Chapitres',
-      to: '/library/chapters'
+      label: t('drawer.library.chapters'),
+      badge: {
+        label: '+',
+        variant: 'ghost',
+        padded: false
+      },
+      to: localePath({ name: 'library-chapters' })
     },
     {
-      label: 'Leçons',
-      to: '/library/lessons'
+      label: t('drawer.library.lessons'),
+      badge: {
+        label: '+',
+        variant: 'ghost',
+        padded: false
+      },
+      to: localePath({ name: 'library-lessons' })
     }],
   tooltip: {
-    text: 'Leçons',
+    text: t('drawer.library.lessons'),
     shortcuts: ['G', 'L']
+  }
+}])
+
+const subLinks = computed(() => [{
+  id: 'blog',
+  label: t('drawer.community'),
+  icon: 'i-heroicons-newspaper',
+  to: '/landing',
+  target: '_blank',
+  tooltip: {
+    text: 'Blog',
+    shortcuts: ['G', 'B']
   }
 }, {
   id: 'feedbacks',
-  label: 'Signaler un problème',
+  label: t('drawer.feedbacks'),
   icon: 'i-heroicons-exclamation-triangle',
   click: () => {
     isNewFeedbackModalOpen.value = true
-  },
-}]
+  }
+}])
 
 const footerLinks = [
   {
-    label: 'Aide & Support',
+    label: t('commons.help'),
     icon: 'i-heroicons-question-mark-circle',
     click: () => isHelpSlideoverOpen.value = true
   }
@@ -78,7 +107,7 @@ const groups = [
   {
     key: 'links',
     label: 'Go to',
-    commands: links.map(link => ({ ...link, shortcuts: link.tooltip?.shortcuts }))
+    commands: links.value.map(link => ({ ...link, shortcuts: link.tooltip?.shortcuts }))
   },
   {
     key: 'code',
@@ -89,73 +118,116 @@ const groups = [
         label: 'View page source',
         icon: 'i-simple-icons-github',
         click: () => {
-          window.open(`https://github.com/nuxt-ui-pro/dashboard/blob/main/pages${route.path === '/' ? '/index' : route.path}.vue`, '_blank')
+          window.open(`https://github.com/nuxt-ui-pro/dashboard/blob/main/pages${ route.path === '/' ? '/index' : route.path }.vue`, '_blank')
         }
       }
     ]
   }
 ]
-
-const defaultColors = ref(['green', 'teal', 'cyan', 'sky', 'blue', 'indigo', 'violet'].map(color => ({ label: color, chip: color, click: () => appConfig.ui.primary = color })))
-const colors = computed(() => defaultColors.value.map(color => ({ ...color, active: appConfig.ui.primary === color.label })))
 </script>
 
 <template>
   <UDashboardLayout>
-    <UDashboardPanel :width="250" :resizable="{ min: 200, max: 300 }" collapsible>
-      <UDashboardNavbar class="!border-transparent" :ui="{ left: 'flex-1' }">
+    <USlideover v-if="isDrawerSlideoverMode" v-model="isDrawerSlideoverOpen" :overlay="false" side="left" :ui="{ wrapper: 'top-[--header-height] h-[calc(100vh-var(--header-height))]', width: 'max-w-max' }">
+      <template #default>
+        <UDashboardPanel id="slideorder-drawer" :width="250" class="flex-1" collapsible>
+          <UDashboardNavbar :ui="{ left: 'flex-1' }">
+            <template #left>
+              <UserDropdown/>
+            </template>
+          </UDashboardNavbar>
+
+          <UDashboardSidebar>
+            <template #header>
+              <div class="flex items-center gap-2">
+                <UButtonGroup size="xs" orientation="horizontal" class="w-full">
+                  <UButton class="flex-1" label="Nouvelle leçon" icon="i-heroicons-plus" color="gray"
+                           @click="isNewUserModalOpen = true"/>
+                  <UDropdown
+                      :items="[[{ label: 'Nouveau thème', icon: 'i-heroicons-plus', click: () => console.log('new theme') }, { label: 'Nouveau chapitre', icon: 'i-heroicons-plus', click: () => console.log('new chapter') }]]"
+                      :ui="{ width: 'w-auto', item: { disabled: 'cursor-text select-text' } }"
+                      :popper="{ strategy: 'absolute', placement: 'top-end' }">
+                    <UButton icon="i-heroicons-chevron-down-20-solid" color="gray"/>
+                  </UDropdown>
+                </UButtonGroup>
+                <UButton trailing-icon="i-heroicons-magnifying-glass" size="xs" color="gray"
+                         @click="toggleDashboardSearch"/>
+              </div>
+            </template>
+
+            <UDashboardSidebarLinks :links="links"/>
+
+            <UDivider/>
+
+            <UDashboardSidebarLinks :links="subLinks">
+              <template #badge="{ link }">
+                <UIcon v-if="link.target === '_blank'" name="i-heroicons-arrow-up-right" class="w-4 h-4 ml-auto"/>
+              </template>
+            </UDashboardSidebarLinks>
+
+            <div class="flex-1"/>
+
+            <UDivider class="sticky bottom-0"/>
+
+            <template #footer>
+              <UDashboardSidebarLinks :links="footerLinks"/>
+            </template>
+          </UDashboardSidebar>
+        </UDashboardPanel>
+      </template>
+    </USlideover>
+    <UDashboardPanel v-else id="default-drawer" :width="250" :resizable="{ min: 200, max: 300 }" collapsible>
+      <UDashboardNavbar :ui="{ left: 'flex-1' }">
         <template #left>
-          <UserDropdown />
+          <UserDropdown/>
         </template>
       </UDashboardNavbar>
 
       <UDashboardSidebar>
         <template #header>
-          <div class="flex items-center gap-2">
-            <UButtonGroup size="sm" orientation="horizontal" class="w-full">
-              <UButton class="flex-1" label="Nouvelle leçon" icon="i-heroicons-plus" color="gray" @click="isNewUserModalOpen = true" />
-              <UDropdown :items="[[{ label: 'Nouveau thème', icon: 'i-heroicons-plus', click: () => console.log('new theme') }, { label: 'Nouveau chapitre', icon: 'i-heroicons-plus', click: () => console.log('new chapter') }]]" :ui="{ width: 'w-auto', item: { disabled: 'cursor-text select-text' } }" :popper="{ strategy: 'absolute', placement: 'top-end' }">
-                <UButton icon="i-heroicons-chevron-down-20-solid" color="gray" />
-              </UDropdown>
-            </UButtonGroup>
-            <UButton trailing-icon="i-heroicons-magnifying-glass" color="gray" @click="toggleDashboardSearch" />
-          </div>
+          <UButton :label="$t('commons.search')" icon="i-heroicons-magnifying-glass" color="gray" @click="toggleDashboardSearch"/>
         </template>
 
-        <UDashboardSidebarLinks :links="links" />
+        <UDashboardSidebarLinks :links="links"/>
 
-        <UDivider />
+        <UDivider/>
 
-        <UDashboardSidebarLinks :links="[{ label: 'Couleurs', draggable: true, children: colors }]" @update:links="colors => defaultColors = colors" />
+        <UDashboardSidebarLinks :links="subLinks">
+          <template #badge="{ link }">
+            <UIcon v-if="link.target === '_blank'" name="i-heroicons-arrow-up-right" class="w-4 h-4 ml-auto"/>
+          </template>
+        </UDashboardSidebarLinks>
 
-        <div class="flex-1" />
+        <div class="flex-1"/>
 
-        <UDivider class="sticky bottom-0" />
+        <UDivider class="sticky bottom-0"/>
 
         <template #footer>
-          <UDashboardSidebarLinks :links="footerLinks" />
+          <UDashboardSidebarLinks :links="footerLinks"/>
         </template>
       </UDashboardSidebar>
     </UDashboardPanel>
 
-    <slot />
+    <slot/>
 
-    <UDashboardModal v-model="isNewUserModalOpen" title="New user" description="Add a new user to your database" :ui="{ width: 'sm:max-w-md' }">
+    <UDashboardModal v-model="isNewUserModalOpen" title="New user" description="Add a new user to your database"
+                     :ui="{ width: 'sm:max-w-md' }">
       <!-- ~/components/users/UsersForm.vue -->
-      <UsersForm @close="isNewUserModalOpen = false" />
+      <UsersForm @close="isNewUserModalOpen = false"/>
     </UDashboardModal>
 
-    <UDashboardModal v-model="isNewFeedbackModalOpen" title="Nouveau feedback" description="Signalez-nous un problème rencontré" :ui="{ width: 'sm:max-w-md' }">
+    <UDashboardModal v-model="isNewFeedbackModalOpen" title="Nouveau feedback"
+                     description="Signalez-nous un problème rencontré" :ui="{ width: 'sm:max-w-md' }">
       <!-- ~/components/feedbacks/FeedbacksForm.vue -->
-      <FeedbacksForm @close="isNewFeedbackModalOpen = false" />
+      <FeedbacksForm @close="isNewFeedbackModalOpen = false"/>
     </UDashboardModal>
 
-    <HelpSlideover />
+    <HelpSlideover/>
 
-    <NotificationsSlideover />
+    <NotificationsSlideover/>
 
     <ClientOnly>
-      <LazyUDashboardSearch :groups="groups" />
+      <LazyUDashboardSearch :groups="groups"/>
     </ClientOnly>
   </UDashboardLayout>
 </template>

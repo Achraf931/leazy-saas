@@ -64,9 +64,9 @@ const chapters = [
         </div>
       </div>
 
-      <p class="text-gray-900 dark:text-white font-medium text-lg">
+      <UKbd>
         {{ chapter.lessons }}
-      </p>
+      </UKbd>
     </NuxtLink>
   </UDashboardCard>
 </template>

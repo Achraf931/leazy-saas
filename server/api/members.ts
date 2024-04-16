@@ -1,4 +1,9 @@
 const members = [{
+  name: 'Charfeddine Hamrouni',
+  username: 'charlie-cs',
+  role: 'owner',
+  avatar: { src: 'https://avatars.githubusercontent.com/u/45672435?v=4' }
+}, {
   name: 'Anthony Fu',
   username: 'antfu',
   role: 'member',
@@ -6,7 +11,7 @@ const members = [{
 }, {
   name: 'Sébastien Chopin',
   username: 'Atinux',
-  role: 'owner',
+  role: 'member',
   avatar: { src: 'https://ipx.nuxt.com/f_auto,s_192x192/gh_avatar/atinux' }
 }, {
   name: 'Benjamin Canac',

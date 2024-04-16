@@ -1,34 +1,27 @@
 <script setup lang="ts">
+const localePath = useLocalePath()
+const { t } = useI18n()
+
 const links = [[{
-    label: 'General',
+    label: t('page.settings.general.label'),
     icon: 'i-heroicons-user-circle',
-    to: '/settings',
+    to: localePath({ name: 'settings' }),
     exact: true
   }, {
-    label: 'Members',
+    label: t('page.settings.members.label'),
     icon: 'i-heroicons-user-group',
-    to: '/settings/members'
+    to: localePath({ name: 'settings-members' })
   }, {
-    label: 'Notifications',
+    label: t('page.settings.notifications.label'),
     icon: 'i-heroicons-bell',
-    to: '/settings/notifications'
-  }], [{
-    label: 'Documentation',
-    icon: 'i-heroicons-book-open',
-    to: 'https://ui.nuxt.com/pro',
-    target: '_blank'
-  }, {
-    label: 'Buy now',
-    icon: 'i-heroicons-credit-card',
-    to: 'https://ui.nuxt.com/pro/purchase',
-    target: '_blank'
+    to: localePath({ name: 'settings-notifications' })
   }]]
 </script>
 
 <template>
   <UDashboardPage>
     <UDashboardPanel grow>
-      <UDashboardNavbar title="Settings" />
+      <UDashboardNavbar :title="$t('commons.settings')" />
 
       <UDashboardToolbar class="py-0 px-1.5 overflow-x-auto">
         <UHorizontalNavigation :links="links" />

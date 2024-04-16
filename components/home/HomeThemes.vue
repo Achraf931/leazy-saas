@@ -59,9 +59,9 @@ const themes = [
         </div>
       </div>
 
-      <p class="text-gray-900 dark:text-white font-medium text-lg">
+      <UKbd>
         {{ theme.chapters }}
-      </p>
+      </UKbd>
     </NuxtLink>
   </UDashboardCard>
 </template>
