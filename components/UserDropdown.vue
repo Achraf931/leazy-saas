@@ -2,6 +2,9 @@
 const { isHelpSlideoverOpen } = useDashboard()
 const { isDashboardSearchModalOpen } = useUIState()
 const { metaSymbol } = useShortcuts()
+const localePath = useLocalePath()
+const { t } = useI18n()
+const { logout } = useSanctumAuth()
 
 const items = computed(() => [
   [{
@@ -9,9 +12,10 @@ const items = computed(() => [
     label: '',
     disabled: true
   }], [{
-    label: 'Settings',
+    label: t('commons.settings'),
     icon: 'i-heroicons-cog-8-tooth',
-    to: '/settings'
+    shortcuts: ['G', 'S'],
+    to: localePath({ name: 'settings' })
   }, {
     label: 'Command menu',
     icon: 'i-heroicons-command-line',
@@ -20,34 +24,21 @@ const items = computed(() => [
       isDashboardSearchModalOpen.value = true
     }
   }, {
-    label: 'Help & Support',
+    label: t('commons.help'),
     icon: 'i-heroicons-question-mark-circle',
     shortcuts: ['?'],
     click: () => isHelpSlideoverOpen.value = true
   }], [{
-    label: 'Documentation',
-    icon: 'i-heroicons-book-open',
-    to: 'https://ui.nuxt.com/pro/getting-started',
-    target: '_blank'
-  }, {
-    label: 'GitHub repository',
-    icon: 'i-simple-icons-github',
-    to: 'https://github.com/nuxt-ui-pro/dashboard',
-    target: '_blank'
-  }, {
-    label: 'Buy Nuxt UI Pro',
-    icon: 'i-heroicons-credit-card',
-    to: 'https://ui.nuxt.com/pro/purchase',
-    target: '_blank'
-  }], [{
-    label: 'Sign out',
-    icon: 'i-heroicons-arrow-left-on-rectangle'
+    label: t('drawer.profile.logout'),
+    icon: 'i-heroicons-arrow-left-on-rectangle',
+    color: 'red',
+    click: async () => await logout()
   }]
 ])
 </script>
 
 <template>
-  <UDropdown mode="hover" :items="items" :ui="{ width: 'w-full', item: { disabled: 'cursor-text select-text' } }" :popper="{ strategy: 'absolute', placement: 'top' }" class="w-full">
+  <UDropdown :items="items" :ui="{ width: 'w-full', item: { disabled: 'cursor-text select-text' } }" :popper="{ strategy: 'absolute', placement: 'top' }" class="w-full">
     <template #default="{ open }">
       <UButton color="gray" variant="ghost" class="w-full" label="Charfeddine" :class="[open && 'bg-gray-50 dark:bg-gray-800']">
         <template #leading>
@@ -63,12 +54,22 @@ const items = computed(() => [
     <template #account>
       <div class="text-left">
         <p>
-          Signed in as
+          {{ $t('drawer.profile.connected_as') }}
         </p>
         <p class="truncate font-medium text-gray-900 dark:text-white">
           hamrouni.pro@outlook.fr
         </p>
       </div>
+    </template>
+
+    <template #item="{ item }">
+      <UButton :ui="{ variant: { link: 'no-underline hover:no-underline' }, color: { gray: { link: 'no-underline hover:no-underline' } } }" :to="item.to" :padded="false" :label="item.label" variant="link" :color="item.color || 'gray'" :icon="item.icon" class="w-full">
+        <template #trailing>
+          <div v-if="item.shortcuts" class="flex items-center gap-1 ml-auto">
+            <UBadge v-for="(shortcut, index) in item.shortcuts" :key="index" :label="shortcut" size="xs" color="gray" />
+          </div>
+        </template>
+      </UButton>
     </template>
   </UDropdown>
 </template>

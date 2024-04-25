@@ -1,32 +1,41 @@
-<script setup lang="ts">
-const links = [{
-  label: 'Thèmes',
-  icon: 'i-heroicons-briefcase',
-  to: '/library/themes',
-  exact: true
-}, {
-  label: 'Chapitres',
-  icon: 'i-heroicons-book-open',
-  to: '/library/chapters'
-}, {
-  label: 'Leçons',
-  icon: 'i-heroicons-document-text',
-  to: '/library/lessons'
-}]
+<script setup>
+const client = useSanctumClient()
+const localePath = useLocalePath()
+
+const { data: library, pending, error, refresh } = await useAsyncData('library', async () => {
+
+  const [themes, chapters, lessons] = await Promise.all([
+    client('/api/teacher/themes'),
+    client('/api/teacher/chapters'),
+    client('/api/teacher/lessons')
+  ])
+
+  return {
+    themes: themes.data,
+    chapters: chapters.data,
+    lessons: lessons.data
+  }
+}, { lazy: true })
 </script>
 
 <template>
-  <UDashboardNavbar title="Bibliothèque" />
+  <UDashboardPanel grow>
+    <UDashboardNavbar>
+      <template #left>
+        <ToggleDrawer :title="$t('drawer.library.label')" />
+      </template>
+    </UDashboardNavbar>
 
-  <UDashboardPanelContent>
-    <!-- ~/components/home/HomeLessons.vue -->
-    <HomeLessons />
+    <UDashboardPanelContent v-if="!pending">
+      <!-- ~/components/home/HomeLessons.vue -->
+      <HomeLessons v-if="library.lessons?.length" :lessons="library.lessons" />
 
-    <div class="grid lg:grid-cols-2 lg:items-start gap-8 mt-8">
-      <!-- ~/components/home/HomeSales.vue -->
-      <HomeChapters />
-      <!-- ~/components/home/HomeCountries.vue -->
-      <HomeThemes />
-    </div>
-  </UDashboardPanelContent>
+      <div class="grid lg:grid-cols-2 lg:items-start gap-5 mt-8">
+        <!-- ~/components/home/HomeSales.vue -->
+        <HomeChapters v-if="library.chapters?.length" :chapters="library.chapters" />
+        <!-- ~/components/home/HomeCountries.vue -->
+        <HomeThemes v-if="library.themes?.length" :themes="library.themes" />
+      </div>
+    </UDashboardPanelContent>
+  </UDashboardPanel>
 </template>

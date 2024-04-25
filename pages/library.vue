@@ -1,7 +1,5 @@
 <template>
   <UDashboardPage>
-    <UDashboardPanel grow>
-      <NuxtPage />
-    </UDashboardPanel>
+    <NuxtPage />
   </UDashboardPage>
 </template>

@@ -1,0 +1,87 @@
+{
+  "drawer": {
+    "profile": {
+      "connected_as": "Connected as",
+      "logout": "Sign out"
+    },
+    "home": "Home",
+    "inbox": "Inbox",
+    "medias": "Medias",
+    "library": {
+      "label": "Library",
+      "themes": "Themes",
+      "chapters": "Chapters",
+      "lessons": "Lessons"
+    },
+    "community": "Community",
+    "feedbacks": "Report a problem"
+  },
+  "commons": {
+    "see_all": "See all",
+    "help": "Help & Support",
+    "settings": "Settings",
+    "search": "Search"
+  },
+  "page": {
+    "library": {
+      "lessons": {
+        "label": "My lessons",
+        "description": "All your lessons here!"
+      }
+    },
+    "settings": {
+      "general": {
+        "label": "General",
+        "language": {
+          "label": "Language",
+          "description": "Select your preferred language."
+        },
+        "theme": {
+          "label": "Theme",
+          "description": "Customize the look and feel of your dashboard."
+        },
+        "profile": {
+          "label": "Profile",
+          "description": "This information will be displayed publicly so be careful what you share.",
+          "button": "Save changes"
+        },
+        "form": {
+          "lastname": {
+            "label": "Lastname",
+            "description": "Will appear on receipts, invoices, and other communication."
+          },
+          "firstname": {
+            "label": "Firstname",
+            "description": "Will appear on receipts, invoices, and other communication."
+          },
+          "email": {
+            "label": "Email",
+            "description": "Used to sign in, for email receipts and product updates."
+          },
+          "username": {
+            "label": "Username",
+            "description": "Your unique username for logging in and your profile URL."
+          },
+          "avatar": {
+            "label": "Avatar",
+            "description": "Appears on your profile and contributions.",
+            "button": "Select",
+            "supported_ext": "JPG, GIF, PNG or WEBP. 1MB Max."
+          },
+          "password": {
+            "label": "Password",
+            "description": "Confirm your current password before setting a new one.",
+            "current": "Current password",
+            "new": "New password"
+          }
+        }
+      },
+      "members": {
+        "label": "Members"
+      },
+      "notifications": {
+        "label": "Notifications"
+      }
+    }
+  }
+}
