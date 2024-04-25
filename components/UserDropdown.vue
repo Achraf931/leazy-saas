@@ -4,6 +4,7 @@ const { isDashboardSearchModalOpen } = useUIState()
 const { metaSymbol } = useShortcuts()
 const localePath = useLocalePath()
 const { t } = useI18n()
+const { logout } = useSanctumAuth()
 
 const items = computed(() => [
   [{
@@ -30,7 +31,8 @@ const items = computed(() => [
   }], [{
     label: t('drawer.profile.logout'),
     icon: 'i-heroicons-arrow-left-on-rectangle',
-    color: 'red'
+    color: 'red',
+    click: async () => await logout()
   }]
 ])
 </script>

@@ -28,15 +28,6 @@ const links = computed(() => [{
     shortcuts: ['G', 'I']
   }
 }, {
-  id: 'medias',
-  label: t('drawer.medias'),
-  to: localePath({ name: 'media' }),
-  icon: 'i-heroicons-photo',
-  tooltip: {
-    text: 'Settings',
-    shortcuts: ['G', 'M']
-  }
-}, {
   id: 'library',
   label: t('drawer.library.label'),
   icon: 'i-heroicons-document-text',

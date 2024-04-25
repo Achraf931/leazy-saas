@@ -44,7 +44,9 @@
     "@tiptap/extension-text-style": "^2.2.4",
     "@tiptap/extension-typography": "^2.2.4",
     "@tiptap/extension-underline": "^2.2.4",
+    "@tiptap/extension-youtube": "^2.3.0",
     "@tiptap/pm": "^2.2.4",
+    "@tiptap/prosemirror-tables": "^1.1.4",
     "@tiptap/starter-kit": "^2.2.4",
     "@tiptap/suggestion": "^2.2.4",
     "@tiptap/vue-3": "^2.2.4",
@@ -72,6 +74,7 @@
     "@tailwindcss/typography": "^0.5.10",
     "@tiptap/core": "^2.2.4",
     "eslint": "^8.57.0",
+    "sass": "^1.75.0",
     "vue-tsc": "^2.0.5"
   }
 }

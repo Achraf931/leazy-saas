@@ -1,16 +1,21 @@
 <script setup lang="ts">
-import { useDebounce } from '@vueuse/core'
-
-const route = useRoute()
 const localePath = useLocalePath()
 const { t } = useI18n()
+const editor = ref(null)
+const title = ref('Explication d\'Excalidraw'),
+    description = ref('Description de la leçon 1')
+
+
+onMounted(() => {
+  if (editor.value?.titleContent) title.value = editor.value?.titleContent?.content?.[0]?.content?.[0]?.text || 'Explication d\'Excalidraw'
+})
+
+watchEffect(() => {
+  if (editor.value?.titleContent) title.value = editor.value?.titleContent?.content?.[0]?.content?.[0]?.text || 'Explication d\'Excalidraw'
+})
 
 const panelOpened = ref(false)
-
-const title = ref('Leçon 1'),
-  description = ref('Description de la leçon 1')
-
-const links = [
+const links = ref([
   {
     label: t('drawer.library.label'),
     to: localePath({ name: 'library' })
@@ -20,9 +25,13 @@ const links = [
     to: localePath({ name: 'library-lessons' })
   },
   {
-    label: `${route.params.id}_${route.params.slug}`
+    label: title.value || 'Explication d\'Excalidraw'
   }
-]
+])
+
+watchEffect(() => {
+  links.value[2].label = title.value || 'Explication d\'Excalidraw'
+})
 
 const images = [
   {
@@ -122,47 +131,12 @@ const chapters = [
 ]
 
 const selectedChapter = ref(chapters[0])
-const isModalOpen = ref(false)
-const currentProvider = ref('unsplash')
-const searchQuery = ref('')
-const isLoading = ref(false)
-const debounced = useDebounce(searchQuery, 1000)
-const results = ref([])
-
-watch(debounced, async () => {
-  isLoading.value = true
-  const { results: resultsQuery } = await useSearchMedia(currentProvider.value, searchQuery.value, null)
-  results.value = resultsQuery.value
-  isLoading.value = false
-})
-
-const handleProvider = async (provider) => {
-  currentProvider.value = provider
-  if (searchQuery.value !== '') {
-    isLoading.value = true
-    const { results: resultsQuery } = await useSearchMedia(provider, searchQuery.value, null)
-    results.value = resultsQuery.value
-    isLoading.value = false
-  }
-}
-
-const getImageSource = (item) => {
-  if (currentProvider.value === 'unsplash') {
-    return { src: item?.urls?.thumb, label: item?.alt_description, author: { url: item?.user?.links?.html, name: item?.user?.name } }
-  } else if (currentProvider.value === 'pexels') {
-    return { src: item?.src?.tiny, label: item?.alt, author: { url: item?.photographer_url, name: item?.photographer } }
-  } else if (currentProvider.value === 'pixabay') {
-    return { src: item?.previewURL, label: item?.tags, author: { url: item?.pageURL, name: item?.user } }
-  } else if (currentProvider.value === 'giphy') {
-    return { src: item?.images?.preview_gif?.url, label: item?.title, author: { url: item?.user?.profile_url, name: item?.user?.username } }
-  }
-}
 </script>
 
 <template>
   <UDashboardPanel grow>
-    <UDashboardNavbar badge="Brouillon">
-      <template v-slot:title>
+    <UDashboardNavbar badge="Brouillon" :ui="{ wrapper: 'z-10 bg-white dark:bg-zinc-900' }">
+      <template #title>
         <ToggleDrawer />
         <UBreadcrumb :links="links" />
       </template>
@@ -176,16 +150,14 @@ const getImageSource = (item) => {
           <UButton size="2xs" variant="ghost" color="white" square>
             <UIcon name="i-heroicons-chevron-right" />
           </UButton>
-          <div class="border-l border-gray-200 pl-2.5 ml-2 flex items-center h-full">
-            <UIcon @mouseover="panelOpened = true" @click="panelOpened = true" dynamic :name="`i-fluent-panel-right-32-${panelOpened ? 'filled' : 'regular'}`" class="w-4 h-4 text-gray-500 dark:text-gray-200 cursor-pointer" />
+          <div class="border-l border-gray-200 pl-2.5 ml-2 flex items-center h-full cursor-pointer">
+            <UIcon @click="panelOpened = !panelOpened" dynamic :name="`i-fluent-panel-right-32-${panelOpened ? 'filled' : 'regular'}`" class="w-4 h-4 text-gray-500 dark:text-gray-200" />
           </div>
         </div>
       </template>
     </UDashboardNavbar>
     <UDashboardPanelContent>
-      <ClientOnly>
-        <LeazyEditor />
-      </ClientOnly>
+      <LeazyEditor ref="editor" />
     </UDashboardPanelContent>
   </UDashboardPanel>
 
@@ -239,35 +211,4 @@ const getImageSource = (item) => {
       </template>
     </UDashboardSidebar>
   </USlideover>
-
-  <UModal v-model="isModalOpen" :ui="{ width: 'sm:max-w-xl' }">
-    <div class="p-4 flex items-start justify-center h-[350px] overflow-hidden w-full">
-      <div class="flex flex-col justify-between h-full min-w-36 pr-4 border-r border-gray-200">
-        <p class="text-gray-400 text-xs mb-2">Intégrations</p>
-        <UButton @click.native="handleProvider('unsplash')" :class="{ 'text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white bg-gray-50 dark:bg-gray-800': currentProvider === 'unsplash' }" class="w-full" square size="xs" label="Unsplash" color="gray" variant="ghost" icon="i-simple-icons-unsplash" />
-        <UButton @click.native="handleProvider('pexels')" :class="{ 'text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white bg-gray-50 dark:bg-gray-800': currentProvider === 'pexels' }" class="w-full" square size="xs" label="Pexels" variant="ghost" color="gray" icon="i-simple-icons-pexels" />
-        <UButton @click.native="handleProvider('pixabay')" :class="{ 'text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white bg-gray-50 dark:bg-gray-800': currentProvider === 'pixabay' }" class="w-full" square size="xs" label="Pixabay" variant="ghost" color="gray" icon="i-simple-icons-pixabay" />
-        <UButton @click.native="handleProvider('giphy')" :class="{ 'text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white bg-gray-50 dark:bg-gray-800': currentProvider === 'giphy' }" class="w-full" square size="xs" label="Giphy" variant="ghost" color="gray" icon="i-simple-icons-giphy" />
-        <UButton size="xs" icon="i-heroicons-arrow-up-tray" block label="Importer" @click="isModalOpen = false" />
-      </div>
-
-      <div class="pl-4 flex-1 max-h-full flex flex-col min-w-[70%]">
-        <UInput :loading="isLoading" v-model="searchQuery" placeholder="Rechercher un média" icon="i-heroicons-magnifying-glass" size="xs">
-          <template v-if="searchQuery !== ''" #trailing>
-            <UIcon class="cursor-pointer pointer-events-auto" name="i-heroicons-x-mark" @click="searchQuery = ''" />
-          </template>
-        </UInput>
-
-        <div v-if="results.length > 0" class="max-h-full masonry overflow-y-auto mt-2">
-          <div class="h-auto max-w-full break-inside-avoid py-2" v-for="(item, index) in results" :key="index">
-            <img class="w-full rounded-sm" :src="getImageSource(item).src" :alt="getImageSource(item).label" />
-            <div class="flex items-center justify-between mt-px">
-              <p v-if="getImageSource(item).author.url" class="text-[9px]">by <ULink class="underline font-bold" target="_blank" :to="getImageSource(item).author.url">{{ getImageSource(item).author.name }}</ULink></p>
-              <UIcon class="w-3.5 cursor-pointer ml-auto" name="i-heroicons-bookmark-solid" />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </UModal>
 </template>

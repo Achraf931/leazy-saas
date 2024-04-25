@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
 export default defineNuxtConfig({
-  server: {
+  server:{
     host: 'leazy.local',
     port: 3000
   },
@@ -28,7 +28,7 @@ export default defineNuxtConfig({
       csrf: '/sanctum/csrf-cookie',
       login: '/api/login',
       logout: '/api/logout',
-      user: '/api/user',
+      user: '/api/me',
     },
     csrf: {
       cookie: 'XSRF-TOKEN',
@@ -40,7 +40,7 @@ export default defineNuxtConfig({
     redirect: {
       keepRequestedRoute: false,
       onLogin: '/',
-      onLogout: '/',
+      onLogout: '/connexion',
       onAuthOnly: '/connexion',
       onGuestOnly: '/',
     },

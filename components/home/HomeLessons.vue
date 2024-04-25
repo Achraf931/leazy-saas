@@ -1,32 +1,13 @@
-<script setup>
-const localePath = useLocalePath()
+<script setup lang="ts">
+import { formatDistanceToNow } from 'date-fns'
+import frLocale from 'date-fns/locale/fr'
 
-const lessons = [
-  {
-    label: 'Leçon 1',
-    description: 'Description de la leçon 1',
-    src: 'https://images.unsplash.com/photo-1558637845-c8b7ead71a3e?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    link: localePath({ name: 'library-lessons-id_slug', params: { id: 1, slug: 'lecon-1' } })
-  },
-  {
-    label: 'Leçon 2',
-    description: 'Description de la leçon 2',
-    src: 'https://images.unsplash.com/photo-1580757468214-c73f7062a5cb?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    link: localePath({ name: 'library-lessons-id_slug', params: { id: 2, slug: 'lecon-2' } })
-  },
-  {
-    label: 'Leçon 3',
-    description: 'Description de la leçon 3',
-    src: 'https://images.unsplash.com/photo-1594568284297-7c64464062b1?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    link: localePath({ name: 'library-lessons-id_slug', params: { id: 3, slug: 'lecon-3' } })
-  },
-  {
-    label: 'Leçon 4',
-    description: 'Description de la leçon 4',
-    src: 'https://images.unsplash.com/photo-1599454100789-b211e369bd04?q=80&w=2012&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    link: localePath({ name: 'library-lessons-id_slug', params: { id: 4, slug: 'lecon-4' } })
+defineProps({
+  lessons: {
+    type: Array,
+    required: true
   }
-]
+})
 </script>
 
 <template>
@@ -42,7 +23,7 @@ const lessons = [
       <UIcon name="i-heroicons-chevron-right" class="w-4 h-4" />
     </ULink>
   </div>
-  <UBlogList v-if="lessons.length" orientation="horizontal" :ui="{ wrapper: 'cursor-pointer p-px gap-6 sm:grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }">
+  <UBlogList v-if="lessons.length" orientation="horizontal" :ui="{ wrapper: 'p-px gap-4 sm:grid sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5' }">
     <UBlogPost :ui="{ wrapper: 'gap-y-3', title: 'text-sm', date: 'text-xs', authors: { wrapper: 'mt-0' }, image: { wrapper: 'ring-0 border border-dashed border-gray-200 group-hover:border-gray-300' } }">
       <template #image>
         <div class="flex flex-col items-center justify-center h-full">
@@ -53,18 +34,21 @@ const lessons = [
         <h2 class="text-gray-400 dark:text-white font-semibold truncate group-hover:text-gray-00 dark:group-hover:text-gray-300 transition-colors duration-200 text-sm">Créer une nouvelle leçon</h2>
       </template>
     </UBlogPost>
-    <UBlogPost v-for="(lesson, index) in lessons" :key="index" :to="lesson.link" :ui="{ wrapper: 'gap-y-3', title: 'text-sm', date: 'text-xs', authors: { wrapper: 'mt-0' }, image: { wrapper: 'pointer-events-auto' } }">
+    <UBlogPost v-for="lesson in lessons.slice(0, 5)" :key="lesson.id" :to="localePath({ name: 'library-lessons-id_slug', params: { id: lesson.id, slug: lesson.slug } })" :ui="{ wrapper: 'gap-y-3', title: 'text-sm', date: 'text-xs', authors: { wrapper: 'mt-0' }, image: { wrapper: 'pointer-events-auto' }, badge: { wrapper: 'absolute top-2 left-2.5 mb-0 py-0' } }">
+      <template #badge>
+        <UBadge variant="solid" :color="lesson.draft ? 'primary' : 'green'" size="xs">{{ lesson.draft ? 'Brouillon' : 'Publié' }}</UBadge>
+      </template>
       <template #image>
-        <img class="cursor-pointer block object-cover object-top w-full h-full transform transition-transform duration-200 hover:scale-105" :src="lesson.src" :alt="lesson.label">
+        <img class="cursor-pointer block object-cover object-top w-full h-full transform transition-transform duration-200 hover:scale-105" src="https://images.unsplash.com/photo-1558637845-c8b7ead71a3e?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" :alt="lesson.label">
       </template>
       <template #default>
         <div class="flex items-center justify-between">
           <div>
-            <h2 class="text-gray-900 dark:text-white font-semibold truncate group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-200 text-sm">{{ lesson.label }}</h2>
-            <p class="text-gray-400 text-xs mt-0.5">{{ lesson.description }}</p>
+            <h2 class="text-gray-900 dark:text-white font-semibold line-clamp-1 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-200 text-sm">{{ lesson.name }}</h2>
+            <p class="line-clamp-2 text-gray-400 text-xs mt-0.5">{{ lesson.updated_at === lesson.created_at ? 'Créé' : 'Modifié' }} {{ formatDistanceToNow(new Date(lesson.updated_at), { locale: frLocale, addSuffix: true }) }}</p>
           </div>
-          <UDropdown :ui="{ item: { size: 'text-xs' }, width: 'w-auto' }" :items="[[{ label: 'Renommer', icon: 'i-heroicons-pencil-square' }, { label: 'Supprimer', icon: 'i-heroicons-trash', color: 'red' }]]" :popper="{ placement: 'bottom-end' }">
-            <UButton icon="i-heroicons-ellipsis-vertical" color="gray" variant="ghost" />
+          <UDropdown :ui="{ wrapper: 'absolute top-2.5 right-2.5', item: { size: 'text-xs' }, width: 'w-auto' }" :items="[[{ label: 'Renommer', icon: 'i-heroicons-pencil-square' }, { label: 'Supprimer', icon: 'i-heroicons-trash', color: 'red' }]]" :popper="{ placement: 'bottom-end' }">
+            <UButton icon="i-heroicons-ellipsis-horizontal" variant="soft" color="gray" :padded="false" />
           </UDropdown>
         </div>
       </template>

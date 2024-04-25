@@ -198,16 +198,26 @@ const getSuggestionItems = ({ query }: { query: string }) => {
       }
     },
     {
+      label: 'Iframe',
+      description: 'Ajouter un iframe',
+      searchTerms: ['iframe', 'embed'],
+      icon: Code,
+      command: ({ editor, range }: CommandProps) => {
+        editor.chain().focus().deleteRange(range).setIframe(editor).run()
+      }
+    },
+    {
       label: 'Image',
       description: 'Ajouter une image',
       searchTerms: ['img', 'image', 'photo', 'picture'],
       icon: Image,
       command: ({ editor, range }: CommandProps) => {
-        editor.chain().focus().deleteRange(range).run()
+        editor.chain().focus().deleteRange(range).insertImagePlaceholder().run()
+        /*editor.chain().focus().deleteRange(range).run()
         //  upload file
         const input = document.createElement('input')
         input.type = 'file'
-        input.accept = 'image/*'
+        input.accept = 'image/!*'
         input.onchange = async () => {
           if (input.files?.length) {
             const file = input.files[0]
@@ -215,7 +225,7 @@ const getSuggestionItems = ({ query }: { query: string }) => {
             // startImageUpload(file, editor.view, pos)
           }
         }
-        input.click()
+        input.click()*/
       }
     },
     {
