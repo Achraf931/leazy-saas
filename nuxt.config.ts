@@ -10,7 +10,6 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@nuxt/fonts',
     '@vueuse/nuxt',
-    '@nuxt/content',
     '@nuxtjs/i18n',
     '@nuxt/image',
     '@nuxtjs/tailwindcss',
@@ -44,7 +43,7 @@ export default defineNuxtConfig({
       onGuestOnly: '/',
     },
     globalMiddleware: {
-      enabled: false,
+      enabled: true,
       allow404WithoutAuth: true,
     },
   },
