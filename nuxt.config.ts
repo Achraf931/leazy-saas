@@ -44,7 +44,7 @@ export default defineNuxtConfig({
       onGuestOnly: '/',
     },
     globalMiddleware: {
-      enabled: false,
+      enabled: true,
       allow404WithoutAuth: true,
     },
   },
