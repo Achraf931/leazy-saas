@@ -19,6 +19,7 @@ import { TableCell } from '@tiptap/extension-table-cell'
 import { TableHeader } from '@tiptap/extension-table-header'
 import { TableRow } from '@tiptap/extension-table-row'
 import { Link } from '@tiptap/extension-link'
+import { TextAlign } from '@tiptap/extension-text-align'
 import Youtube from '@tiptap/extension-youtube'
 // import { Image } from '@tiptap/extension-image'
 import { Markdown } from 'tiptap-markdown'
@@ -32,6 +33,10 @@ import Image from './extension-image'
 import ImageComponent from './extension-image/ImageComponent.vue'
 import ImagePlaceholder from './extension-image/ImagePlaceholder'
 import ImagePlaceholderComponent from './extension-image/ImagePlaceholderComponent.vue'
+import Video from './extension-video'
+import VideoComponent from './extension-video/VideoComponent.vue'
+import VideoPlaceholder from './extension-video/VideoPlaceholder'
+import VideoPlaceholderComponent from './extension-video/VideoPlaceholderComponent.vue'
 // import Iframe from './extension-iframe'
 // import Table from './extension-table'
 // import TableCell from './extension-table-cell'
@@ -44,6 +49,10 @@ export default [
   SpeechRecognition,
   Youtube,
   ...ColumnExtension,
+  TextAlign.configure({
+    types: ['heading', 'paragraph', 'blockquote'],
+    defaultAlignment: 'left'
+  }),
   HorizontalRule.extend({
     addInputRules() {
       return [
@@ -78,8 +87,14 @@ export default [
   Image.configure({
     Component: ImageComponent
   }),
+  Video.configure({
+    Component: VideoComponent
+  }),
   ImagePlaceholder.configure({
     Component: ImagePlaceholderComponent
+  }),
+  VideoPlaceholder.configure({
+    Component: VideoPlaceholderComponent
   }),
   CharacterCount,
   Color,

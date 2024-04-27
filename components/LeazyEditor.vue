@@ -383,7 +383,7 @@ defineExpose({ editor, titleContent })
     overflow: hidden;
     transition: width 0.15s ease-out, height 0.15s ease-out;
 
-    & > img {
+    & > img, & > video {
       width: 100%;
     }
 

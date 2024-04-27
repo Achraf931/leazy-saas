@@ -20,6 +20,7 @@ import {
   CheckSquare,
   Sparkles,
   Image,
+  Film,
   Minus,
   Mic,
   Columns2
@@ -226,6 +227,15 @@ const getSuggestionItems = ({ query }: { query: string }) => {
           }
         }
         input.click()*/
+      }
+    },
+    {
+      label: 'Vidéo',
+      description: 'Ajouter une vidéo',
+      searchTerms: ['video', 'movie', 'film'],
+      icon: Film,
+      command: ({ editor, range }: CommandProps) => {
+        editor.chain().focus().deleteRange(range).insertVideoPlaceholder().run()
       }
     },
     {

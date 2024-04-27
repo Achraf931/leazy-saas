@@ -19,9 +19,10 @@
           <component
               :is="item.icon"
               class="w-4 h-4"
-              :class="{ 'text-blue-500': item.isActive() }"
+              :class="{ 'text-primary': item.isActive() }"
           />
         </button>
+        <TextAlign :editor="editor" />
         <ColorSelector :editor="editor" />
       </div>
     </div>
@@ -35,8 +36,9 @@ import { BoldIcon, ItalicIcon, UnderlineIcon, StrikethroughIcon, CodeIcon } from
 import NodeSelector from './NodeSelector'
 import LinkSelector from './LinkSelector'
 import ColorSelector from './ColorSelector'
+import TextAlign from './TextAlign'
 
-const { editor } = defineProps({
+const props = defineProps({
   editor: {
     type: Object,
     required: true,
@@ -47,32 +49,32 @@ const isSelecting = ref(false);
 const items = [
   {
     name: 'bold',
-    isActive: () => editor.isActive('bold'),
-    command: () => editor.chain().focus().toggleBold().run(),
+    isActive: () => props.editor.isActive('bold'),
+    command: () => props.editor.chain().focus().toggleBold().run(),
     icon: BoldIcon
   },
   {
     name: 'italic',
-    isActive: () => editor.isActive('italic'),
-    command: () => editor.chain().focus().toggleItalic().run(),
+    isActive: () => props.editor.isActive('italic'),
+    command: () => props.editor.chain().focus().toggleItalic().run(),
     icon: ItalicIcon
   },
   {
     name: 'underline',
-    isActive: () => editor.isActive('underline'),
-    command: () => editor.chain().focus().toggleUnderline().run(),
+    isActive: () => props.editor.isActive('underline'),
+    command: () => props.editor.chain().focus().toggleUnderline().run(),
     icon: UnderlineIcon
   },
   {
     name: 'strike',
-    isActive: () => editor.isActive('strike'),
-    command: () => editor.chain().focus().toggleStrike().run(),
+    isActive: () => props.editor.isActive('strike'),
+    command: () => props.editor.chain().focus().toggleStrike().run(),
     icon: StrikethroughIcon
   },
   {
     name: 'code',
-    isActive: () => editor.isActive('code'),
-    command: () => editor.chain().focus().toggleCode().run(),
+    isActive: () => props.editor.isActive('code'),
+    command: () => props.editor.chain().focus().toggleCode().run(),
     icon: CodeIcon
   }
 ]
@@ -95,39 +97,32 @@ const shouldShow = ({ view, state }) => {
   const { empty } = selection;
   const hasEditorFocus = view.hasFocus();
 
-  return !(!hasEditorFocus || empty || !editor.isEditable || isNodeSelection(selection) || isCellSelection(selection) || isSelecting.value)
+  return !(!hasEditorFocus || empty || !props.editor.isEditable || isNodeSelection(selection) || isCellSelection(selection) || isSelecting.value)
 };
 
-const toggleBold = () => {
-  editor.chain().focus().toggleBold().run();
-};
-
-// Ajoutez les autres méthodes toggle ici
-
-onMounted(() => {
-  const handleMouseDown = () => {
-    const handleMouseMove = () => {
-      if (!editor.state.selection.empty) {
-        isSelecting.value = true;
-        document.removeEventListener('mousemove', handleMouseMove);
-      }
-    };
-
-    const handleMouseUp = () => {
-      isSelecting.value = false;
+const handleMouseDown = () => {
+  const handleMouseMove = () => {
+    if (!props.editor.state.selection.empty) {
+      isSelecting.value = true;
       document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
+    }
   };
 
-  document.addEventListener('mousedown', handleMouseDown);
+  const handleMouseUp = () => {
+    isSelecting.value = false;
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+  };
 
-  onUnmounted(() => {
-    document.removeEventListener('mousedown', handleMouseDown);
-  });
+  document.addEventListener('mousemove', handleMouseMove);
+  document.addEventListener('mouseup', handleMouseUp);
+};
+
+onMounted(() => {
+  document.addEventListener('mousedown', handleMouseDown);
 });
 
+onUnmounted(() => {
+  document.removeEventListener('mousedown', handleMouseDown);
+});
 </script>

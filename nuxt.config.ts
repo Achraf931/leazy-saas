@@ -1,9 +1,8 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
 export default defineNuxtConfig({
-  server:{
-    host: 'leazy.local',
-    port: 3000
+  app: {
+    pageTransition: { name: "page", mode: "out-in" },
   },
   extends: [process.env.NUXT_UI_PRO_PATH || '@nuxt/ui-pro'],
   modules: [
@@ -43,7 +42,7 @@ export default defineNuxtConfig({
       onGuestOnly: '/',
     },
     globalMiddleware: {
-      enabled: true,
+      enabled: false,
       allow404WithoutAuth: true,
     },
   },
