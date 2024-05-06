@@ -30,7 +30,7 @@ defineProps({
         </NuxtLink>
       </div>
     </template>
-    <NuxtLink v-for="chapter in chapters.slice(0, 4)" :key="chapter.id" :to="localePath({ name: 'library-chapters-id_slug', params: { id: chapter.id, slug: chapter.slug } })" class="px-3 py-2 -mx-2 last:-mb-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer flex items-center gap-3 relative">
+    <NuxtLink v-for="chapter in chapters.slice(0, 4)" :key="chapter.id" :to="localePath({ name: 'library-chapters-id', params: { id: chapter.id } })" class="px-3 py-2 -mx-2 last:-mb-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer flex items-center gap-3 relative">
       <div class="flex items-center gap-3 text-sm flex-1">
         <img class="w-8 h-8 object-cover rounded-md" src="https://images.unsplash.com/photo-1537202108838-e7072bad1927?q=80&w=3062&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Image chapitre" />
         <div>

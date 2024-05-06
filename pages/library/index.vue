@@ -15,7 +15,7 @@ const { data: library, pending, error, refresh } = await useAsyncData('library',
     chapters: chapters.data,
     lessons: lessons.data
   }
-}, { lazy: true })
+})
 </script>
 
 <template>

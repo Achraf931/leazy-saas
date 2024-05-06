@@ -38,6 +38,7 @@ export const Video = Node.create<VideoOptions>({
   group: "block",
 
   isolating: true,
+  draggable: true,
   atom: true,
 
   addAttributes() {

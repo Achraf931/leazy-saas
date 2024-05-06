@@ -4,6 +4,9 @@ export default defineNuxtConfig({
   app: {
     pageTransition: { name: "page", mode: "out-in" },
   },
+  runtimeConfig: {
+    openaiApiKey: process.env.OPENAI_API_KEY
+  },
   extends: [process.env.NUXT_UI_PRO_PATH || '@nuxt/ui-pro'],
   modules: [
     '@nuxt/ui',
@@ -19,7 +22,7 @@ export default defineNuxtConfig({
     safelistColors: ['primary', 'red', 'orange', 'green']
   },
   sanctum: {
-    baseUrl: 'https://api.leazy.net',
+    baseUrl: 'http://leazy.local:8000',
     redirectIfAuthenticated: false,
     endpoints: {
       csrf: '/sanctum/csrf-cookie',
@@ -42,7 +45,7 @@ export default defineNuxtConfig({
       onGuestOnly: '/',
     },
     globalMiddleware: {
-      enabled: false,
+      enabled: true,
       allow404WithoutAuth: true,
     },
   },
@@ -103,25 +106,25 @@ export default defineNuxtConfig({
         en: '/library/chapters',
         fr: '/bibliotheque/chapitres'
       },
-      'library/chapters/[id]_[slug]': {
-        en: '/library/chapters/[id]_[slug]',
-        fr: '/bibliotheque/chapitres/[id]_[slug]'
+      'library/chapters/[id]': {
+        en: '/library/chapters/[id]',
+        fr: '/bibliotheque/chapitres/[id]'
       },
       'library/themes/index': {
         en: '/library/themes',
         fr: '/bibliotheque/themes'
       },
-      'library/themes/[id]_[slug]': {
-        en: '/library/themes/[id]_[slug]',
-        fr: '/bibliotheque/themes/[id]_[slug]'
+      'library/themes/[id]': {
+        en: '/library/themes/[id]',
+        fr: '/bibliotheque/themes/[id]'
       },
       'library/lessons/index': {
         en: '/library/lessons',
         fr: '/bibliotheque/lecons'
       },
-      'library/lessons/[id]_[slug]': {
-        en: '/library/lessons/[id]_[slug]',
-        fr: '/bibliotheque/lecons/[id]_[slug]'
+      'library/lessons/[id]': {
+        en: '/library/lessons/[id]',
+        fr: '/bibliotheque/lecons/[id]'
       },
       inbox: {
         en: '/inbox',
@@ -135,5 +138,8 @@ export default defineNuxtConfig({
   },
   devtools: {
     enabled: false
+  },
+  tailwindcss: {
+    quiet: true
   }
 })

@@ -1,19 +1,9 @@
-import {
-  ResolvedPos,
-  Node
-} from 'prosemirror-model'
-import {
-  Selection,
-  SelectionRange,
-  TextSelection
-} from 'prosemirror-state'
+import { ResolvedPos, Node } from '@tiptap/pm/model'
+import { Selection, SelectionRange, TextSelection } from '@tiptap/pm/state'
 
 import { Column } from './column'
 import { ColumnBlock } from './column-block'
-import {
-  type Predicate,
-  findParentNodeClosestToPos
-} from './utils'
+import { type Predicate, findParentNodeClosestToPos } from './utils'
 
 type Mutable<T> = {
   -readonly [k in keyof T]: T[k];
@@ -30,11 +20,11 @@ export class ColumnSelection extends Selection {
   _$from: ResolvedPos
   _$to: ResolvedPos
 
-  get $from() {
+  override get $from() {
     return this._$from
   }
 
-  get $to() {
+  override get $to() {
     return this._$to
   }
 
@@ -42,7 +32,7 @@ export class ColumnSelection extends Selection {
     return this
   }
 
-  content() {
+  override content() {
     return this.$from.doc.slice(this.from, this.to, true)
   }
 

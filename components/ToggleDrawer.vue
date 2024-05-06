@@ -3,8 +3,7 @@ const { isDrawerSlideoverMode, isDrawerSlideoverOpen, openDrawer, handleDrawerMo
 
 defineProps({
   title: {
-    type: String,
-    required: true
+    type: String
   }
 })
 </script>

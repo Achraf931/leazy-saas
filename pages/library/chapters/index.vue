@@ -4,8 +4,9 @@ import { sub, formatDistanceToNow } from 'date-fns'
 import frLocale from 'date-fns/locale/fr'
 
 const client = useSanctumClient()
+const toast = useToast()
 
-const { data: chapters, pending, error, refresh } = await useAsyncData('chapters', () => client('/api/teacher/chapters'), { lazy: true })
+const { data: chapters, pending, error, refresh } = await useAsyncData('chapters', () => client('/api/teacher/chapters'))
 const localePath = useLocalePath()
 
 const q = ref('')
@@ -50,6 +51,33 @@ const handleDelete = chapter => {
   isDeleteChapterModalOpen.value.open = true
   isDeleteChapterModalOpen.value.chapter = chapter
 }
+
+const fields = reactive({
+  name: undefined,
+  theme_id: 1,
+  image: 'https://excalidraw.com/og-image-2.png'
+})
+
+const validate = (state) => {
+  const errors = []
+
+  if (!state.name) errors.push({ path: 'name', message: 'Le titre est requis' })
+
+  return errors
+}
+
+const onSubmit = async (state) => {
+  isLoading.value = true
+  const response = await client('/api/teacher/chapters', { method: 'POST', body: state.data })
+
+  if (response) setTimeout(async () => {
+    isLoading.value = false
+    isOpen.value = false
+    await refresh()
+    toast.add({ icon: 'i-heroicons-check-circle', title: 'Nouveau chapitre crée', color: 'green' })
+  }, 2000)
+  else isLoading.value = false
+}
 </script>
 
 <template>
@@ -77,7 +105,7 @@ const handleDelete = chapter => {
       <template v-if="!pending">
         <UDashboardPanelContent>
           <UBlogList v-if="filteredChapters.length" orientation="horizontal" :ui="{ wrapper: 'p-px overflow-y-auto gap-4 sm:grid sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5' }">
-            <UBlogPost v-for="chapter in filteredChapters" :key="chapter.id" :to="localePath({ name: 'library-chapters-id_slug', params: { id: chapter.id, slug: chapter.slug } })" :ui="{ wrapper: 'gap-y-1', title: 'text-sm', date: 'text-xs', authors: { wrapper: 'mt-0' }, image: { wrapper: 'pointer-events-auto' }, badge: { wrapper: 'absolute top-2 left-2.5 mb-0 py-0' } }">
+            <UBlogPost v-for="chapter in filteredChapters" :key="chapter.id" :to="localePath({ name: 'library-chapters-id', params: { id: chapter.id } })" :ui="{ wrapper: 'gap-y-1', title: 'text-sm', date: 'text-xs', authors: { wrapper: 'mt-0' }, image: { wrapper: 'pointer-events-auto' }, badge: { wrapper: 'absolute top-2 left-2.5 mb-0 py-0' } }">
               <template #image>
                 <img class="cursor-pointer block object-cover object-top w-full h-full transform transition-transform duration-200 hover:scale-105" :src="chapter.image" :alt="chapter.name">
               </template>
@@ -108,18 +136,14 @@ const handleDelete = chapter => {
     </UDashboardPanel>
 
     <UDashboardModal prevent-close v-model="isOpen" title="Créer un chapitre" :ui="{ width: 'sm:max-w-md' }">
-      <UForm class="space-y-4">
-        <UFormGroup label="Titre" name="title">
-          <UInput type="text" placeholder="Titre du chapitre" autofocus />
-        </UFormGroup>
-
-        <UFormGroup label="Description (optionnelle)" name="description">
-          <UTextarea placeholder="Description du chapitre" />
+      <UForm class="space-y-4" :state="fields" :validate="validate" @submit="onSubmit">
+        <UFormGroup label="Titre" name="name">
+          <UInput type="text" placeholder="Titre du chapitre" autofocus v-model="fields.name" />
         </UFormGroup>
 
         <div class="flex justify-end gap-3">
           <UButton label="Annuler" color="gray" variant="ghost" @click="isOpen = false" />
-          <UButton :loading="true" type="submit" label="Créer" color="black" />
+          <UButton :loading="isLoading" type="submit" label="Créer" color="black" />
         </div>
       </UForm>
     </UDashboardModal>

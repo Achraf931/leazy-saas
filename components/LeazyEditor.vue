@@ -1,25 +1,99 @@
 <template>
   <ClientOnly>
     <div :class="className">
-      <EditorContent class="titleEditor" :editor="titleEditor" @keydown="handleTitleEditorKeyDown" spellcheck="false" />
+      <template v-if="false">
+        <p @click="editor.chain().focus().setIframe({ src: 'https://www.figma.com/embed?embed_host=oembed&node-id=31-1428&page-id=0%3A1&referrer=https%3A%2F%2Fbootcamp.uxdesign.cc%2Fembed-figma-prototypes-in-medium-in-3-easy-steps-2299ccb704a0&scaling=contain&starting-point-node-id=31%3A1428&t=ad8gBA2HVO8pZXeX-0&url=https%3A%2F%2Fwww.figma.com%2Fproto%2FG1g8sd0xn9FR9ngFzLWv0q%2FExample%3Ftype%3Ddesign' }).run()">Embed Figma</p>
+        <p @click="editor.chain().focus().setIframe({ src: 'https://open.spotify.com/embed?uri=spotify:track:49q1V6kEREAAawzvdVDn8O&view=coverart' }).run()">Embed Spotify</p>
+      </template>
+
+      <TableOfContents :editor="editor" />
+
       <EditorContent class="contentEditor" :editor="editor"/>
-      <BubbleMenu :editor="editor"/>
+      <FloatingMenu :editor="editor" />
+      <TipTapBubbleMenu
+          v-if="editor && tableRowTools"
+          :editor="editor"
+          pluginKey="tableRowMenu"
+          :should-show="tableIsActive"
+          :tippy-options="{
+        placement: 'right',
+        getReferenceClientRect: getTableRowMenuCoords,
+      }"
+      >
+        <UPopover :popper="{ placement: 'bottom-start' }">
+          <UButton variant="soft" size="xs" color="gray" icon="i-heroicons-plus" />
+
+          <template #panel>
+            <div class="flex flex-col p-1 w-max">
+              <UButton
+                  v-for="(tool, index) in tableRowTools()"
+                  :label="tool.title"
+                  :key="index"
+                  variant="ghost"
+                  color="gray"
+                  size="xs"
+                  @click.prevent="tool.command(editor)"
+              >
+                <template #leading>
+                  <div class="flex items-center justify-center p-px font-medium border rounded-sm border-stone-200">
+                    <UIcon :name="tool.icon" class="w-4 h-4" />
+                  </div>
+                </template>
+              </UButton>
+            </div>
+          </template>
+        </UPopover>
+      </TipTapBubbleMenu>
+
+      <TipTapBubbleMenu
+          v-if="editor && tableColumnTools"
+          :editor="editor"
+          pluginKey="tableColumnMenu"
+          :should-show="tableIsActive"
+          :tippy-options="{
+        placement: 'bottom',
+        getReferenceClientRect: getTableColumnMenuCoords,
+      }"
+      >
+        <UPopover :popper="{ placement: 'bottom-start' }">
+          <UButton variant="soft" size="xs" color="gray" icon="i-heroicons-plus" />
+          <template #panel>
+            <div class="flex flex-col p-1 w-max">
+              <UButton
+                  v-for="(tool, index) in tableColumnTools()"
+                  :label="tool.title"
+                  :key="index"
+                  variant="ghost"
+                  color="gray"
+                  size="xs"
+                  @click.prevent="tool.command(editor)"
+              >
+                <template #leading>
+                  <div class="flex items-center justify-center p-px font-medium border rounded-sm border-stone-200">
+                    <UIcon :name="tool.icon" class="w-4 h-4" />
+                  </div>
+                </template>
+              </UButton>
+            </div>
+          </template>
+        </UPopover>
+      </TipTapBubbleMenu>
+      <BubbleMenu :editor="editor" />
       <BlockMenu :editor="editor" />
     </div>
   </ClientOnly>
 </template>
 
 <script setup lang="ts">
-import { useEditor, Extension, EditorContent, type JSONContent } from '@tiptap/vue-3'
+import { useEditor, Extension, EditorContent, BubbleMenu as TipTapBubbleMenu, type JSONContent } from '@tiptap/vue-3'
+import { type EditorProps } from '@tiptap/pm/view'
 import { Editor as EditorClass } from '@tiptap/core'
 import { useDebounceFn, useStorage } from '@vueuse/core'
-import setup from '@/extensions'
 import { useCompletion } from 'ai/vue'
 import { getPrevText } from '@/extensions/extension-slash-menu/getPrevText'
-import Document from '@tiptap/extension-document'
-import Text from '@tiptap/extension-text'
-import Heading from '@tiptap/extension-heading'
-import Placeholder from '@tiptap/extension-placeholder'
+import { GetTableColumnCoords, GetTableRowCoords, GetTopLevelNode } from '@/utils/pm-utils'
+import { tableRowTools, tableColumnTools } from '@/utils/table-utils'
+import setup from '@/extensions'
 
 const props = defineProps({
   /**
@@ -44,13 +118,20 @@ const props = defineProps({
    */
   className: {
     type: String,
-    default: 'editorContainer'
+    default: 'editorContainer py-[25px] px-0 lg:p-[25px]'
   },
   /**
    * The default value to use for the editor.
    * Defaults to the `defaultEditorContent` from `@/lib/default-content`.
    */
   defaultValue: {
+    type: Object as PropType<JSONContent>,
+    default: {
+      type: 'doc',
+      content: []
+    }
+  },
+  defaultTile: {
     type: Object as PropType<JSONContent>,
     default: {
       type: 'doc',
@@ -70,7 +151,7 @@ const props = defineProps({
    * Defaults to {}.
    */
   editorProps: {
-    type: Object,
+    type: Object as PropType<EditorProps>,
     default: {}
   },
   /**
@@ -101,11 +182,11 @@ const props = defineProps({
   },
   /**
    * The key to use for storing the editor's value in local storage.
-   * Defaults to "editor_content".
+   * Defaults to 'leazy_editor'.
    */
   storageKey: {
     type: String,
-    default: 'editor_content'
+    default: 'leazy_editor'
   }
 })
 
@@ -113,26 +194,10 @@ provide('completionApi', props.completionApi)
 useStorage('blobApi', props.blobApi)
 
 const content = useStorage(props.storageKey, props.defaultValue)
-const titleContent = ref({
-  type: 'doc',
-  content: [
-    {
-      type: 'heading',
-      attrs: {
-        level: 1
-      },
-      content: [
-        {
-          type: 'text',
-          text: 'Explication d\'Excalidraw'
-        }
-      ]
-    }
-  ]
-})
 
 const debouncedUpdate = useDebounceFn(({ editor }) => {
   content.value = editor.getJSON()
+
   props.onDebouncedUpdate(editor)
 }, props.debounceDuration)
 
@@ -146,27 +211,32 @@ const editor = useEditor({
   },
   onUpdate: e => {
     const selection = e.editor.state.selection
-    const lastTwo = getPrevText(e.editor, {
-      chars: 2
+    const lastThree = getPrevText(e.editor, {
+      chars: 3
     })
 
-    //  Run the completion API if the user types '++' at the end of the document.
-    if (lastTwo === '++' && !isLoading.value) {
+    //  Run the completion API if the user types '+++' at the end of the document.
+    if (lastThree === '+++' && !isLoading.value) {
       e.editor.commands.deleteRange({
-        from: selection.from - 2,
+        from: selection.from - 3,
         to: selection.from
       })
 
-      complete(getPrevText(e.editor, { chars: 500 }))
+      complete(getPrevText(e.editor, { chars: 5000 }))
     } else {
       props.onUpdate(e.editor)
       debouncedUpdate(e)
     }
   },
-  autofocus: 'end'
+  autofocus: true
 })
 
-const { complete, completion, isLoading } = useCompletion({
+const getTopLevelNodeType = () => GetTopLevelNode(editor.value?.view)?.type.name
+const getTableRowMenuCoords = () => GetTableRowCoords(editor.value?.view)
+const getTableColumnMenuCoords = () => GetTableColumnCoords(editor.value?.view)
+const tableIsActive = () => getTopLevelNodeType() === 'table'
+
+const { complete, completion, isLoading, stop } = useCompletion({
   id: 'leazy-editor',
   api: props.completionApi,
   onFinish: (_prompt, completion) => {
@@ -187,7 +257,7 @@ watch(() => completion.value, (newCompletion, oldCompletion) => {
 
 //  If user presses escape of cmd + z and it's loading,
 //  stop the request, delete the completion, and insert back the '++'
-const onKeyDown = e => {
+const onKeyDown = (e: KeyboardEvent) => {
   if (e.key === 'Escape' || (e.metaKey && e.key === 'z')) {
     stop()
 
@@ -198,16 +268,16 @@ const onKeyDown = e => {
       })
     }
 
-    editor.value?.commands.insertContent('++')
+    editor.value?.commands.insertContent('+++')
   }
 }
 
-const mousedownHandler = e => {
+const mousedownHandler = (e: MouseEvent) => {
   e.preventDefault()
   e.stopPropagation()
   stop()
 
-  if (window.confirm('AI writing paused. Continue?')) {
+  if (window.confirm('L\'IA est en pause. Continuer ?')) {
     complete(editor.value?.getText() || '')
   }
 }
@@ -222,42 +292,6 @@ watch(() => isLoading.value, (isLoading) => {
   }
 })
 
-const titleEditor = useEditor({
-  extensions: [
-    Document.extend({
-      content: "heading"
-    }),
-    Text,
-    Heading.configure({
-      levels: [1]
-    }),
-    Placeholder.configure({
-      placeholder: "Titre de la leçon"
-    })
-  ],
-  onUpdate: e => {
-    titleContent.value = e.editor.getJSON()
-  }
-})
-
-const handleTitleEditorKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-  if (!titleEditor.value || !editor.value) return
-  const selection = titleEditor.value.state.selection
-  if (event.shiftKey) {
-    return
-  }
-
-  if (event.key === "Enter" || event.key === "ArrowDown") {
-    editor.value.commands.focus("start")
-  }
-
-  if (event.key === "ArrowRight") {
-    if (selection?.$head.nodeAfter === null) {
-      editor.value.commands.focus("start")
-    }
-  }
-}
-
 const hydrated = ref(false);
 watchEffect(() => {
   if (editor.value && content.value && !hydrated.value) {
@@ -266,12 +300,12 @@ watchEffect(() => {
   }
 })
 
-defineExpose({ editor, titleContent })
+defineExpose({ editor })
 </script>
 
 <style lang="scss">
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Outfit:wght@100..900&display=swap');
-
+@import "katex/dist/katex.min.css";
 
 :root {
   --leazy-black: rgb(0 0 0);
@@ -321,6 +355,13 @@ defineExpose({ editor, titleContent })
   --leazy-highlight-orange: #5c3a1a;
   --leazy-highlight-pink: #5c1a3a;
   --leazy-highlight-gray: #3a3a3a;
+}
+
+@for $i from 1 through 8 {
+  [data-indent='#{$i}'] {
+    $val: $i * 3rem;
+    padding-left: $val;
+  }
 }
 
 .placeholderContainer {
@@ -446,8 +487,6 @@ defineExpose({ editor, titleContent })
 
 .drag-handle-container {
   display: inline-flex;
-  gap: 3.2px;
-  direction: rtl;
   align-items: center;
   position: fixed;
   opacity: 1;
@@ -487,13 +526,13 @@ defineExpose({ editor, titleContent })
 
 * {
   font-family: "DM Sans", Outfit, "Inter UI", system-ui, sans-serif;
+  scroll-behavior: smooth;
 }
 
 .font-code {
   font-family: 'Space Mono', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
 }
 .editorContainer {
-  padding: 25px;
   position: relative;
 
   @media print {
@@ -503,6 +542,24 @@ defineExpose({ editor, titleContent })
   .ProseMirror {
     padding: 25px calc((100% - (750px)) / 2);
     outline: none;
+
+    /* Color swatches */
+    .color {
+      white-space: nowrap;
+
+      &::before {
+        content: ' ';
+        display: inline-block;
+        width: 1em;
+        height: 1em;
+        border: 1px solid rgba(128, 128, 128, 0.3);
+        vertical-align: middle;
+        margin-right: 0.1em;
+        margin-bottom: 0.15em;
+        border-radius: 2px;
+        background-color: var(--color);
+      }
+    }
 
     /* Collaboration cursor */
     .collaboration-cursor__caret {
@@ -550,7 +607,7 @@ defineExpose({ editor, titleContent })
     }
 
     /* Placeholder*/
-    & > .is-editor-empty:first-child::before {
+    & > .is-editor-empty::before, & > .is-empty.has-focus::before {
       color: #adb5bd;
       content: attr(data-placeholder);
       float: left;
@@ -560,19 +617,6 @@ defineExpose({ editor, titleContent })
 
     @media print {
       padding: 0;
-    }
-  }
-
-  .titleEditor {
-    .ProseMirror {
-      padding-top: 0;
-      animation: fade-in 0.5s;
-
-      h1 {
-        margin: 1rem 0;
-        font-weight: 700;
-        font-size: 2.25em;
-      }
     }
   }
 
@@ -588,6 +632,11 @@ defineExpose({ editor, titleContent })
 
       .image {
         animation: fade-in 0.25s;
+      }
+
+      .iframe-wrapper iframe {
+        width: 100%;
+        aspect-ratio: 16 / 9;
       }
 
       /**
@@ -700,6 +749,24 @@ defineExpose({ editor, titleContent })
         }
       }
 
+      .tiptap-math.latex {
+        display: inline-flex;
+        align-items: center;
+        width: fit-content;
+      }
+
+      .tiptap-math.latex.ProseMirror-selectednode {
+        outline: 1px solid black;
+      }
+
+      .tiptap-math.result {
+        background-color: #78e65618;
+        border-bottom: rgb(68, 194, 68) 2px solid;
+        padding-left: 4px;
+        padding-right: 2px;
+        height: fit-content;
+      }
+
       div[data-type="callout"] {
         display: flex;
         gap: 0.5rem;
@@ -743,8 +810,6 @@ defineExpose({ editor, titleContent })
       div[data-type="horizontalRule"] {
         line-height: 0;
         padding: 0.25rem 0;
-        margin-top: 0;
-        margin-bottom: 0;
 
         & > div {
           border-bottom: 1px solid #dddddd;
@@ -803,183 +868,83 @@ defineExpose({ editor, titleContent })
         width: 100%;
       }
 
-      .tableWrapper {
-        overflow-x: auto;
-        padding: 2px;
-        width: fit-content;
+      table {
+        border-collapse: collapse;
+        table-layout: fixed;
+        width: 100%;
         max-width: 100%;
+        margin: 0;
+        overflow: hidden;
 
-        table {
-          border-collapse: collapse;
-          table-layout: fixed;
-          margin: 0;
-          width: 100%;
-          overflow: hidden;
+        td,
+        th {
+          min-width: 1em;
+          padding: 3px 5px;
+          vertical-align: top;
+          box-sizing: border-box;
+          position: relative;
+          @apply bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600;
 
-          td,
-          th {
-            min-width: 1em;
-            border: 1px solid #d8dae5;
-            padding: 0.25rem 0.5rem;
-            vertical-align: top;
-            box-sizing: border-box;
-            position: relative;
-            background-clip: padding-box;
-            > * {
-              margin: 0 !important;
-              padding: 0.25rem 0 !important;
-            }
-
-            &.has-focus {
-              box-shadow: #9db5ff 0 0 0 2px inset !important;
-            }
-          }
-
-          th {
-            * {
-              font-weight: 600;
-            }
-            text-align: left;
-            background-color: #f1f3f5;
-          }
-
-          .selectedCell:after {
-            z-index: 2;
-            position: absolute;
-            content: "";
-            left: 0;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            background: rgba(200, 200, 255, 0.4);
-            pointer-events: none;
-          }
-
-          .column-resize-handle {
-            position: absolute;
-            right: -2px;
-            top: 0;
-            bottom: -2px;
-            width: 4px;
-            z-index: 99;
-            background-color: #9db5ff;
-            pointer-events: none;
+          > * {
+            margin-bottom: 0;
           }
         }
 
-        .tableControls {
+        th {
+          font-weight: bold;
+          text-align: left;
+          @apply bg-gray-100 dark:bg-gray-800;
+          }
+
+        .selectedCell:after {
+          z-index: 2;
           position: absolute;
+          content: "";
+          left: 0; right: 0; top: 0; bottom: 0;
+          background: rgba(200, 200, 255, 0.4);
+          pointer-events: none;
+        }
 
-          .columnsControl,
-          .rowsControl {
-            transition: opacity ease-in 100ms;
-            position: absolute;
-            z-index: 99;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-          }
+        .column-resize-handle {
+          position: absolute;
+          right: -2px;
+          top: 0;
+          bottom: -2px;
+          width: 4px;
+          background-color: #adf;
+          cursor: col-resize;
+        }
 
-          .columnsControl {
-            height: 20px;
-            transform: translateY(-50%);
-
-            > button {
-              color: white;
-              background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' d='M0 0h24v24H0z'/%3E%3Cpath fill='%238F95B2' d='M4.5 10.5c-.825 0-1.5.675-1.5 1.5s.675 1.5 1.5 1.5S6 12.825 6 12s-.675-1.5-1.5-1.5zm15 0c-.825 0-1.5.675-1.5 1.5s.675 1.5 1.5 1.5S21 12.825 21 12s-.675-1.5-1.5-1.5zm-7.5 0c-.825 0-1.5.675-1.5 1.5s.675 1.5 1.5 1.5 1.5-.675 1.5-1.5-.675-1.5-1.5-1.5z'/%3E%3C/svg%3E");
-              width: 30px;
-              height: 15px;
-            }
-          }
-
-          .rowsControl {
-            width: 20px;
-            transform: translateX(-50%);
-
-            > button {
-              color: white;
-              background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' d='M0 0h24v24H0z'/%3E%3Cpath fill='%238F95B2' d='M12 3c-.825 0-1.5.675-1.5 1.5S11.175 6 12 6s1.5-.675 1.5-1.5S12.825 3 12 3zm0 15c-.825 0-1.5.675-1.5 1.5S11.175 21 12 21s1.5-.675 1.5-1.5S12.825 18 12 18zm0-7.5c-.825 0-1.5.675-1.5 1.5s.675 1.5 1.5 1.5 1.5-.675 1.5-1.5-.675-1.5-1.5-1.5z'/%3E%3C/svg%3E");
-              height: 30px;
-              width: 15px;
-            }
-          }
-
-          button {
-            background-color: white;
-            border: 1px solid #d8dae5;
-            border-radius: 2px;
-            background-size: 1.25rem;
-            background-repeat: no-repeat;
-            background-position: center;
-            transition: transform ease-out 100ms,
-            background-color ease-out 100ms;
-            outline: none;
-
-            box-shadow: rgb(15 15 15 / 10%) 0px 2px 4px;
-
-            cursor: pointer;
-
-            &:hover {
-              transform: scale(1.2, 1.2);
-              background-color: #fbfbfb;
-            }
-          }
-
-          .tableToolbox,
-          .tableColorPickerToolbox {
-            padding: 0.25rem;
-            display: flex;
-            flex-direction: column;
-            width: 200px;
-            gap: 0.25rem;
-
-            .toolboxItem {
-              background: none;
-              display: flex;
-              align-items: center;
-              gap: 0.5rem;
-              border: none;
-              padding: 0.1rem;
-              border-radius: 4px;
-              cursor: pointer;
-              transition: all 0.2s;
-
-              &:hover {
-                background-color: #f4f4f4;
-              }
-
-              .iconContainer,
-              .colorContainer {
-                border: 1px solid #e6e8f0;
-                border-radius: 3px;
-                padding: 4px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 1.75rem;
-                height: 1.75rem;
-
-                svg {
-                  width: 1rem;
-                  height: 1rem;
-                }
-              }
-
-              .label {
-                font-size: 0.95rem;
-              }
-            }
-          }
+        p {
+          margin: 0;
         }
       }
 
-      &.resize-cursor .tableWrapper .tableControls,
-      .tableWrapper.controls--disabled .tableControls {
-        .rowsControl,
-        .columnsControl {
-          opacity: 0;
-          pointer-events: none;
-        }
+      .tableWrapper {
+        overflow-x: auto;
+      }
+
+      .resize-cursor {
+        cursor: ew-resize;
+        cursor: col-resize;
+      }
+
+      .column-block {
+        width: 100%;
+        display: grid;
+        overflow: hidden;
+        grid-auto-columns: minmax(0, 1fr);
+        @apply grid-flow-row lg:grid-flow-col;
+        gap: 12px;
+      }
+
+      .column {
+        flex: 0 1 auto;
+        border: 1px transparent dashed;
+      }
+
+      .column-block.has-focus .column {
+        border: 1px gray dashed;
       }
 
       /**
@@ -1043,7 +1008,9 @@ defineExpose({ editor, titleContent })
           }
 
           &.image,
-          &.imagePlaceholder {
+          &.imagePlaceholder,
+          &.iframe-wrapper,
+          &.callout-box-content {
             box-shadow: rgb(51, 102, 255, 0.9) 0px 0px 0px 2px !important;
           }
 

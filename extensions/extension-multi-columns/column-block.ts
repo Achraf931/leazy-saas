@@ -1,23 +1,10 @@
-import {
-  Node,
-  mergeAttributes,
-  type CommandProps
-} from '@tiptap/core'
-import type {
-  Node as ProseMirrorNode,
-  NodeType
-} from 'prosemirror-model'
-import { NodeSelection } from 'prosemirror-state'
+import { Node, mergeAttributes, type CommandProps } from '@tiptap/core'
+import type { Node as ProseMirrorNode, NodeType } from '@tiptap/pm/model'
+import { NodeSelection } from '@tiptap/pm/state'
 
 import { Column } from './column'
 import { ColumnSelection } from './column-selection'
-import {
-  buildColumn,
-  buildNColumns,
-  buildColumnBlock,
-  type Predicate,
-  findParentNodeClosestToPos
-} from './utils'
+import { buildColumn, buildNColumns, buildColumnBlock, type Predicate, findParentNodeClosestToPos } from './utils'
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
@@ -48,8 +35,12 @@ export const ColumnBlock = Node.create<ColumnBlockOptions>({
     }
   },
 
+  parseHTML() {
+    return [{ tag: `div[data-type="${this.name}"]` }];
+  },
+
   renderHTML({ HTMLAttributes }) {
-    const attrs = mergeAttributes(HTMLAttributes, { class: 'column-block' })
+    const attrs = mergeAttributes(HTMLAttributes, { 'data-type': this.name, class: 'column-block not-prose' })
     return ['div', attrs, 0]
   },
 

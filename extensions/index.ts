@@ -5,7 +5,7 @@ import { Color } from '@tiptap/extension-color'
 import { FocusClasses } from '@tiptap/extension-focus'
 import { FontFamily } from '@tiptap/extension-font-family'
 import { Highlight } from '@tiptap/extension-highlight'
-import { Placeholder } from '@tiptap/extension-placeholder'
+// import { Placeholder } from '@tiptap/extension-placeholder'
 import { Subscript } from '@tiptap/extension-subscript'
 import { Superscript } from '@tiptap/extension-superscript'
 import { TaskItem } from '@tiptap/extension-task-item'
@@ -21,14 +21,24 @@ import { TableRow } from '@tiptap/extension-table-row'
 import { Link } from '@tiptap/extension-link'
 import { TextAlign } from '@tiptap/extension-text-align'
 import Youtube from '@tiptap/extension-youtube'
+// import { getHierarchicalIndexes, TableOfContents } from '@tiptap-pro/extension-table-of-contents'
+import Emoji, { gitHubEmojis } from '@tiptap-pro/extension-emoji'
 // import { Image } from '@tiptap/extension-image'
 import { Markdown } from 'tiptap-markdown'
 
+import EmojiSuggestion from '@/extensions/extension-emoji'
 import { SlashMenu } from './extension-slash-menu'
 import { uniqueId } from './extension-unique-id'
 import { SpeechRecognition } from './extension-speech-recognition'
 import { ColumnExtension } from './extension-multi-columns'
 import DragAndDrop from './extension-drag-and-drop'
+import { Indent } from '@/extensions/extension-indent'
+import { ColorHighlighter } from '@/extensions/extension-color-preview'
+// import Link from './extension-link'
+// import Link from './extension-card-link'
+// import Link from './extension-custom-link'
+// import { Hyperlink, previewHyperlinkModal, setHyperlinkModal } from '@/extensions/extension-hyperlink'
+import Print from './extension-print'
 import Image from './extension-image'
 import ImageComponent from './extension-image/ImageComponent.vue'
 import ImagePlaceholder from './extension-image/ImagePlaceholder'
@@ -37,17 +47,45 @@ import Video from './extension-video'
 import VideoComponent from './extension-video/VideoComponent.vue'
 import VideoPlaceholder from './extension-video/VideoPlaceholder'
 import VideoPlaceholderComponent from './extension-video/VideoPlaceholderComponent.vue'
+import LinkEmbed from '@/extensions/extension-link-embed'
+//import TableOfContents from './extension-table-of-contents/TableOfContents.ts'
 // import Iframe from './extension-iframe'
 // import Table from './extension-table'
 // import TableCell from './extension-table-cell'
 // import TableHeader from './extension-table-header'
 // import TableRow from './extension-table-row'
 
+import MathExtension from '@/extensions/extension-math'
+import { CalloutBox } from '@/extensions/extension-callout-box'
+import { FontSize } from '@/extensions/extension-font-size'
+
 export default [
   SlashMenu,
   DragAndDrop,
   SpeechRecognition,
   Youtube,
+  LinkEmbed,
+  Print,
+  Indent,
+  Typography,
+  ColorHighlighter,
+  FontSize,
+  // TableOfContents,
+  MathExtension.configure({
+    evaluation: true,
+    katexOptions: {
+      macros: {
+        "\\B": "\\mathbb{B}"
+      }
+    }
+  }),
+  CalloutBox,
+  Emoji.configure({
+    emojis: gitHubEmojis,
+    enableEmoticons: true,
+    suggestion: EmojiSuggestion
+  }),
+  // TableOfContents,
   ...ColumnExtension,
   TextAlign.configure({
     types: ['heading', 'paragraph', 'blockquote'],
@@ -74,15 +112,24 @@ export default [
     }
   }).configure({
     HTMLAttributes: {
-      class: 'mt-4 mb-6 border-t border-stone-300'
+      class: 'my-10 border-t border-stone-300'
     }
   }),
+  /*Hyperlink.configure({
+    hyperlinkOnPaste: true,
+    openOnClick: true,
+    modals: {
+      previewHyperlink: previewHyperlinkModal,
+      setHyperlink: setHyperlinkModal
+    }
+  }),*/
   Link.configure({
-    autolink: true,
-    linkOnPaste: true,
+    openOnClick: false,
     HTMLAttributes: {
       class: 'text-stone-400 underline underline-offset-[3px] hover:text-stone-600 transition-colors cursor-pointer'
-    },
+    }
+  }).extend({
+    inclusive: false
   }),
   Image.configure({
     Component: ImageComponent
@@ -103,38 +150,22 @@ export default [
   Highlight.configure({
     multicolor: true
   }),
-  Placeholder.configure({
+  /*Placeholder.configure({
     placeholder: ({ node }) => {
-      if (node.type.name === 'heading') {
-        return `Heading ${node.attrs.level}`
-      }
+      if (node.type.name === 'heading') return 'Titre de la leçon'
 
-      return 'Appuyez sur \'/\' pour les commandes ou \'++\' pour l\'autocomplétion de l\'IA...'
+      return '\'/\' pour les commandes ou \'+++\' pour l\'autocomplétion de l\'IA...'
     },
     includeChildren: true
-  }),
+  }),*/
   Subscript,
   Superscript,
   Table.configure({
-    HTMLAttributes: {
-      class: 'not-prose text-center table-auto ring-1 ring-gray-300 rounded-lg'
-    }
+    resizable: true
   }),
-  TableCell.configure({
-    HTMLAttributes: {
-      class: 'border-b dark:border-slate-200 p-2'
-    }
-  }),
-  TableHeader.configure({
-    HTMLAttributes: {
-      class: 'border-b dark:border-slate-200 font-medium p-2'
-    }
-  }),
-  TableRow.configure({
-    HTMLAttributes: {
-      class: 'border-b dark:border-slate-200'
-    }
-  }),
+  TableRow,
+  TableHeader,
+  TableCell,
   TaskList.configure({
     HTMLAttributes: {
       class: 'not-prose flex flex-col gap-1.5 my-3'
@@ -151,10 +182,9 @@ export default [
     transformCopiedText: true
   }),
   TextStyle,
-  Typography,
   Underline,
   uniqueId.configure({
-    types: ['heading', 'paragraph', 'blockquote', 'codeBlock', 'bulletList', 'orderedList', 'listItem', 'taskList', 'taskItem', 'horizontalRule', 'image', 'link', 'underline', 'textStyle', 'color', 'highlight', 'code']
+    types: ['heading', 'paragraph', 'blockquote', 'codeBlock', 'columnBlock', 'column', 'bulletList', 'orderedList', 'listItem', 'taskList', 'taskItem', 'calloutBox', 'horizontalRule', 'image', 'link', 'mark', 'underline', 'textStyle', 'color', 'highlight', 'code']
   }),
   StarterKit.configure({
     bulletList: {

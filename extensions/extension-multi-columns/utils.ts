@@ -1,8 +1,5 @@
 import type { JSONContent } from '@tiptap/core'
-import type {
-  Node,
-  ResolvedPos
-} from 'prosemirror-model'
+import type { Node, ResolvedPos } from '@tiptap/pm/model'
 
 const times = <T>(n: number, fn: (i: number) => T): T[] =>
   Array.from({ length: n }, (_, i) => fn(i))

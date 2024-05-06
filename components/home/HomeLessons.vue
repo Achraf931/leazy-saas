@@ -34,7 +34,7 @@ defineProps({
         <h2 class="text-gray-400 dark:text-white font-semibold truncate group-hover:text-gray-00 dark:group-hover:text-gray-300 transition-colors duration-200 text-sm">Créer une nouvelle leçon</h2>
       </template>
     </UBlogPost>
-    <UBlogPost v-for="lesson in lessons.slice(0, 5)" :key="lesson.id" :to="localePath({ name: 'library-lessons-id_slug', params: { id: lesson.id, slug: lesson.slug } })" :ui="{ wrapper: 'gap-y-3', title: 'text-sm', date: 'text-xs', authors: { wrapper: 'mt-0' }, image: { wrapper: 'pointer-events-auto' }, badge: { wrapper: 'absolute top-2 left-2.5 mb-0 py-0' } }">
+    <UBlogPost v-for="lesson in lessons.slice(0, 5)" :key="lesson.id" :to="localePath({ name: 'library-lessons-id', params: { id: lesson.id } })" :ui="{ wrapper: 'gap-y-3', title: 'text-sm', date: 'text-xs', authors: { wrapper: 'mt-0' }, image: { wrapper: 'pointer-events-auto' }, badge: { wrapper: 'absolute top-2 left-2.5 mb-0 py-0' } }">
       <template #badge>
         <UBadge variant="solid" :color="lesson.draft ? 'primary' : 'green'" size="xs">{{ lesson.draft ? 'Brouillon' : 'Publié' }}</UBadge>
       </template>

@@ -152,7 +152,7 @@ const groups = [
 
             <UDashboardSidebarLinks :links="subLinks">
               <template #badge="{ link }">
-                <UIcon v-if="link.target === '_blank'" name="i-heroicons-arrow-up-right" class="w-4 h-4 ml-auto"/>
+                <UIcon v-if="link.target === '_blank'" name="i-lucide-arrow-up-right" dynamic class="w-4 h-4 ml-auto"/>
               </template>
             </UDashboardSidebarLinks>
 
