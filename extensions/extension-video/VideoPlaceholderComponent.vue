@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { NodeViewWrapper } from '@tiptap/vue-3'
 
-const props = defineProps(['editor', 'getPos', 'deleteNode'])
+const props = defineProps(['editor', 'getPos', 'selected', 'deleteNode'])
 
 const videoUrl = ref('')
 
@@ -33,7 +33,7 @@ const isValidURL = (url) => {
 </script>
 
 <template>
-  <NodeViewWrapper :class="[selected ? 'ProseMirror-selectednode' : '', 'imagePlaceholder']">
+  <NodeViewWrapper :class="[selected ? 'ProseMirror-selectednode' : '', 'videoPlaceholder']">
     <div class="placeholderContainer">
       <div class="flex items-center justify-start gap-2">
         <UInput placeholder="Saisir l'URL de la vidéo" class="flex-1" v-model="videoUrl"/>

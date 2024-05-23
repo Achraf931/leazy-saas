@@ -1,9 +1,8 @@
 <script setup lang="ts">
 const { isHelpSlideoverOpen } = useDashboard()
-const { isDashboardSearchModalOpen } = useUIState()
-const { metaSymbol } = useShortcuts()
 const localePath = useLocalePath()
 const { t } = useI18n()
+const user = useSanctumUser()
 const { logout } = useSanctumAuth()
 
 const items = computed(() => [
@@ -16,13 +15,6 @@ const items = computed(() => [
     icon: 'i-heroicons-cog-8-tooth',
     shortcuts: ['G', 'S'],
     to: localePath({ name: 'settings' })
-  }, {
-    label: 'Command menu',
-    icon: 'i-heroicons-command-line',
-    shortcuts: [metaSymbol.value, 'K'],
-    click: () => {
-      isDashboardSearchModalOpen.value = true
-    }
   }, {
     label: t('commons.help'),
     icon: 'i-heroicons-question-mark-circle',
@@ -40,7 +32,7 @@ const items = computed(() => [
 <template>
   <UDropdown :items="items" :ui="{ width: 'w-full', item: { disabled: 'cursor-text select-text' } }" :popper="{ strategy: 'absolute', placement: 'top' }" class="w-full">
     <template #default="{ open }">
-      <UButton color="gray" variant="ghost" class="w-full" label="Charfeddine" :class="[open && 'bg-gray-50 dark:bg-gray-800']">
+      <UButton color="gray" variant="ghost" class="w-full" :label="user.firstname" :class="[open && 'bg-gray-50 dark:bg-gray-800']">
         <template #leading>
           <UAvatar src="https://avatars.githubusercontent.com/u/45672435?v=4" size="2xs" />
         </template>
@@ -57,7 +49,7 @@ const items = computed(() => [
           {{ $t('drawer.profile.connected_as') }}
         </p>
         <p class="truncate font-medium text-gray-900 dark:text-white">
-          hamrouni.pro@outlook.fr
+          {{ user.email }}
         </p>
       </div>
     </template>

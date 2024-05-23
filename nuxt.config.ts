@@ -15,7 +15,9 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n',
     '@nuxt/image',
     '@nuxtjs/tailwindcss',
-    'nuxt-auth-sanctum'
+    'nuxt-auth-sanctum',
+    '@pinia/nuxt',
+    '@pinia-plugin-persistedstate/nuxt'
   ],
   ui: {
     icons: ['simple-icons', 'lucide', 'fluent'],
@@ -122,7 +124,7 @@ export default defineNuxtConfig({
         en: '/library/lessons',
         fr: '/bibliotheque/lecons'
       },
-      'library/lessons/[id]': {
+      'lesson_[id]': {
         en: '/library/lessons/[id]',
         fr: '/bibliotheque/lecons/[id]'
       },

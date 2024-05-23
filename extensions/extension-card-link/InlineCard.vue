@@ -6,7 +6,7 @@ console.log(props.node)
 </script>
 
 <template>
-  <NodeViewWrapper class="not-prose">
+  <NodeViewWrapper class="not-prose" as="a">
     <!-- 'url' is props.node.attrs.url and 'text' is props.node.attrs.text -->
     <!-- Render your <UPopover /> component -->
     <UPopover mode="hover" :popper="{ placement: 'top-start' }">

@@ -51,6 +51,16 @@ const getSuggestionItems = ({ query }: { query: string }) => {
       shortcuts: ['+++']
     },
     {
+      label: 'Dessiner',
+      description: 'Dessiner sur la page',
+      searchTerms: ['draw', 'sketch', 'paint'],
+      icon: 'i-lucide-pen',
+      command: ({ editor, range }: CommandProps) => {
+        editor.chain().focus().deleteRange(range).setPaper().run()
+      },
+      shortcuts: []
+    },
+    /*{
       label: 'Envoyer un feedback',
       description: 'Envoyer un feedback à l\'enseignant',
       searchTerms: ['feedback'],
@@ -60,7 +70,7 @@ const getSuggestionItems = ({ query }: { query: string }) => {
         window.open('/feeback', '_blank')
       },
       shortcuts: []
-    },
+    },*/
     {
       label: "Parler pour écrire",
       description: "Activer la reconnaissance vocale",
@@ -147,12 +157,32 @@ const getSuggestionItems = ({ query }: { query: string }) => {
       shortcuts: [metaSymbol.value, 'Alt', '6']
     },
     {
+      label: 'Leçon',
+      description: 'Ajouter une leçon',
+      searchTerms: ['lesson', 'course', 'module'],
+      icon: 'i-lucide-book',
+      command: ({ editor, range }: CommandProps) => {
+        editor.chain().focus().deleteRange(range).insertLessonPlaceholder().run()
+      },
+      shortcuts: []
+    },
+    {
       label: 'Informations',
       description: 'Ajouter des informations',
       searchTerms: ['info', 'informations'],
       icon: 'i-lucide-megaphone',
       command: ({ editor, range }: CommandProps) => {
         editor.chain().focus().deleteRange(range).setCalloutBox('info').run()
+      },
+      shortcuts: []
+    },
+    {
+      label: 'Déroulant',
+      description: 'Ajouter un texte déroulant',
+      searchTerms: ['details', 'summary', 'dropdown', 'toggle'],
+      icon: 'i-lucide-list-collapse',
+      command: ({ editor, range }: CommandProps) => {
+        editor.chain().focus().deleteRange(range).setDetails().run()
       },
       shortcuts: []
     },
@@ -276,6 +306,16 @@ const getSuggestionItems = ({ query }: { query: string }) => {
       command: ({ editor, range }: CommandProps) => {
         console.log(editor)
         editor.chain().focus().setColumns(2).run()
+      },
+      shortcuts: []
+    },
+    {
+      label: 'Twitter',
+      description: 'Ajouter un tweet',
+      searchTerms: ['tweet', 'twitter'],
+      icon: 'i-lucide-twitter',
+      command: ({ editor, range }: CommandProps) => {
+        editor.chain().focus().deleteRange(range).insertTweetPlaceholder().run()
       },
       shortcuts: []
     }

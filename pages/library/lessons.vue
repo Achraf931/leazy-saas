@@ -1,16 +1,22 @@
 <script setup>
-import { sub, formatDistanceToNow } from 'date-fns'
+import { formatDistanceToNow } from 'date-fns'
 import frLocale from 'date-fns/locale/fr'
+import { useLessonsStore } from '@/stores/library'
 
 const router = useRouter()
 const toast = useToast()
 
-const client = useSanctumClient()
+const store = useLessonsStore()
+const { fetchLessons, refresh, addLesson } = store
+const { lessons, pending, error } = storeToRefs(store)
 
-const { data: lessons, pending, error, refresh } = await useAsyncData('lessons', () => client('/api/teacher/lessons'))
+await fetchLessons()
+
 const localePath = useLocalePath()
 
 const q = ref('')
+
+const page = ref(lessons.value?.current_page)
 
 const isOpen = ref(false)
 
@@ -26,9 +32,6 @@ const links = [
 ]
 
 const isDeleteLessonModalOpen = ref({ open: false, lesson: null, refresh })
-
-const range = ref({ start: sub(new Date(), { days: 14 }), end: new Date() })
-const period = ref('daily')
 
 const isLoading = ref(false)
 const selected = ref([])
@@ -74,7 +77,7 @@ const validate = (state) => {
 
 const onSubmit = async (state) => {
   isLoading.value = true
-  const response = await client('/api/teacher/lessons', { method: 'POST', body: { ...state.data } })
+  const response = await addLesson({ ...state.data })
 
   if (response) setTimeout(async () => {
     isLoading.value = false
@@ -84,61 +87,71 @@ const onSubmit = async (state) => {
   }, 2000)
   else isLoading.value = false
 }
+
+watch(page, async (page) => {
+  await refresh(page)
+})
 </script>
 
 <template>
   <UDashboardPage>
     <UDashboardPanel grow>
-      <UDashboardNavbar>
-        <template #title>
-          <ToggleDrawer />
-          <UBreadcrumb :links="links" />
-        </template>
-        <template #right>
-          <UButton trailing-icon="i-heroicons-plus" @click="isOpen = true" label="Créer une leçon" />
-        </template>
-      </UDashboardNavbar>
-
       <UDashboardToolbar>
         <template #left>
           <UInput v-model="q" icon="i-heroicons-magnifying-glass" placeholder="Rechercher une leçon" />
-
-          <!-- ~/components/home/HomeDateRangePicker.vue -->
-          <HomeDateRangePicker v-model="range" class="ml-2.5" />
         </template>
 
         <template #right>
-          <USelectMenu v-slot="{ open }" v-model="selectedThemes" :options="themes" option-attribute="label" multiple placeholder="Select chapters">
-            <UButton color="gray" :label="'Themes: ' + selectedThemes.length">
-              <template #trailing>
-                <UIcon name="i-heroicons-chevron-right-20-solid" :class="[open && 'transform rotate-90']" />
-              </template>
-            </UButton>
-          </USelectMenu>
+          <template v-if="false">
+            <UPopover :popper="{ placement: 'bottom-end' }">
+              <UButton size="xs" variant="ghost" color="gray" icon="i-heroicons-adjustments-horizontal" />
 
-          <USelectMenu v-slot="{ open }" v-model="selected" :options="chapters" option-attribute="label" multiple placeholder="Select chapters">
-            <UButton color="gray" :label="'Chapters: ' + selected.length">
-              <template #trailing>
-                <UIcon name="i-heroicons-chevron-right-20-solid" :class="[open && 'transform rotate-90']" />
+              <template #panel>
+                <div class="p-2">
+                  <UButton variant="soft" size="2xs" label="Appliquer" />
+                </div>
               </template>
-            </UButton>
-          </USelectMenu>
+            </UPopover>
+            <USelectMenu v-slot="{ open }" v-model="selectedThemes" :options="themes" option-attribute="label" multiple placeholder="Select chapters">
+              <UButton color="gray" :label="'Themes: ' + selectedThemes.length">
+                <template #trailing>
+                  <UIcon name="i-heroicons-chevron-right-20-solid" :class="[open && 'transform rotate-90']" />
+                </template>
+              </UButton>
+            </USelectMenu>
+
+            <USelectMenu v-slot="{ open }" v-model="selected" :options="chapters" option-attribute="label" multiple placeholder="Select chapters">
+              <UButton color="gray" :label="'Chapters: ' + selected.length">
+                <template #trailing>
+                  <UIcon name="i-heroicons-chevron-right-20-solid" :class="[open && 'transform rotate-90']" />
+                </template>
+              </UButton>
+            </USelectMenu>
+          </template>
+
+          <UButton trailing-icon="i-heroicons-plus" @click="isOpen = true" label="Créer une leçon" />
         </template>
       </UDashboardToolbar>
 
       <template v-if="!pending">
         <UDashboardPanelContent>
-          <UBlogList v-if="filteredLessons.length" orientation="horizontal" :ui="{ wrapper: 'p-px overflow-y-auto gap-4 sm:grid sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5' }">
-            <ULink v-for="lesson in filteredLessons" :key="lesson.id" :to="localePath({ name: 'library-lessons-id', params: { id: lesson.id } })" class="bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-800 shadow rounded-lg text-xs flex flex-col items-start gap-4 p-3">
+          <UBlogList v-if="filteredLessons.length > 0" orientation="horizontal" :ui="{ wrapper: 'p-px overflow-y-auto gap-4 sm:grid sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5' }">
+            <UBlogPost v-for="lesson in filteredLessons" :key="lesson.id" :to="localePath({ name: 'lesson_id', params: { id: lesson.id } })" :ui="{ wrapper: '' }" class="bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-800 shadow rounded-lg text-xs p-3">
               <div class="flex items-start justify-between w-full">
                 <div class="flex items-center justify-center rounded-lg bg-pink-100 p-2">
                   <UIcon name="i-heroicons-document-text" class="w-6 h-6 text-pink-400" />
                 </div>
                 <UDropdown :ui="{ item: { size: 'text-xs' }, width: 'w-auto' }" :items="[[{ label: 'Renommer', icon: 'i-heroicons-pencil-square' }, { label: 'Supprimer', icon: 'i-heroicons-trash', color: 'red', click: (e) => handleDelete(e, lesson) }]]" :popper="{ placement: 'bottom-end' }">
                   <UButton icon="i-heroicons-ellipsis-vertical" variant="ghost" color="gray" :padded="false" />
+
+                  <template #item="{ item }">
+                    <UIcon :name="item.icon" class="flex-shrink-0 h-4 w-4 ms-auto" :class="item.label === 'Supprimer' ? 'text-red-500 dark:text-red-400' : ''" />
+
+                    <span class="truncate" :class="item.label === 'Supprimer' ? 'text-red-500 dark:text-red-400' : ''">{{ item.label }}</span>
+                  </template>
                 </UDropdown>
               </div>
-              <div>
+              <div class="my-2">
                 <h2 class="text-gray-900 dark:text-white font-semibold line-clamp-1 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-200 text-base">{{ lesson.name }}</h2>
                 <p class="line-clamp-2 text-gray-400 text-xs mt-0.5">{{ lesson.description }}</p>
               </div>
@@ -146,17 +159,17 @@ const onSubmit = async (state) => {
                 <UBadge v-if="lesson.chapter.theme" variant="soft" color="yellow" size="xs">{{ lesson.chapter.theme.name }}</UBadge>
                 <UBadge variant="soft" color="blue" size="xs">{{ lesson.chapter.name }}</UBadge>
               </div>
-              <div class="flex items-center justify-start gap-1 mt-auto">
+              <div class="flex items-center justify-start gap-1 mt-2">
                 <UIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-gray-400 dark:text-white" />
                 <p class="text-gray-400 text-xs">{{ lesson.updated_at === lesson.created_at ? 'Créé' : 'Modifié' }} {{ formatDistanceToNow(new Date(lesson.updated_at), { locale: frLocale, addSuffix: true }) }}</p>
               </div>
-            </ULink>
+            </UBlogPost>
           </UBlogList>
           <p v-else class="text-center text-gray-400 dark:text-white text-sm mt-4">Aucune leçon trouvée</p>
         </UDashboardPanelContent>
 
-        <div v-if="filteredLessons" class="p-2.5 flex items-center justify-center border-t border-gray-200">
-          <UPagination size="xs" show-first show-last :page-count="lessons.per_page" :total="lessons.total" v-model="lessons.current_page" :max="5" />
+        <div v-if="filteredLessons && lessons.last_page > 1" class="p-2.5 flex items-center justify-center border-t border-gray-200 dark:border-gray-800">
+          <UPagination size="xs" show-first show-last :page-count="lessons.per_page" :total="lessons.total" v-model="page" :max="5" />
         </div>
       </template>
     </UDashboardPanel>

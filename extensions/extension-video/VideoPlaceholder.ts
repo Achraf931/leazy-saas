@@ -10,7 +10,7 @@ declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     videoPlaceholder: {
       /**
-       * Inserts an image placeholder
+       * Inserts an video placeholder
        */
       insertVideoPlaceholder: (docId: string) => ReturnType
     }

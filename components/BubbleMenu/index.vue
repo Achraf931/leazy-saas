@@ -2,7 +2,6 @@
   <BubbleMenu
     :editor="editor"
     :should-show="shouldShow"
-    :tippy-options="{ boundary: 'viewport' }"
     class="w-max overflow-hidden focus:outline-none relative bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-800 rounded-md shadow-lg"
   >
     <div class="bubbleMenu">
@@ -48,7 +47,7 @@
         <UDivider orientation="vertical" />
 
         <UTooltip text="Demander de l'aide">
-          <UButton size="xs" variant="ghost" color="gray" icon="i-lucide-forward" />
+          <UButton size="xs" variant="ghost" color="gray" icon="i-lucide-message-square-quote" />
         </UTooltip>
       </div>
     </div>

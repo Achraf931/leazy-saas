@@ -18,7 +18,8 @@ export default defineEventHandler(async (event) => {
                 role: 'user',
                 content: prompt
             }
-        ]
+        ],
+        temperature: 0.5
     })
     return sendStream(event, stream)
 })

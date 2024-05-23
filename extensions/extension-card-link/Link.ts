@@ -26,7 +26,6 @@ export default Node.create({
   name: "inlineCard",
   marks: "",
   group: "inline",
-  content: "inline*",
   inline: true,
   selectable: true,
   atom: true,
@@ -36,7 +35,7 @@ export default Node.create({
       url: {
         default: null,
         parseHTML: element => element.getAttribute("href"),
-        renderHTML: attrs => ({ href: (attrs).url || "" }),
+        renderHTML: attrs => ({ href: attrs.url || "" }),
       },
       text: {
         default: null,
@@ -55,7 +54,7 @@ export default Node.create({
 
   parseHTML() {
     return [{
-      tag: `vue-component[data-type="${this.name}"]`,
+      tag: `a[data-type="${this.name}"]`,
       // set priority higher than default 'link' mark
       priority: 51,
     }];
@@ -64,7 +63,7 @@ export default Node.create({
   renderHTML({ node, HTMLAttributes }) {
     const attrs = node.attrs;
     return [
-      "vue-component",
+      "a",
       mergeAttributes({
         "data-type": this.name,
         href: attrs.url,
@@ -84,7 +83,7 @@ export default Node.create({
 
   addCommands() {
     return {
-      toggleLink: () => ({ chain, state }) => {
+      convertToLink: () => ({ chain, state }) => {
         const { selection } = state;
 
         if (!isNodeSelection(selection) || selection.node.type !== this.type) {
@@ -92,7 +91,7 @@ export default Node.create({
         }
 
         const linkNode = selection.node;
-        const attrs = linkNode.attrs;
+        const attrs = linkNode.attrs
         if (!attrs) return false;
 
         return chain()
@@ -104,14 +103,14 @@ export default Node.create({
           .run();
       },
 
-      setLink: attributes => ({ commands }) => {
+      setInlineCard: attributes => ({ commands }) => {
         return commands.insertContent({
           type: this.name,
           attrs: attributes,
         });
       },
 
-      unsetLink: text => ({ chain, state }) => {
+      unlinkInlineCard: text => ({ chain, state }) => {
         const { selection } = state;
 
         if (!isNodeSelection(selection) || selection.node.type !== this.type) {
@@ -119,7 +118,7 @@ export default Node.create({
         }
 
         const node = selection.node;
-        const attrs = node.attrs;
+        const attrs = node.attrs
         if (!attrs) return false;
 
         const textToSet = text || attrs.url;

@@ -36,6 +36,7 @@ useSeoMeta({
 
     <UNotifications />
     <UModals />
+    <USlideovers />
   </div>
 </template>
 

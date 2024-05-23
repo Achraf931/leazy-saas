@@ -21,7 +21,7 @@
       }"
       >
         <UPopover :popper="{ placement: 'bottom-start' }">
-          <UButton variant="soft" size="xs" color="gray" icon="i-heroicons-plus" />
+          <UButton variant="soft" size="2xs" color="primary" icon="i-heroicons-plus" />
 
           <template #panel>
             <div class="flex flex-col p-1 w-max">
@@ -56,7 +56,7 @@
       }"
       >
         <UPopover :popper="{ placement: 'bottom-start' }">
-          <UButton variant="soft" size="xs" color="gray" icon="i-heroicons-plus" />
+          <UButton variant="soft" size="2xs" color="primary" icon="i-heroicons-plus" />
           <template #panel>
             <div class="flex flex-col p-1 w-max">
               <UButton
@@ -131,13 +131,6 @@ const props = defineProps({
       content: []
     }
   },
-  defaultTile: {
-    type: Object as PropType<JSONContent>,
-    default: {
-      type: 'doc',
-      content: []
-    }
-  },
   /**
    * A list of extensions to use for the editor, in addition to the default Leazy extensions.
    * Defaults to [].
@@ -187,13 +180,17 @@ const props = defineProps({
   storageKey: {
     type: String,
     default: 'leazy_editor'
+  },
+  editable: {
+    type: Boolean,
+    default: true
   }
 })
 
 provide('completionApi', props.completionApi)
 useStorage('blobApi', props.blobApi)
 
-const content = useStorage(props.storageKey, props.defaultValue)
+const content = ref(props.defaultValue)
 
 const debouncedUpdate = useDebounceFn(({ editor }) => {
   content.value = editor.getJSON()
@@ -228,6 +225,7 @@ const editor = useEditor({
       debouncedUpdate(e)
     }
   },
+  editable: props.editable,
   autofocus: true
 })
 
@@ -396,7 +394,19 @@ defineExpose({ editor })
   gap: 5px;
 }
 
-.imageComponent {
+.search-result {
+  background-color: rgba(255, 217, 0, 0.5);
+
+  &-current {
+    background-color: rgba(13, 255, 0, 0.5);
+  }
+}
+
+.enrich-search-result {
+  background-color: rgba(13, 255, 0, 0.5);
+}
+
+.imageComponent, .videoComponent {
   display: flex;
   flex-direction: column;
   position: relative;
@@ -416,7 +426,7 @@ defineExpose({ editor })
     transform: translateX(-100%);
   }
 
-  .imageContainer {
+  .imageContainer, .videoContainer {
     display: flex;
     flex-direction: column;
     position: relative;
@@ -498,9 +508,11 @@ defineExpose({ editor })
   }
 
   .drag-handle, .plus-button {
+    @apply text-black dark:text-white;
     border-radius: 0.25rem;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='currentColor' viewBox='0 0 10 10'%3E%3Cpath d='M3,2 C2.44771525,2 2,1.55228475 2,1 C2,0.44771525 2.44771525,0 3,0 C3.55228475,0 4,0.44771525 4,1 C4,1.55228475 3.55228475,2 3,2 Z M3,6 C2.44771525,6 2,5.55228475 2,5 C2,4.44771525 2.44771525,4 3,4 C3.55228475,4 4,4.44771525 4,5 C4,5.55228475 3.55228475,6 3,6 Z M3,10 C2.44771525,10 2,9.55228475 2,9 C2,8.44771525 2.44771525,8 3,8 C3.55228475,8 4,8.44771525 4,9 C4,9.55228475 3.55228475,10 3,10 Z M7,2 C6.44771525,2 6,1.55228475 6,1 C6,0.44771525 6.44771525,0 7,0 C7.55228475,0 8,0.44771525 8,1 C8,1.55228475 7.55228475,2 7,2 Z M7,6 C6.44771525,6 6,5.55228475 6,5 C6,4.44771525 6.44771525,4 7,4 C7.55228475,4 8,4.44771525 8,5 C8,5.55228475 7.55228475,6 7,6 Z M7,10 C6.44771525,10 6,9.55228475 6,9 C6,8.44771525 6.44771525,8 7,8 C7.55228475,8 8,8.44771525 8,9 C8,9.55228475 7.55228475,10 7,10 Z'%3E%3C/path%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='black' viewBox='0 0 10 10'%3E%3Cpath d='M3,2 C2.44771525,2 2,1.55228475 2,1 C2,0.44771525 2.44771525,0 3,0 C3.55228475,0 4,0.44771525 4,1 C4,1.55228475 3.55228475,2 3,2 Z M3,6 C2.44771525,6 2,5.55228475 2,5 C2,4.44771525 2.44771525,4 3,4 C3.55228475,4 4,4.44771525 4,5 C4,5.55228475 3.55228475,6 3,6 Z M3,10 C2.44771525,10 2,9.55228475 2,9 C2,8.44771525 2.44771525,8 3,8 C3.55228475,8 4,8.44771525 4,9 C4,9.55228475 3.55228475,10 3,10 Z M7,2 C6.44771525,2 6,1.55228475 6,1 C6,0.44771525 6.44771525,0 7,0 C7.55228475,0 8,0.44771525 8,1 C8,1.55228475 7.55228475,2 7,2 Z M7,6 C6.44771525,6 6,5.55228475 6,5 C6,4.44771525 6.44771525,4 7,4 C7.55228475,4 8,4.44771525 8,5 C8,5.55228475 7.55228475,6 7,6 Z M7,10 C6.44771525,10 6,9.55228475 6,9 C6,8.44771525 6.44771525,8 7,8 C7.55228475,8 8,8.44771525 8,9 C8,9.55228475 7.55228475,10 7,10 Z'%3E%3C/path%3E%3C/svg%3E");
     background-size: calc(0.5em + 0.375rem) calc(0.5em + 0.375rem);
+    background-blend-mode: multiply;
     background-repeat: no-repeat;
     background-position: center;
     width: 1.2rem;
@@ -520,7 +532,17 @@ defineExpose({ editor })
   }
 
   .plus-button {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor' class='w-6 h-6'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M12 4.5v15m7.5-7.5h-15' /%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='black' class='w-6 h-6'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M12 4.5v15m7.5-7.5h-15' /%3E%3C/svg%3E");
+  }
+}
+
+.dark {
+  .drag-handle-container .drag-handle {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 10 10'%3E%3Cpath d='M3,2 C2.44771525,2 2,1.55228475 2,1 C2,0.44771525 2.44771525,0 3,0 C3.55228475,0 4,0.44771525 4,1 C4,1.55228475 3.55228475,2 3,2 Z M3,6 C2.44771525,6 2,5.55228475 2,5 C2,4.44771525 2.44771525,4 3,4 C3.55228475,4 4,4.44771525 4,5 C4,5.55228475 3.55228475,6 3,6 Z M3,10 C2.44771525,10 2,9.55228475 2,9 C2,8.44771525 2.44771525,8 3,8 C3.55228475,8 4,8.44771525 4,9 C4,9.55228475 3.55228475,10 3,10 Z M7,2 C6.44771525,2 6,1.55228475 6,1 C6,0.44771525 6.44771525,0 7,0 C7.55228475,0 8,0.44771525 8,1 C8,1.55228475 7.55228475,2 7,2 Z M7,6 C6.44771525,6 6,5.55228475 6,5 C6,4.44771525 6.44771525,4 7,4 C7.55228475,4 8,4.44771525 8,5 C8,5.55228475 7.55228475,6 7,6 Z M7,10 C6.44771525,10 6,9.55228475 6,9 C6,8.44771525 6.44771525,8 7,8 C7.55228475,8 8,8.44771525 8,9 C8,9.55228475 7.55228475,10 7,10 Z'%3E%3C/path%3E%3C/svg%3E");
+  }
+
+  .drag-handle-container .plus-button {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='white' class='w-6 h-6'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M12 4.5v15m7.5-7.5h-15' /%3E%3C/svg%3E");
   }
 }
 
@@ -558,6 +580,42 @@ defineExpose({ editor })
         margin-bottom: 0.15em;
         border-radius: 2px;
         background-color: var(--color);
+      }
+    }
+
+    .details {
+      @apply flex items-baseline;
+
+      > div {
+        width: 100%;
+        summary + div {
+          @apply border-t border-stone-200 dark:border-gray-600 mt-2;
+
+          p:last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
+
+      > button {
+        display: flex;
+        cursor: pointer;
+        background: transparent;
+        border: none;
+        padding: 0;
+
+        &::before {
+          content: '\25B6';
+          display: flex;
+          justify-content: flex-start;
+          align-items: center;
+          width: 1.5em;
+          height: 1.5em;
+        }
+      }
+
+      &.is-open > button::before {
+        content: '\25BC';
       }
     }
 
@@ -702,6 +760,7 @@ defineExpose({ editor })
 
       blockquote {
         border-left: 3px solid rgb(13, 13, 13);
+        @apply dark:border-white;
         padding-left: 1.5rem;
         margin-left: 0;
         margin-right: 0;
@@ -813,53 +872,6 @@ defineExpose({ editor })
 
         & > div {
           border-bottom: 1px solid #dddddd;
-        }
-      }
-
-      .details {
-        display: flex;
-        align-items: flex-start;
-        gap: 0.5rem;
-        border-radius: 0.25rem;
-        padding-left: 0.25rem;
-
-        & > button {
-          display: flex;
-          flex-shrink: 0;
-          cursor: pointer;
-          background: transparent;
-          border: none;
-          border-radius: 0.25rem;
-          padding: 0;
-          width: 1.5rem;
-          padding: 0.4rem;
-          transition: background 0.1s;
-
-          &:hover {
-            background: #f4f4f4;
-          }
-
-          & > svg {
-            display: block;
-            fill: inherit;
-            flex-shrink: 0;
-            backface-visibility: hidden;
-            transition: transform 200ms ease-out 0s;
-            transform: rotateZ(90deg);
-            opacity: 1;
-          }
-        }
-
-        &.is-open > button > svg {
-          transform: rotateZ(180deg);
-        }
-
-        & > div {
-          flex: 1 1 auto;
-        }
-
-        div[data-type="detailsContent"] > *:last-child {
-          margin-bottom: 0;
         }
       }
 
@@ -998,7 +1010,12 @@ defineExpose({ editor })
 
           &.image,
           &.imagePlaceholder,
-          &.tableWrapper {
+          &.video,
+          &.videoPlaceholder,
+          &.lesson,
+          &.lessonPlaceholder,
+          &.iframe-wrapper,
+          &.callout-box-content {
             background-color: transparent !important;
             transition: box-shadow ease-out 200ms !important;
 
@@ -1009,6 +1026,10 @@ defineExpose({ editor })
 
           &.image,
           &.imagePlaceholder,
+          &.video,
+          &.videoPlaceholder,
+          &.lesson,
+          &.lessonPlaceholder,
           &.iframe-wrapper,
           &.callout-box-content {
             box-shadow: rgb(51, 102, 255, 0.9) 0px 0px 0px 2px !important;
@@ -1018,95 +1039,6 @@ defineExpose({ editor })
             box-shadow: rgb(51, 102, 255, 0.9) 0px 0px 0px 2px inset !important;
           }
         }
-      }
-
-      /**
-      * Code highlighting
-      */
-
-      pre code span {
-        font-family: "JetBrains Mono", monospace;
-      }
-
-      code.hljs {
-        padding: 3px 5px;
-      }
-      .hljs {
-        background: #f3f3f3;
-        color: #444;
-      }
-
-      .hljs-comment {
-        color: #697070;
-        font-style: italic;
-      }
-
-      .hljs-punctuation,
-      .hljs-tag {
-        color: #444a;
-      }
-      .hljs-tag.hljs-attr {
-        color: #c44170;
-      }
-      .hljs-tag.hljs-name {
-        color: #4b71bd;
-      }
-      .hljs-attribute,
-      .hljs-doctag,
-      .hljs-keyword,
-      .hljs-meta .hljs-keyword,
-      .hljs-name,
-      .hljs-selector-tag {
-        font-weight: 500;
-        color: #496eb8;
-      }
-      .hljs-deletion,
-      .hljs-number,
-      .hljs-quote,
-      .hljs-selector-class,
-      .hljs-selector-id,
-      .hljs-string,
-      .hljs-template-tag,
-      .hljs-type {
-        color: #886594;
-      }
-      .hljs-section,
-      .hljs-title {
-        color: #c44170;
-        font-weight: 500;
-      }
-
-      .hljs-link,
-      .hljs-operator,
-      .hljs-regexp,
-      .hljs-selector-attr,
-      .hljs-selector-pseudo,
-      .hljs-symbol,
-      .hljs-template-variable,
-      .hljs-variable {
-        color: #e06c75;
-      }
-      .hljs-literal {
-        color: #695;
-      }
-      .hljs-addition,
-      .hljs-built_in,
-      .hljs-bullet,
-      .hljs-code,
-      .hljs-params {
-        color: #c44170;
-      }
-      .hljs-meta {
-        color: #625b6b;
-      }
-      .hljs-meta .hljs-string {
-        color: #38a;
-      }
-      .hljs-emphasis {
-        font-style: italic;
-      }
-      .hljs-strong {
-        font-weight: 500;
       }
     }
   }

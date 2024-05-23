@@ -75,7 +75,7 @@ export const Link = Mark.create<LinkOptions>({
 
   addOptions() {
     return {
-      openOnClick: true,
+      openOnClick: false,
       linkOnPaste: true,
       autolink: true,
       protocols: [],

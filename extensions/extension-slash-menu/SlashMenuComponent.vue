@@ -107,7 +107,7 @@ const scrollToSelected = () => {
   <div
       v-if="items.length > 0"
       ref="commandListContainer"
-      class="flex flex-col z-50 h-auto max-h-[330px] w-60 overflow-y-auto rounded-md border border-stone-200 bg-white p-1 gap-1 shadow-md transition-all"
+      class="flex flex-col z-50 h-auto max-h-[330px] w-60 overflow-y-auto rounded-md border border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700 p-1 gap-1 shadow-md transition-all"
   >
     <UButton
         size="xs"
@@ -120,8 +120,12 @@ const scrollToSelected = () => {
         :loading="item.label === 'Complétez avec l\'IA' && isLoading"
     >
       <template #leading>
-        <div class="flex items-center justify-center p-px font-medium border rounded-sm border-stone-200">
-          <UIcon :name="item.icon" class="w-4 h-4" />
+        <div class="flex items-center justify-center p-px font-medium border rounded-sm border-gray-200 dark:border-gray-700">
+          <svg v-if="item.label === 'Complétez avec l\'IA' && isLoading" class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <UIcon v-else :name="item.icon" dynamic class="w-4 h-4" />
         </div>
       </template>
 

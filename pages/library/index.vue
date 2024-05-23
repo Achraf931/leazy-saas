@@ -1,41 +1,22 @@
-<script setup>
-const client = useSanctumClient()
-const localePath = useLocalePath()
+<script setup lang="ts">
+import { useChaptersStore, useLessonsStore, useThemesStore } from '@/stores/library'
 
-const { data: library, pending, error, refresh } = await useAsyncData('library', async () => {
+const chaptersStore = useChaptersStore()
+const lessonsStore = useLessonsStore()
+const themesStore = useThemesStore()
 
-  const [themes, chapters, lessons] = await Promise.all([
-    client('/api/teacher/themes'),
-    client('/api/teacher/chapters'),
-    client('/api/teacher/lessons')
-  ])
-
-  return {
-    themes: themes.data,
-    chapters: chapters.data,
-    lessons: lessons.data
-  }
-})
+const { chapters } = storeToRefs(chaptersStore)
+const { lessons } = storeToRefs(lessonsStore)
+const { themes } = storeToRefs(themesStore)
 </script>
 
 <template>
-  <UDashboardPanel grow>
-    <UDashboardNavbar>
-      <template #left>
-        <ToggleDrawer :title="$t('drawer.library.label')" />
-      </template>
-    </UDashboardNavbar>
+  <UDashboardPanelContent>
+    <LibraryLessons v-if="lessons?.data?.length" :lessons="lessons.data"/>
 
-    <UDashboardPanelContent v-if="!pending">
-      <!-- ~/components/home/HomeLessons.vue -->
-      <HomeLessons v-if="library.lessons?.length" :lessons="library.lessons" />
-
-      <div class="grid lg:grid-cols-2 lg:items-start gap-5 mt-8">
-        <!-- ~/components/home/HomeSales.vue -->
-        <HomeChapters v-if="library.chapters?.length" :chapters="library.chapters" />
-        <!-- ~/components/home/HomeCountries.vue -->
-        <HomeThemes v-if="library.themes?.length" :themes="library.themes" />
-      </div>
-    </UDashboardPanelContent>
-  </UDashboardPanel>
+    <div class="grid lg:grid-cols-2 lg:items-start gap-5 mt-8">
+      <LibraryChapters v-if="chapters?.data?.length" :chapters="chapters.data"/>
+      <LibraryThemes v-if="themes?.data?.length" :themes="themes.data"/>
+    </div>
+  </UDashboardPanelContent>
 </template>

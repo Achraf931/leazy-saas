@@ -12,7 +12,7 @@ declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     video: {
       /**
-       * Add an image
+       * Add a video
        */
       setVideo: (options: {
         src: string

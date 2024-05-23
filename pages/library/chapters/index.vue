@@ -1,15 +1,21 @@
 <script setup>
-import { useDebounce } from '@vueuse/core'
-import { sub, formatDistanceToNow } from 'date-fns'
+import { formatDistanceToNow } from 'date-fns'
 import frLocale from 'date-fns/locale/fr'
+import { useChaptersStore } from '@/stores/library'
 
-const client = useSanctumClient()
 const toast = useToast()
 
-const { data: chapters, pending, error, refresh } = await useAsyncData('chapters', () => client('/api/teacher/chapters'))
+const store = useChaptersStore()
+const { fetchChapters, refresh, addChapter } = store
+const { chapters, pending, error } = storeToRefs(store)
+
+await fetchChapters()
+
 const localePath = useLocalePath()
 
 const q = ref('')
+
+const page = ref(chapters.value?.current_page)
 
 const isOpen = ref(false)
 
@@ -25,21 +31,7 @@ const links = [
 ]
 
 const isDeleteChapterModalOpen = ref({ open: false, chapter: null, refresh })
-const currentProvider = ref('unsplash')
-const searchQuery = ref('')
 const isLoading = ref(false)
-const debounced = useDebounce(searchQuery, 1000)
-const results = ref([])
-
-watch(debounced, async () => {
-  isLoading.value = true
-  const { results: resultsQuery } = await useSearchMedia(currentProvider.value, searchQuery.value, null)
-  results.value = resultsQuery.value
-  isLoading.value = false
-})
-
-const range = ref({ start: sub(new Date(), { days: 14 }), end: new Date() })
-const period = ref('daily')
 
 const filteredChapters = computed(() => {
   return chapters.value?.data.filter(chapter => {
@@ -67,38 +59,36 @@ const validate = (state) => {
 }
 
 const onSubmit = async (state) => {
-  isLoading.value = true
-  const response = await client('/api/teacher/chapters', { method: 'POST', body: state.data })
+  try {
+    isLoading.value = true
+    const response = await addChapter({ ...state.data })
 
-  if (response) setTimeout(async () => {
+    if (response) setTimeout(async () => {
+      isLoading.value = false
+      isOpen.value = false
+      await refresh()
+      toast.add({ icon: 'i-heroicons-check-circle', title: 'Nouveau chapitre crée', color: 'green' })
+    }, 2000)
+    else isLoading.value = false
+  } catch (error) {
     isLoading.value = false
-    isOpen.value = false
-    await refresh()
-    toast.add({ icon: 'i-heroicons-check-circle', title: 'Nouveau chapitre crée', color: 'green' })
-  }, 2000)
-  else isLoading.value = false
+  }
 }
+
+watch(page, async (page) => {
+  await refresh(page)
+})
 </script>
 
 <template>
   <UDashboardPage>
     <UDashboardPanel grow>
-      <UDashboardNavbar>
-        <template #title>
-          <ToggleDrawer />
-          <UBreadcrumb :links="links" />
-        </template>
-        <template #right>
-          <UButton trailing-icon="i-heroicons-plus" @click="isOpen = true" label="Créer un chapitre" />
-        </template>
-      </UDashboardNavbar>
-
       <UDashboardToolbar>
         <template #left>
           <UInput v-model="q" icon="i-heroicons-magnifying-glass" placeholder="Rechercher un chapitre" />
-
-          <!-- ~/components/home/HomeDateRangePicker.vue -->
-          <HomeDateRangePicker v-model="range" class="ml-2.5" />
+        </template>
+        <template #right>
+          <UButton trailing-icon="i-heroicons-plus" @click="isOpen = true" label="Créer un chapitre" />
         </template>
       </UDashboardToolbar>
 
@@ -107,7 +97,10 @@ const onSubmit = async (state) => {
           <UBlogList v-if="filteredChapters.length" orientation="horizontal" :ui="{ wrapper: 'p-px overflow-y-auto gap-4 sm:grid sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5' }">
             <UBlogPost v-for="chapter in filteredChapters" :key="chapter.id" :to="localePath({ name: 'library-chapters-id', params: { id: chapter.id } })" :ui="{ wrapper: 'gap-y-1', title: 'text-sm', date: 'text-xs', authors: { wrapper: 'mt-0' }, image: { wrapper: 'pointer-events-auto' }, badge: { wrapper: 'absolute top-2 left-2.5 mb-0 py-0' } }">
               <template #image>
-                <img class="cursor-pointer block object-cover object-top w-full h-full transform transition-transform duration-200 hover:scale-105" :src="chapter.image" :alt="chapter.name">
+                <img v-if="chapter.image" class="cursor-pointer block object-cover object-top w-full h-full transform transition-transform duration-200 hover:scale-105" :src="chapter.image" :alt="chapter.name">
+                <div v-else class="flex items-center justify-center bg-gray-200 dark:bg-gray-800 w-full h-full">
+                  <UIcon name="i-heroicons-photo" class="w-24 h-24 text-white" />
+                </div>
               </template>
               <template #default>
                 <div class="flex items-center justify-between">
@@ -121,6 +114,12 @@ const onSubmit = async (state) => {
                   </div>
                   <UDropdown :ui="{ wrapper: 'absolute top-2.5 right-2.5', item: { size: 'text-xs' }, width: 'w-auto' }" :items="[[{ label: 'Renommer', icon: 'i-heroicons-pencil-square' }, { label: 'Supprimer', icon: 'i-heroicons-trash', color: 'red', click: () => handleDelete(chapter) }]]" :popper="{ placement: 'bottom-end' }">
                     <UButton icon="i-heroicons-ellipsis-horizontal" variant="soft" color="gray" :padded="false" />
+
+                    <template #item="{ item }">
+                      <UIcon :name="item.icon" class="flex-shrink-0 h-4 w-4 ms-auto" :class="item.label === 'Supprimer' ? 'text-red-500 dark:text-red-400' : ''" />
+
+                      <span class="truncate" :class="item.label === 'Supprimer' ? 'text-red-500 dark:text-red-400' : ''">{{ item.label }}</span>
+                    </template>
                   </UDropdown>
                 </div>
               </template>
@@ -129,8 +128,8 @@ const onSubmit = async (state) => {
           <p v-else class="text-center text-gray-400 dark:text-white text-sm mt-4">Aucun chapitre trouvé</p>
         </UDashboardPanelContent>
 
-        <div class="p-2.5 flex items-center justify-center border-t border-gray-200">
-          <UPagination size="xs" show-first show-last :page-count="chapters.per_page" :total="chapters.total" v-model="chapters.current_page" :max="5" />
+        <div v-if="filteredChapters && chapters.last_page > 1" class="p-2.5 flex items-center justify-center border-t border-gray-200 dark:border-gray-800">
+          <UPagination size="xs" show-first show-last :page-count="chapters.per_page" :total="chapters.total" v-model="page" :max="5" />
         </div>
       </template>
     </UDashboardPanel>

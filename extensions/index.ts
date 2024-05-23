@@ -5,7 +5,7 @@ import { Color } from '@tiptap/extension-color'
 import { FocusClasses } from '@tiptap/extension-focus'
 import { FontFamily } from '@tiptap/extension-font-family'
 import { Highlight } from '@tiptap/extension-highlight'
-// import { Placeholder } from '@tiptap/extension-placeholder'
+import { Placeholder } from '@tiptap/extension-placeholder'
 import { Subscript } from '@tiptap/extension-subscript'
 import { Superscript } from '@tiptap/extension-superscript'
 import { TaskItem } from '@tiptap/extension-task-item'
@@ -21,6 +21,9 @@ import { TableRow } from '@tiptap/extension-table-row'
 import { Link } from '@tiptap/extension-link'
 import { TextAlign } from '@tiptap/extension-text-align'
 import Youtube from '@tiptap/extension-youtube'
+import Details from '@tiptap-pro/extension-details'
+import DetailsSummary from '@tiptap-pro/extension-details-summary'
+import DetailsContent from '@tiptap-pro/extension-details-content'
 // import { getHierarchicalIndexes, TableOfContents } from '@tiptap-pro/extension-table-of-contents'
 import Emoji, { gitHubEmojis } from '@tiptap-pro/extension-emoji'
 // import { Image } from '@tiptap/extension-image'
@@ -32,6 +35,11 @@ import { uniqueId } from './extension-unique-id'
 import { SpeechRecognition } from './extension-speech-recognition'
 import { ColumnExtension } from './extension-multi-columns'
 import DragAndDrop from './extension-drag-and-drop'
+import { SearchAndReplace } from '@/extensions/extension-search-and-replace'
+import SearchAndEnrich from '@/extensions/extension-enrich'
+// import DragAndDrop from './extension-test-drag'
+// import DragAndDrop from './extension-global-drag'
+// import AutoJoiner from './extension-auto-joiner'
 import { Indent } from '@/extensions/extension-indent'
 import { ColorHighlighter } from '@/extensions/extension-color-preview'
 // import Link from './extension-link'
@@ -44,9 +52,10 @@ import ImageComponent from './extension-image/ImageComponent.vue'
 import ImagePlaceholder from './extension-image/ImagePlaceholder'
 import ImagePlaceholderComponent from './extension-image/ImagePlaceholderComponent.vue'
 import Video from './extension-video'
-import VideoComponent from './extension-video/VideoComponent.vue'
 import VideoPlaceholder from './extension-video/VideoPlaceholder'
-import VideoPlaceholderComponent from './extension-video/VideoPlaceholderComponent.vue'
+import Lesson from '@/extensions/extension-lesson-block'
+import LessonPlaceholder from '@/extensions/extension-lesson-block/LessonPlaceholder'
+
 import LinkEmbed from '@/extensions/extension-link-embed'
 //import TableOfContents from './extension-table-of-contents/TableOfContents.ts'
 // import Iframe from './extension-iframe'
@@ -55,13 +64,37 @@ import LinkEmbed from '@/extensions/extension-link-embed'
 // import TableHeader from './extension-table-header'
 // import TableRow from './extension-table-row'
 
+import Paper from '@/extensions/extension-paper'
 import MathExtension from '@/extensions/extension-math'
 import { CalloutBox } from '@/extensions/extension-callout-box'
 import { FontSize } from '@/extensions/extension-font-size'
+import CodeBlockLowlight from '@/extensions/extension-code-block-lowlight'
+// import { TrailingNode } from '@/extensions/extension-trailing-node'
+
+import Tweet from '@/extensions/extension-twitter-card'
+import { TweetPlaceholder } from '@/extensions/extension-twitter-card/TweetPlaceholder'
 
 export default [
   SlashMenu,
+  Paper,
   DragAndDrop,
+  CodeBlockLowlight,
+  Tweet,
+  TweetPlaceholder,
+  // AutoJoiner,
+  // TrailingNode,
+  // SearchAndEnrich,
+  SearchAndReplace.configure(),
+  Details.configure({
+    persist: true,
+    HTMLAttributes: {
+      class: 'details list-none my-3'
+    }
+  }),
+  Lesson,
+  LessonPlaceholder,
+  DetailsSummary,
+  DetailsContent,
   SpeechRecognition,
   Youtube,
   LinkEmbed,
@@ -124,7 +157,7 @@ export default [
     }
   }),*/
   Link.configure({
-    openOnClick: false,
+    openOnClick: 'whenNotEditable',
     HTMLAttributes: {
       class: 'text-stone-400 underline underline-offset-[3px] hover:text-stone-600 transition-colors cursor-pointer'
     }
@@ -134,15 +167,11 @@ export default [
   Image.configure({
     Component: ImageComponent
   }),
-  Video.configure({
-    Component: VideoComponent
-  }),
+  Video,
   ImagePlaceholder.configure({
     Component: ImagePlaceholderComponent
   }),
-  VideoPlaceholder.configure({
-    Component: VideoPlaceholderComponent
-  }),
+  VideoPlaceholder,
   CharacterCount,
   Color,
   FocusClasses,
@@ -150,14 +179,14 @@ export default [
   Highlight.configure({
     multicolor: true
   }),
-  /*Placeholder.configure({
+  Placeholder.configure({
     placeholder: ({ node }) => {
-      if (node.type.name === 'heading') return 'Titre de la leçon'
+      if (node.type.name === 'details') return 'Summary'
 
-      return '\'/\' pour les commandes ou \'+++\' pour l\'autocomplétion de l\'IA...'
+      return null
     },
     includeChildren: true
-  }),*/
+  }),
   Subscript,
   Superscript,
   Table.configure({
@@ -184,7 +213,7 @@ export default [
   TextStyle,
   Underline,
   uniqueId.configure({
-    types: ['heading', 'paragraph', 'blockquote', 'codeBlock', 'columnBlock', 'column', 'bulletList', 'orderedList', 'listItem', 'taskList', 'taskItem', 'calloutBox', 'horizontalRule', 'image', 'link', 'mark', 'underline', 'textStyle', 'color', 'highlight', 'code']
+    types: ['heading', 'paragraph', 'twitter', 'twitterPlaceholder', 'blockquote', 'codeBlock', 'details', 'columnBlock', 'column', 'bulletList', 'orderedList', 'listItem', 'taskList', 'taskItem', 'calloutBox', 'horizontalRule', 'image', 'lesson', 'video', 'link', 'mark', 'underline', 'textStyle', 'color', 'highlight', 'code']
   }),
   StarterKit.configure({
     bulletList: {
@@ -207,11 +236,11 @@ export default [
         class: 'border-l-4 border-stone-700 my-3 relative pl-4'
       }
     },
-    codeBlock: {
+    /*codeBlock: {
       HTMLAttributes: {
         class: 'inline-flex text-left items-center text-[13.5px] bg-gray-800 text-white rounded-lg w-full p-3 my-3',
       }
-    },
+    },*/
     code: {
       HTMLAttributes: {
         class: 'inline-flex items-center font-medium text-xs px-1.5 py-0.5 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-800 rounded',

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Editor as EditorType } from '@tiptap/core'
-import { useStorage } from '@vueuse/core'
+import { useChaptersStore, useLessonsStore } from '@/stores/library'
 
 definePageMeta({
   pageTransition: false
@@ -12,38 +12,31 @@ const client = useSanctumClient()
 const { t } = useI18n()
 const editor = ref<EditorType>()
 const savePending = ref(false)
+const searchOpened = ref(false)
+const searchTerm = ref('')
+const replaceTerm = ref('')
+const caseSensitive = ref(false)
+const pendingDraft = ref(false)
+const pendingVisibility = ref(false)
 
 const documentId = computed(() => useRoute().params.id)
 
-const { data, pending, error, refresh } = await useAsyncData(async () => {
-  const [lesson, chapters] = await Promise.all([
-    client(`/api/teacher/lessons/${documentId.value}`),
-    client('/api/teacher/chapters')
-  ])
+const { fetchLesson, updateLesson } = useLessonsStore()
+const { fetchChapters, addChapter } = useChaptersStore()
+let lesson = await fetchLesson(documentId.value)
 
-  return {
-    lesson,
-    chapters: chapters.data
-  }
-})
+await fetchChapters()
 
-const { lesson, chapters } = data.value
+const { chapters } = storeToRefs(useChaptersStore())
 
-// const { data: lesson, pending, error, refresh } = await useAsyncData(() => client(`/api/teacher/lessons/${documentId.value}`))
+let initialContent = JSON.stringify(lesson?.content)
 
-let initialContent = JSON.stringify(lesson.content)
-
-const content = computed(() => JSON.parse(lesson.content ?? '{}'))
+const content = computed(() => JSON.parse(lesson?.content) || {})
 
 const isContentUnsaved = computed(() => JSON.stringify(content.value) !== initialContent)
 
-watch(() => content.value, () => {
-  const data = useStorage(`leazy-editor-${documentId.value}`, '{}')
-  data.value = JSON.stringify(content.value)
-}, { deep: true, immediate: true })
-
-const title = ref(lesson.name),
-    description = ref(lesson.description)
+const title = ref(lesson?.name),
+    description = ref(lesson?.description)
 
 const panelOpened = ref(false)
 const links = ref([
@@ -144,12 +137,12 @@ const images = [
   }
 ]
 
-const options = [
+const options = ref([
   [{
-    label: 'Brouillon',
+    label: lesson?.draft ? 'Publier' : 'Mettre en brouillon',
     icon: 'i-heroicons-archive-box',
     click: () => {
-      console.log('Edit')
+      handleDraft()
     }
   }, {
     label: 'Dupliquer',
@@ -173,38 +166,29 @@ const options = [
     label: 'Supprimer',
     icon: 'i-heroicons-trash-20-solid'
   }]
-]
+])
 
-const selectedChapter = ref(lesson.chapter || null)
+const selectedChapter = ref(lesson?.chapter || null)
 
 const labels = computed({
   get: () => selectedChapter.value,
   set: async (label) => {
-    if (label.id) {
-      await client(`/api/teacher/lessons/${documentId.value}`, { method: 'PATCH', body: { chapter_id: label.id } })
-      return await refresh()
-    }
+    if (label.id) return lesson = await updateLesson({ id: documentId.value, chapter_id: label.id })
 
-    const response = await client('/api/teacher/chapters', { method: 'POST', body: label })
-
-    /*const response = {
-      id: chapters.value.length + 1,
-      name: label.name
-    }*/
-
-    chapters.value.push(response)
+    const response = await addChapter({ name: label.name, theme_id: 1, image: 'https://excalidraw.com/og-image-2.png' })
+    lesson = await updateLesson({ id: documentId.value, chapter_id: response.id })
 
     return selectedChapter.value = response
   }
 })
 
 const goPrevLesson = async () => {
-  const response = await client(`/api/teacher/lessons/${lesson.chapter.id}/previous?current_order=${lesson.order}`)
+  const response = await client(`/api/teacher/lessons/${lesson?.chapter.id}/previous?current_order=${lesson?.order}`)
   await navigateTo(localePath({ name: 'library-lessons-id', params: { id: response.id } }))
 }
 
 const goNextLesson = async () => {
-  const response = await client(`/api/teacher/lessons/${lesson.chapter.id}/next?current_order=${lesson.order}`)
+  const response = await client(`/api/teacher/lessons/${lesson?.chapter.id}/next?current_order=${lesson?.order}`)
   await navigateTo(localePath({ name: 'library-lessons-id', params: { id: response.id } }))
 }
 
@@ -217,26 +201,158 @@ const save = async () => {
 
   const json = editor.value?.editor.getJSON()
 
-  console.log(title.value)
-  const response = await client(`/api/teacher/lessons/${lesson.id}`, {
-    method: 'PATCH',
-    body: {
-      name: title.value,
-      // description: description.value,
-      content: JSON.stringify(json),
-      // chapter_id: selectedChapter.value.id
-    }
+  const response = await updateLesson({
+    ...lesson,
+    id: documentId.value,
+    name: title.value,
+    description: description.value,
+    content: JSON.stringify(json)
   })
 
   savePending.value = false
 
   if (response) {
-    await refresh()
-    initialContent = JSON.stringify(lesson.content)
+
+    lesson = response
+    initialContent = JSON.stringify(lesson?.content)
     return toast.add({ icon: 'i-heroicons-check-circle', title: 'Leçon enregistrée avec succès', color: 'green' })
   }
 
   return toast.add({ icon: 'i-heroicons-x-circle', title: 'Erreur lors de l\'enregistrement de la leçon', color: 'red' })
+}
+
+const updateSearchReplace = (clearIndex = false) => {
+  if (!editor.value?.editor) return
+  if (clearIndex) editor.value?.editor.commands.resetIndex()
+
+  editor.value?.editor.commands.setSearchTerm(searchTerm.value)
+  editor.value?.editor.commands.setReplaceTerm(replaceTerm.value)
+  editor.value?.editor.commands.setCaseSensitive(caseSensitive.value)
+}
+
+
+const goToSelection = () => {
+  if (!editor.value?.editor) return;
+
+  const { results, resultIndex } = editor.value.editor.storage.searchAndReplace;
+  const position: Range = results[resultIndex];
+
+  if (!position) return;
+
+  editor.value?.editor.commands.setTextSelection(position);
+
+  const { node } = editor.value.editor.view.domAtPos(
+      editor.value.editor.state.selection.anchor
+  );
+  node instanceof HTMLElement &&
+  node.scrollIntoView({ behavior: "smooth", block: "center" });
+};
+
+watch(
+    () => searchTerm.value.trim(),
+    (val, oldVal) => {
+      if (!val) clear();
+      if (val !== oldVal) updateSearchReplace(true);
+    }
+);
+
+watch(
+    () => searchOpened.value,
+    (val) => {
+      if (!val) clear();
+    }
+)
+
+watch(
+    () => replaceTerm.value.trim(),
+    (val, oldVal) => (val === oldVal ? null : updateSearchReplace())
+);
+
+watch(
+    () => caseSensitive.value,
+    (val, oldVal) => (val === oldVal ? null : updateSearchReplace(true))
+);
+
+const replace = () => {
+  editor.value?.editor.commands.replace();
+  goToSelection();
+};
+
+const next = () => {
+  editor.value?.editor.commands.nextSearchResult();
+  goToSelection();
+};
+
+const previous = () => {
+  editor.value?.editor.commands.previousSearchResult();
+  goToSelection();
+};
+
+const clear = () => {
+  searchTerm.value = replaceTerm.value = "";
+  editor.value.editor.commands.resetIndex();
+};
+
+const replaceAll = () => editor.value?.editor.commands.replaceAll();
+
+onMounted(() => {
+  setTimeout(updateSearchReplace)
+})
+
+const getText = async () => {
+  console.log('click on get plain text')
+  // console.log('JSON => ', editor.value?.editor.getJSON())
+  // console.log('HTML => ', editor.value?.editor.getHTML())
+  /*const plainText = editor.value?.editor.getText({ blockSeparator: `\n\n` })
+  plainText.replace(/<pre[^>]*>([\s\S]*?)<\/pre[^>]*>/m, '')
+
+  const test = await $fetch('/api/enrich', {
+    method: 'POST',
+    body: {
+      prompt: plainText
+    }
+  })
+
+  console.log('test => ', test)*/
+  editor.value?.editor.commands.setEnrich()
+}
+
+const handleDraft = async () => {
+  pendingDraft.value = true
+  const response = await client(`/api/teacher/lessons/${lesson?.id}`, {
+    method: 'PATCH',
+    body: {
+      draft: !lesson?.draft
+    }
+  })
+
+  if (response) {
+    toast.add({ icon: 'i-heroicons-check-circle', title: `Leçon ${lesson?.draft ? 'publiée' : 'mise en brouillon'} avec succès`, color: 'green' })
+    await refresh()
+    return pendingDraft.value = false
+  }
+
+  toast.add({ icon: 'i-heroicons-x-circle', title: `Erreur lors de la ${lesson?.draft ? 'publication' : 'mise en brouillon'} de la leçon`, color: 'red' })
+  return pendingDraft.value = false
+}
+
+const handleVisibility = async () => {
+  pendingVisibility.value = true
+  const response = await client(`/api/teacher/lessons/${lesson?.id}`, {
+    method: 'PATCH',
+    body: {
+      private: !lesson?.private
+    }
+  })
+
+  if (response) {
+    toast.add({ icon: 'i-heroicons-check-circle', title: `Leçon ${lesson?.draft ? 'rendu publique' : 'rendu privée'} avec succès`, color: 'green' })
+    await refresh()
+    return pendingVisibility.value = false
+  }
+
+  toast.add({ icon: 'i-heroicons-x-circle', title: `Erreur lors de la ${lesson?.draft ? 'mise en publique' : 'mise en privée'} de la leçon`, color: 'red' })
+  return pendingVisibility.value = false
 }
 </script>
 
@@ -249,21 +365,32 @@ const save = async () => {
       </template>
 
       <template #badge>
-        <UBadge variant="subtle" size="xs" :color="lesson.draft ? 'primary' : 'green'">{{ lesson.draft ? 'Brouillon' : 'Publié' }}</UBadge>
+        <UPopover :popper="{ placement: 'bottom-end' }">
+          <UBadge variant="subtle" size="xs" :color="lesson.draft ? 'orange' : 'green'">
+            {{ lesson.draft ? 'Brouillon' : 'Publié' }}
+            <UIcon name="i-heroicons-chevron-down-20-solid" class="w-4 h-4" />
+          </UBadge>
+
+          <template #panel>
+            <div class="flex items-center justify-center">
+              <UButton icon="i-heroicons-pencil-square" :label="lesson.draft ? 'Publier' : 'Mettre en brouillon'" color="gray" size="2xs" variant="ghost" @click="handleDraft" />
+            </div>
+          </template>
+        </UPopover>
       </template>
 
       <template #right>
         <div class="flex items-center justify-end gap-1">
           <template v-if="lesson.chapter?.lessons_count">
             <p class="pr-1.5 tracking-wider text-sm">{{ lesson.order }}/{{ lesson.chapter.lessons_count }}</p>
-            <UButton :disabled="lesson.order === 1" @click="goPrevLesson" size="2xs" variant="soft" :color="lesson.order === 1 ? 'gray' : 'primary'" square>
+            <UButton :disabled="lesson.order === 1" @click="goPrevLesson" size="2xs" variant="solid" :color="lesson.order === 1 ? 'white' : 'primary'" square>
               <UIcon name="i-heroicons-chevron-left" />
             </UButton>
-            <UButton :disabled="lesson.order === lesson.chapter.lessons_count" @click="goNextLesson" size="2xs" variant="soft" :color="lesson.order === lesson.chapter.lessons_count ? 'gray' : 'primary'" square>
+            <UButton :disabled="lesson.order === lesson.chapter.lessons_count" @click="goNextLesson" size="2xs" variant="solid" :color="lesson.order === lesson.chapter.lessons_count ? 'white' : 'primary'" square>
               <UIcon name="i-heroicons-chevron-right" />
             </UButton>
           </template>
-          <div class="border-l border-gray-200 pl-2.5 ml-2 flex items-center h-full cursor-pointer">
+          <div class="border-l border-gray-200 dark:border-gray-500 pl-2.5 ml-2 flex items-center h-full cursor-pointer">
             <UIcon @click="panelOpened = !panelOpened" dynamic :name="`i-fluent-panel-right-32-${panelOpened ? 'filled' : 'regular'}`" class="w-4 h-4 text-gray-500 dark:text-gray-200" />
           </div>
         </div>
@@ -277,33 +404,70 @@ const save = async () => {
     </UDashboardPanelContent>
 
     <UDashboardToolbar :ui="{ wrapper: 'bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 z-10', left: 'items-center gap-2 relative' }">
-      <template #left>
-        <UPopover :popper="{ placement: 'top-start' }">
-          <UButton icon="i-heroicons-check" size="xs" leading-icon="i-lucide-wand-sparkles" label="IA Commandes" variant="soft" />
+      <template v-if="editor?.editor" #left>
+        <UPopover :popper="{ placement: 'top-start' }" v-model:open="searchOpened">
+          <UButton icon="i-lucide-replace-all" label="Chercher et remplacer" variant="soft" color="white" />
+
+          <template #panel>
+            <div class="p-2">
+              <div class="flex gap-2">
+                <UFormGroup label="Chercher" size="2xs">
+                  <UInput v-model="searchTerm" @keydown.enter.prevent="updateSearchReplace" placeholder="Chercher..." variant="outline" padded />
+                </UFormGroup>
+                <UFormGroup label="Remplacer par" size="2xs">
+                  <UInput v-model="replaceTerm" @keydown.enter.prevent="replace" placeholder="Remplacer par..." variant="outline" padded />
+                </UFormGroup>
+              </div>
+
+              <UCheckbox v-model="caseSensitive" class="my-2" :ui="{ base: 'w-3 h-3', inner: 'ms-2' }">
+                <template #label>
+                  <label class="text-xs font-medium text-gray-700 dark:text-gray-300">Sensible à la casse</label>
+                </template>
+              </UCheckbox>
+
+              <div class="flex items-center gap-1">
+                <UButton variant="soft" color="red" size="2xs" @click="clear" icon="i-heroicons-x-mark" />
+                <UButton variant="soft" color="gray" size="2xs" @click="previous" icon="i-heroicons-chevron-left-20-solid" />
+                <p class="text-[11px] font-medium text-gray-700">
+                  {{ editor?.editor?.storage?.searchAndReplace?.resultIndex + (editor?.editor?.storage?.searchAndReplace?.results.length ? 1 : 0) }} / {{ editor?.editor?.storage?.searchAndReplace?.results.length }}
+                </p>
+                <UButton variant="soft" color="gray" size="2xs" @click="next" icon="i-heroicons-chevron-right-20-solid" />
+                <UButton variant="soft" size="2xs" @click="replace" label="Remplacer" />
+                <UButton variant="soft" size="2xs" @click="replaceAll" label="Tout remplacer" />
+              </div>
+            </div>
+          </template>
         </UPopover>
 
-        <template v-if="editor?.editor">
-          <div class="flex items-center justify-start gap-1 px-2 border-gray-200 dark:border-gray-800 h-full border-x border-solid">
-            <UButton @click="editor?.editor.chain().focus().undo().run()" :disabled="!editor?.editor.can().undo()" icon="i-lucide-undo" variant="soft" size="xs" :color="editor?.editor.can().undo() ? 'primary' : 'gray'" />
-            <UButton @click="editor?.editor.chain().focus().redo().run()" :disabled="!editor?.editor.can().redo()" icon="i-lucide-redo" variant="soft" size="xs" :color="editor?.editor.can().redo() ? 'primary' : 'gray'" />
-          </div>
-          <p class="text-xs">{{ new Intl.NumberFormat('fr-FR').format(editor.editor.storage.characterCount.words()).replace(/\s/g, '&nbsp;') }} mots</p>
-        </template>
-
+        <div class="flex items-center justify-start gap-1 px-2 border-gray-200 dark:border-gray-800 h-full border-x border-solid">
+          <UButton @click="editor?.editor.chain().focus().undo().run()" :disabled="!editor?.editor.can().undo()" icon="i-lucide-undo" variant="soft" size="xs" :color="editor?.editor.can().undo() ? 'primary' : 'white'" />
+          <UButton @click="editor?.editor.chain().focus().redo().run()" :disabled="!editor?.editor.can().redo()" icon="i-lucide-redo" variant="soft" size="xs" :color="editor?.editor.can().redo() ? 'primary' : 'white'" />
+        </div>
+        <p class="text-xs">{{ new Intl.NumberFormat('fr-FR').format(editor.editor.storage.characterCount.words()).replace(/\s/g, '&nbsp;') }} mots</p>
       </template>
 
       <template #right>
-        <UButton :disabled="!isContentUnsaved" size="xs" @click="save" :loading="savePending" icon="i-heroicons-check" :label="isContentUnsaved ? 'Enregistrer' : 'Enregistré'" />
+        <UButton :disabled="!isContentUnsaved" @click="save" :loading="savePending" icon="i-heroicons-check" :label="isContentUnsaved ? 'Enregistrer' : 'Enregistré'" />
       </template>
     </UDashboardToolbar>
   </UDashboardPanel>
 
   <USlideover v-model="panelOpened" side="right" :overlay="false" :ui="{ wrapper: 'top-[--header-height] h-[calc(100vh-var(--header-height))]', width: 'max-w-max' }">
-    <UDashboardSidebar class="max-w-72 border-l border-gray-200" :ui="{ container: 'text-sm', body: 'gap-4', footer: 'grid grid-cols-2 gap-2' }">
+    <UDashboardSidebar class="max-w-72 border-l border-gray-200 dark:border-gray-800" :ui="{ container: 'text-sm', body: 'gap-4', footer: 'grid grid-cols-2 gap-2' }">
       <template #header>
         <UIcon @click="panelOpened = false" name="i-heroicons-x-mark" class="w-4 h-4 text-gray-600 ml-auto cursor-pointer" />
       </template>
       <template #default>
+        <div class="grid grid-cols-2 gap-2">
+          <UFormGroup label="Publier/Brouillon">
+            <UButton block icon="i-heroicons-pencil-square" :loading="pendingDraft" :label="lesson.draft ? 'Publier' : 'Brouillon'" :color="lesson.draft ? 'green' : 'orange'" size="xs" variant="soft" @click="handleDraft" />
+          </UFormGroup>
+
+          <UFormGroup label="Publique/Privée">
+            <UButton block :icon="lesson.private ? 'i-heroicons-eye' : 'i-heroicons-eye-slash'" :loading="pendingVisibility" :label="lesson.private ? 'Publique' : 'Privée'" :color="lesson.private ? 'green' : 'orange'" size="xs" variant="soft" @click="handleVisibility" />
+          </UFormGroup>
+        </div>
+
         <UFormGroup label="Titre">
           <UInput v-model="title" placeholder="Titre de la leçon" variant="outline" padded />
         </UFormGroup>
@@ -317,7 +481,7 @@ const save = async () => {
             v-model="labels"
             by="id"
             name="labels"
-            :options="chapters"
+            :options="chapters.data"
             option-attribute="name"
             searchable-placeholder="Rechercher un chapitre"
             searchable
@@ -360,7 +524,7 @@ const save = async () => {
       </template>
 
       <template #footer>
-        <UButton disabled block label="Enregistrer" icon="i-heroicons-check" />
+        <UButton :disabled="!isContentUnsaved" @click="save" :loading="savePending" icon="i-heroicons-check" :label="isContentUnsaved ? 'Enregistrer' : 'Enregistré'" />
         <UDropdown :items="options" :ui="{ item: { size: 'text-xs' }, width: 'w-auto' }" :popper="{ placement: 'top-end' }">
           <UButton block icon="i-heroicons-bolt" trailing-icon="i-heroicons-ellipsis-vertical" color="gray" label="Actions" />
         </UDropdown>

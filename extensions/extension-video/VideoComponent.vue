@@ -1,11 +1,11 @@
 <template>
   <NodeViewWrapper
-      class="image imageComponent max-w-full"
+      class="video videoComponent max-w-full"
       :class="[selected ? 'ProseMirror-selectednode' : '', `${node.attrs.align}Align`]"
       :style="`width: ${node.attrs.width};`"
   >
     <div
-        class="imageContainer not-prose"
+        class="videoContainer not-prose"
         :class="{ resizing: resizing }"
     >
       <video
@@ -16,9 +16,6 @@
       />
 
       <template v-if="editor.isEditable">
-        <div class="resizeHandleContainer" style="left: 0;" @mousedown="startResize">
-          <div class="resizeHandle"></div>
-        </div>
         <div class="resizeHandleContainer" style="right: 0;" @mousedown="startResize">
           <div class="resizeHandle"></div>
         </div>
@@ -34,9 +31,9 @@
 </template>
 
 <script setup lang="ts">
-import { NodeViewWrapper } from '@tiptap/vue-3'
+import { NodeViewWrapper, type NodeViewProps } from '@tiptap/vue-3'
 
-const props = defineProps(['node', 'editor', 'selected', 'updateAttributes'])
+const props: NodeViewProps = defineProps(['node', 'editor', 'selected', 'updateAttributes'])
 const videoRef = ref(null)
 const resizing = ref(false)
 const resizeInitialWidth = ref(0)

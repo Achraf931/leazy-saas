@@ -22,16 +22,10 @@ const _useDashboard = () => {
 
     const handleDrawerMode = () => {
         isDrawerSlideoverMode.value = !isDrawerSlideoverMode.value
-        isDrawerSlideoverOpen.value = false
     }
 
-    // @ts-ignore
     const handleDrawer = () => {
-        if (isDrawerSlideoverMode.value && isDrawerSlideoverOpen.value) isDrawerSlideoverOpen.value = false
-    }
-
-    const openDrawer = () => {
-        if (isDrawerSlideoverMode.value && !isDrawerSlideoverOpen.value) isDrawerSlideoverOpen.value = true
+        isDrawerSlideoverOpen.value = !isDrawerSlideoverOpen.value
     }
 
     watch(() => route.fullPath, () => {
@@ -44,7 +38,6 @@ const _useDashboard = () => {
         isNotificationsSlideoverOpen,
         isDrawerSlideoverMode,
         isDrawerSlideoverOpen,
-        openDrawer,
         handleDrawerMode,
         handleDrawer
     }

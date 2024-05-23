@@ -18,7 +18,7 @@ async function onDelete () {
   setTimeout(() => {
     model.value.refresh()
     loading.value = false
-    toast.add({ icon: 'i-heroicons-check-circle', title: 'Votre chapitre a été supprimé', color: 'red' })
+    toast.add({ icon: 'i-heroicons-check-circle', title: 'Votre chapitre a été supprimé', color: 'green' })
     model.value.open = false
   }, 2000)
 }

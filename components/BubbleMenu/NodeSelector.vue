@@ -118,5 +118,5 @@ const items = [
   }
 ]
 
-const activeItem = computed(() => items.filter(item => item.isActive()).pop() ?? { name: 'Multiple' })
+const activeItem = computed(() => items.filter(item => item.isActive()).pop() ?? { name: 'Texte', icon: 'i-lucide-case-sensitive' })
 </script>

@@ -22,26 +22,21 @@ function nodeDOMAtCoords(coords: { x: number; y: number }) {
   return document
     .elementsFromPoint(coords.x, coords.y)
     .find(
-      (elem: HTMLElement) => {
-        if (elem.matches("[data-tippy-root]")) return false
-
-        return elem.parentElement?.matches?.(".ProseMirror") ||
-          elem.matches(
-            [
-              "ul:not([data-type=taskList])",
-              "li",
-              "p:not(:first-child)",
-              "pre",
-              "blockquote",
-              "h1, h2, h3",
-              "[data-node-name=calloutBox]",
-              "[data-type=horizontalRule]",
-              "table",
-              ".node-subdocument",
-              ".node-equationBlock"
-            ].join(", ")
-          )
-      }
+      (elem: HTMLElement) =>
+        elem.parentElement?.matches?.(".ProseMirror") ||
+        elem.matches(
+          [
+            "p:not(:first-child)",
+            "pre",
+            "blockquote",
+            "h1, h2, h3",
+            "[data-node-name=calloutBox]",
+            "[data-type=horizontalRule]",
+            "table",
+            ".node-subdocument",
+            ".node-equationBlock"
+          ].join(", ")
+        )
     )
 }
 
@@ -148,6 +143,7 @@ export default function DragHandle(options: DragHandleOptions) {
       )
     )
     view.dom.editor.commands.createParagraphNear()
+    view.dom.editor.commands.insertContent('/')
   }
 
   return new Plugin({
@@ -174,6 +170,16 @@ export default function DragHandle(options: DragHandleOptions) {
 
       containerElement.appendChild(plusButtonElement)
       containerElement.appendChild(dragHandleElement)
+
+      containerElement.addEventListener('drag', (e) => {
+        hideDragHandle()
+        let scrollY = window.scrollY
+        if (e.clientY < options.dragHandleWidth * .84) {
+          window.scrollTo({ top: scrollY - 30, behavior: 'smooth' })
+        } else if (window.innerHeight - e.clientY < options.dragHandleWidth * .84) {
+          window.scrollTo({ top: scrollY + 30, behavior: 'smooth' })
+        }
+      })
 
       hideDragHandle()
 

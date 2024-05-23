@@ -11,22 +11,15 @@ defineProps({
 </script>
 
 <template>
-  <UDashboardCard>
+  <UDashboardCard :ui="{ header: { padding: 'px-2 py-2 pb-0 sm:px-2' }, body: { padding: 'px-2 py-2 sm:p-2' } }">
     <template #header>
       <div class="flex align-center justify-between w-full">
-        <div class="flex items-center gap-4">
-          <div>
-            <p class="text-gray-900 dark:text-white font-semibold">
-              Mes derniers thèmes
-            </p>
-            <p class="text-sm text-gray-500 dark:text-gray-400">
-              Liste de tout mes thèmes
-            </p>
-          </div>
-        </div>
-        <NuxtLink :to="localePath({ name: 'library-themes' })" class="flex items-center text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
-          Voir tout
-          <UIcon name="i-heroicons-chevron-right" class="w-4 h-4" />
+        <p class="text-gray-900 dark:text-white font-semibold">
+          Mes derniers thèmes
+        </p>
+        <NuxtLink :to="localePath({ name: 'library-themes' })" class="text-sm text-gray-400 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 flex items-center gap-1.5">
+          {{ $t('commons.see_all') }}
+          <UIcon name="i-heroicons-chevron-right-20-solid" class="w-4 h-4" />
         </NuxtLink>
       </div>
     </template>
