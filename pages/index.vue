@@ -20,7 +20,9 @@ useSeoMeta({
 
 <template>
   <div>
-    <ULandingHero :title="page.hero.title" :description="page.hero.description" :links="page.hero.links">
+    <ULandingHero :ui="{ wrapper: 'py-24 sm:py-24 md:py-24' }" :title="page.hero.title" :description="page.hero.description" :links="page.hero.links">
+      <div class="absolute inset-0 landing-grid z-[-1] [mask-image:radial-gradient(100%_100%_at_top_right,white,transparent)]" />
+      
       <template #headline>
         <UBadge v-if="page.hero.headline" variant="subtle" size="lg" class="relative rounded-full font-semibold">
           <NuxtLink :to="page.hero.headline.to" target="_blank" class="focus:outline-none" tabindex="-1">
@@ -100,3 +102,20 @@ useSeoMeta({
     </ULandingSection>
   </div>
 </template>
+
+<style>
+.landing-grid {
+  background-size: 100px 100px;
+  background-image:
+      linear-gradient(to right, rgb(var(--color-gray-200)) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(var(--color-gray-200)) 1px, transparent 1px);
+}
+.dark {
+  .landing-grid {
+    background-image:
+        linear-gradient(to right, rgb(var(--color-gray-800)) 1px, transparent 1px),
+        linear-gradient(to bottom, rgb(var(--color-gray-800)) 1px, transparent 1px);
+  }
+}
+</style>
+
