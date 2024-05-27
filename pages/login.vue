@@ -11,6 +11,7 @@ useSeoMeta({
 })
 
 const { login } = useSanctumAuth()
+const loading = ref(false)
 
 const fields = [
   {
@@ -30,7 +31,8 @@ const fields = [
   {
     name: 'remember_me',
     type: 'checkbox',
-    label: 'Se souvenir de moi'
+    label: 'Se souvenir de moi',
+    value: false
   }
 ]
 
@@ -45,7 +47,9 @@ const validate = (state: any) => {
 }
 
 const onSubmit = async (data: any) => {
-  await login({ ...data, remember_me: true })
+  loading.value = true
+  await login(data)
+  loading.value = false
 }
 </script>
 
@@ -55,7 +59,9 @@ const onSubmit = async (data: any) => {
       :fields="fields"
       :validate="validate"
       title="Welcome back!"
+      :loading="loading"
       align="top"
+      :submit-button="{ label: 'Me connecter' }"
       icon="i-heroicons-lock-closed"
       :ui="{ base: 'text-center', footer: 'text-center' }"
       @submit="onSubmit"

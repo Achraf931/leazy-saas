@@ -1,9 +1,11 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
 export default defineNuxtConfig({
-  server:{
-    host: 'leazy.local',
-    port: 3000
+  app: {
+    pageTransition: { name: "page", mode: "out-in" },
+  },
+  runtimeConfig: {
+    openaiApiKey: process.env.OPENAI_API_KEY
   },
   extends: [process.env.NUXT_UI_PRO_PATH || '@nuxt/ui-pro'],
   modules: [
@@ -13,14 +15,16 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n',
     '@nuxt/image',
     '@nuxtjs/tailwindcss',
-    'nuxt-auth-sanctum'
+    'nuxt-auth-sanctum',
+    '@pinia/nuxt',
+    '@pinia-plugin-persistedstate/nuxt'
   ],
   ui: {
     icons: ['simple-icons', 'lucide', 'fluent'],
     safelistColors: ['primary', 'red', 'orange', 'green']
   },
   sanctum: {
-    baseUrl: 'https://api.leazy.net',
+    baseUrl: 'http://leazy.local:8000',
     redirectIfAuthenticated: false,
     endpoints: {
       csrf: '/sanctum/csrf-cookie',
@@ -104,25 +108,25 @@ export default defineNuxtConfig({
         en: '/library/chapters',
         fr: '/bibliotheque/chapitres'
       },
-      'library/chapters/[id]_[slug]': {
-        en: '/library/chapters/[id]_[slug]',
-        fr: '/bibliotheque/chapitres/[id]_[slug]'
+      'library/chapters/[id]': {
+        en: '/library/chapters/[id]',
+        fr: '/bibliotheque/chapitres/[id]'
       },
       'library/themes/index': {
         en: '/library/themes',
         fr: '/bibliotheque/themes'
       },
-      'library/themes/[id]_[slug]': {
-        en: '/library/themes/[id]_[slug]',
-        fr: '/bibliotheque/themes/[id]_[slug]'
+      'library/themes/[id]': {
+        en: '/library/themes/[id]',
+        fr: '/bibliotheque/themes/[id]'
       },
       'library/lessons/index': {
         en: '/library/lessons',
         fr: '/bibliotheque/lecons'
       },
-      'library/lessons/[id]_[slug]': {
-        en: '/library/lessons/[id]_[slug]',
-        fr: '/bibliotheque/lecons/[id]_[slug]'
+      'lesson_[id]': {
+        en: '/library/lessons/[id]',
+        fr: '/bibliotheque/lecons/[id]'
       },
       inbox: {
         en: '/inbox',
@@ -136,5 +140,8 @@ export default defineNuxtConfig({
   },
   devtools: {
     enabled: false
+  },
+  tailwindcss: {
+    quiet: true
   }
 })

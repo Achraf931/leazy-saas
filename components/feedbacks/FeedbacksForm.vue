@@ -8,10 +8,12 @@ const state = reactive({
   content: undefined
 })
 
+const pageSelected = ref('Accueil')
+
 const validate = (state: any): FormError[] => {
   const errors = []
-  if (!state.object) errors.push({ path: 'object', message: 'Please enter an object.' })
-  if (!state.content) errors.push({ path: 'content', message: 'Please enter a content.' })
+  if (!state.object) errors.push({ path: 'object', message: 'Veuillez saisir un objet.' })
+  if (!state.content) errors.push({ path: 'content', message: 'Veuillez saisir une description.' })
   return errors
 }
 
@@ -25,8 +27,11 @@ async function onSubmit (event: FormSubmitEvent<any>) {
 
 <template>
   <UForm :validate="validate" :validate-on="['submit']" :state="state" class="space-y-4" @submit="onSubmit">
+    <UFormGroup label="Le problème se situe :" name="page">
+      <USelectMenu label="Page" :options="['Accueil', 'Librairie', 'Leçon (éditeur)', 'Leçons', 'Chapitres', 'Thèmes', 'Mon compte']" v-model="pageSelected" />
+    </UFormGroup>
     <UFormGroup label="Objet" name="object">
-      <UInput v-model="state.object" placeholder="Object" autofocus />
+      <UInput v-model="state.object" placeholder="Ex.: Ma leçon ne se met pas à jour" autofocus />
     </UFormGroup>
 
     <UFormGroup label="Feedback" name="content">

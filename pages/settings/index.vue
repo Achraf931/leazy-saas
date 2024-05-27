@@ -4,14 +4,16 @@ import type { FormError, FormSubmitEvent } from '#ui/types'
 const { locales, setLocale, localeProperties } = useI18n()
 const fileRef = ref<{ input: HTMLInputElement }>()
 const isDeleteAccountModalOpen = ref(false)
+const client = useSanctumClient()
+const user = useSanctumUser()
 
 const locale = shallowRef(localeProperties.value)
-
+console.log(user.value)
 const state = reactive({
-  lastname: 'Hamrouni',
-  firstname: 'Charfeddine',
-  email: 'hamrouni.pro@outlook.fr',
-  username: 'chamrouni',
+  lastname: user.value.lastname,
+  firstname: user.value.firstname,
+  email: user.value.email,
+  // username: user.value.username,
   avatar: 'https://avatars.githubusercontent.com/u/45672435?v=4',
   password_current: '',
   password_new: ''
@@ -43,16 +45,17 @@ function onFileClick () {
 }
 
 async function onSubmit (event: FormSubmitEvent<any>) {
-  // Do something with data
   console.log(event.data)
-
+  const { data } = await client('user', { method: 'PATCH', body: event.data })
+  console.log(data)
+  user.value = data
   toast.add({ title: 'Profil modifié !', icon: 'i-heroicons-check-circle' })
 }
 </script>
 
 <template>
   <UDashboardPanelContent class="pb-24">
-    <UDashboardSection :title="$t('page.settings.general.language.label')" :description="$t('page.settings.general.language.description')">
+<!--    <UDashboardSection :title="$t('page.settings.general.language.label')" :description="$t('page.settings.general.language.description')">
       <template #links>
         <USelectMenu @change="setLocale($event.code)" icon="i-heroicons-globe-alt" v-model="locale" :options="locales">
           <template #option="{ option: language }">
@@ -64,7 +67,7 @@ async function onSubmit (event: FormSubmitEvent<any>) {
       </template>
     </UDashboardSection>
 
-    <UDivider class="mb-4" />
+    <UDivider class="mb-4" />-->
 
     <UDashboardSection :title="$t('page.settings.general.theme.label')" :description="$t('page.settings.general.theme.description')">
       <template #links>
@@ -113,7 +116,7 @@ async function onSubmit (event: FormSubmitEvent<any>) {
           <UInput v-model="state.email" type="email" autocomplete="off" icon="i-heroicons-envelope" size="md" />
         </UFormGroup>
 
-        <UFormGroup
+<!--        <UFormGroup
           name="username"
           :label="$t('page.settings.general.form.username.label')"
           :description="$t('page.settings.general.form.username.description')"
@@ -126,7 +129,7 @@ async function onSubmit (event: FormSubmitEvent<any>) {
               <span class="text-gray-500 dark:text-gray-400 text-sm">leazy.net/</span>
             </template>
           </UInput>
-        </UFormGroup>
+        </UFormGroup>-->
 
         <UFormGroup name="avatar" :label="$t('page.settings.general.form.avatar.label')" :description="$t('page.settings.general.form.avatar.description')" class="grid grid-cols-2 gap-2" :help="$t('page.settings.general.form.avatar.supported_ext')" :ui="{ container: 'flex flex-wrap items-center gap-3', help: 'mt-0' }">
           <UAvatar :src="state.avatar" :alt="state.name" size="lg" />

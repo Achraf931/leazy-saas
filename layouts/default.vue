@@ -1,7 +1,6 @@
 <script setup lang="ts">
 const route = useRoute()
-const appConfig = useAppConfig()
-const { isHelpSlideoverOpen, isDrawerSlideoverMode, isDrawerSlideoverOpen } = useDashboard()
+const { isNotificationsSlideoverOpen, isHelpSlideoverOpen, isDrawerSlideoverMode, isDrawerSlideoverOpen } = useDashboard()
 const { toggleDashboardSearch } = useUIState()
 const isNewUserModalOpen = ref(false)
 const isNewFeedbackModalOpen = ref(false)
@@ -30,18 +29,21 @@ const links = computed(() => [{
 }, {
   id: 'library',
   label: t('drawer.library.label'),
-  icon: 'i-heroicons-document-text',
+  icon: 'i-lucide-library-big',
   to: localePath({ name: 'library' }),
   collapsible: false,
   children: [
     {
-      label: t('drawer.library.themes'),
+      label: t('drawer.library.lessons'),
       badge: {
         label: '+',
         variant: 'ghost',
         padded: false
       },
-      to: localePath({ name: 'library-themes' })
+      exactQuery: true,
+      exactHash: true,
+      exact: true,
+      to: localePath({ name: 'library-lessons' })
     },
     {
       label: t('drawer.library.chapters'),
@@ -50,21 +52,23 @@ const links = computed(() => [{
         variant: 'ghost',
         padded: false
       },
+      exactQuery: true,
+      exactHash: true,
+      exact: true,
       to: localePath({ name: 'library-chapters' })
     },
     {
-      label: t('drawer.library.lessons'),
+      label: t('drawer.library.themes'),
       badge: {
         label: '+',
         variant: 'ghost',
         padded: false
       },
-      to: localePath({ name: 'library-lessons' })
-    }],
-  tooltip: {
-    text: t('drawer.library.lessons'),
-    shortcuts: ['G', 'L']
-  }
+      exactQuery: true,
+      exactHash: true,
+      exact: true,
+      to: localePath({ name: 'library-themes' })
+    }]
 }])
 
 const subLinks = computed(() => [{
@@ -130,19 +134,15 @@ const groups = [
 
           <UDashboardSidebar>
             <template #header>
-              <div class="flex items-center gap-2">
-                <UButtonGroup size="xs" orientation="horizontal" class="w-full">
-                  <UButton class="flex-1" label="Nouvelle leçon" icon="i-heroicons-plus" color="gray"
-                           @click="isNewUserModalOpen = true"/>
-                  <UDropdown
-                      :items="[[{ label: 'Nouveau thème', icon: 'i-heroicons-plus', click: () => console.log('new theme') }, { label: 'Nouveau chapitre', icon: 'i-heroicons-plus', click: () => console.log('new chapter') }]]"
-                      :ui="{ width: 'w-auto', item: { disabled: 'cursor-text select-text' } }"
-                      :popper="{ strategy: 'absolute', placement: 'top-end' }">
-                    <UButton icon="i-heroicons-chevron-down-20-solid" color="gray"/>
-                  </UDropdown>
-                </UButtonGroup>
-                <UButton trailing-icon="i-heroicons-magnifying-glass" size="xs" color="gray"
-                         @click="toggleDashboardSearch"/>
+              <div class="flex items-center gap-2 w-full">
+                <UButton :label="$t('commons.search')" class="flex-1" icon="i-heroicons-magnifying-glass" color="gray" @click="toggleDashboardSearch"/>
+                <UTooltip text="Notifications" :shortcuts="['N']">
+                  <UButton color="white" variant="soft" square @click="isNotificationsSlideoverOpen = true">
+                    <UChip color="red" inset>
+                      <UIcon name="i-heroicons-bell" class="w-5 h-5" />
+                    </UChip>
+                  </UButton>
+                </UTooltip>
               </div>
             </template>
 
@@ -152,7 +152,7 @@ const groups = [
 
             <UDashboardSidebarLinks :links="subLinks">
               <template #badge="{ link }">
-                <UIcon v-if="link.target === '_blank'" name="i-heroicons-arrow-up-right" class="w-4 h-4 ml-auto"/>
+                <UIcon v-if="link.target === '_blank'" name="i-lucide-arrow-up-right" dynamic class="w-4 h-4 ml-auto"/>
               </template>
             </UDashboardSidebarLinks>
 
@@ -168,6 +168,10 @@ const groups = [
       </template>
     </USlideover>
     <UDashboardPanel v-else id="default-drawer" :width="250" :resizable="{ min: 200, max: 300 }" collapsible>
+      <template #handle="{ onDrag }">
+        <UDashboardPanelHandle :ui="{ container: 'group-hover:bg-primary-500 dark:group-hover:bg-primary-400' }" @mousedown="onDrag" />
+      </template>
+
       <UDashboardNavbar :ui="{ left: 'flex-1' }">
         <template #left>
           <UserDropdown/>
@@ -176,7 +180,16 @@ const groups = [
 
       <UDashboardSidebar>
         <template #header>
-          <UButton :label="$t('commons.search')" icon="i-heroicons-magnifying-glass" color="gray" @click="toggleDashboardSearch"/>
+          <div class="flex items-center gap-2 w-full">
+            <UButton :label="$t('commons.search')" class="flex-1" icon="i-heroicons-magnifying-glass" color="gray" @click="toggleDashboardSearch"/>
+            <UTooltip text="Notifications" :shortcuts="['N']">
+              <UButton color="white" variant="soft" square @click="isNotificationsSlideoverOpen = true">
+                <UChip color="red" inset>
+                  <UIcon name="i-heroicons-bell" class="w-5 h-5" />
+                </UChip>
+              </UButton>
+            </UTooltip>
+          </div>
         </template>
 
         <UDashboardSidebarLinks :links="links"/>

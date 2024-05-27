@@ -19,7 +19,7 @@ export const uniqueId = Extension.create<UniqueIdOptions>({
             name: 'detailsSummary',
             types: ['blockContainer', 'paragraph', 'details', 'detailsSummary', 'detailsContent'],
             generateID: () => nanoid(),
-            injectNodeName: true,
+            injectNodeName: true
         }
     },
     addGlobalAttributes() {
@@ -34,10 +34,10 @@ export const uniqueId = Extension.create<UniqueIdOptions>({
                         rendered: true,
                         isRequired: true,
                         keepOnSplit: false,
-                        parseHTML: element => element.getAttribute(`data-${attributeName}`),
+                        parseHTML: element => element.getAttribute(attributeName),
                         renderHTML: (attributes) => {
                             return {
-                                [`data-${attributeName}`]: attributes[attributeName!]
+                                [attributeName]: attributes[attributeName!]
                             }
                         }
                     }

@@ -45,6 +45,7 @@ export const Image = Node.create<ImageOptions>({
   group: "block",
 
   isolating: true,
+  draggable: true,
   atom: true,
 
   addAttributes() {

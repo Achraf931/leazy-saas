@@ -26,15 +26,13 @@ function nodeDOMAtCoords(coords: { x: number; y: number }) {
         elem.parentElement?.matches?.(".ProseMirror") ||
         elem.matches(
           [
-            "ul:not([data-type=taskList])",
-            "li",
             "p:not(:first-child)",
             "pre",
             "blockquote",
             "h1, h2, h3",
-            "[data-type=callout]",
+            "[data-node-name=calloutBox]",
             "[data-type=horizontalRule]",
-            ".tableWrapper",
+            "table",
             ".node-subdocument",
             ".node-equationBlock"
           ].join(", ")
@@ -58,7 +56,7 @@ export default function DragHandle(options: DragHandleOptions) {
     if (!event.dataTransfer) return
 
     const node = nodeDOMAtCoords({
-      x: event.clientX + 50 + options.dragHandleWidth,
+      x: event.clientX + 50 + options.dragHandleWidth * .84,
       y: event.clientY
     })
 
@@ -92,7 +90,7 @@ export default function DragHandle(options: DragHandleOptions) {
     view.dom.classList.remove("dragging")
 
     const node = nodeDOMAtCoords({
-      x: event.clientX + 50 + options.dragHandleWidth,
+      x: event.clientX + 50 + options.dragHandleWidth * .84,
       y: event.clientY
     })
 
@@ -130,7 +128,7 @@ export default function DragHandle(options: DragHandleOptions) {
     view.dom.classList.remove("dragging")
 
     const node = nodeDOMAtCoords({
-      x: event.clientX + 50 + options.dragHandleWidth,
+      x: event.clientX + 50 + options.dragHandleWidth * .84,
       y: event.clientY
     })
 
@@ -145,6 +143,7 @@ export default function DragHandle(options: DragHandleOptions) {
       )
     )
     view.dom.editor.commands.createParagraphNear()
+    view.dom.editor.commands.insertContent('/')
   }
 
   return new Plugin({
@@ -169,8 +168,18 @@ export default function DragHandle(options: DragHandleOptions) {
         addNodeView(e, view)
       })
 
-      containerElement.appendChild(dragHandleElement)
       containerElement.appendChild(plusButtonElement)
+      containerElement.appendChild(dragHandleElement)
+
+      containerElement.addEventListener('drag', (e) => {
+        hideDragHandle()
+        let scrollY = window.scrollY
+        if (e.clientY < options.dragHandleWidth * .84) {
+          window.scrollTo({ top: scrollY - 30, behavior: 'smooth' })
+        } else if (window.innerHeight - e.clientY < options.dragHandleWidth * .84) {
+          window.scrollTo({ top: scrollY + 30, behavior: 'smooth' })
+        }
+      })
 
       hideDragHandle()
 
@@ -191,7 +200,7 @@ export default function DragHandle(options: DragHandleOptions) {
           }
 
           const node = nodeDOMAtCoords({
-            x: event.clientX + 50 + options.dragHandleWidth,
+            x: event.clientX + 50 + options.dragHandleWidth * .84,
             y: event.clientY
           })
 
@@ -212,13 +221,13 @@ export default function DragHandle(options: DragHandleOptions) {
           if (
             node.matches("ul:not([data-type=taskList]) li, ol li")
           ) {
-            rect.left -= options.dragHandleWidth
+            rect.left -= options.dragHandleWidth * .84
           }
-          rect.width = options.dragHandleWidth
+          rect.width = options.dragHandleWidth * .84
 
           if (!dragHandleElement) return
 
-          containerElement.style.left = `${(rect.left - (rect.width * 2)) - 3.2}px`
+          containerElement.style.left = `${rect.left - (rect.width * 2)}px`
           containerElement.style.top = `${rect.top}px`
           showDragHandle()
         },

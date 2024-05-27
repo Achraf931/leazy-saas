@@ -16,9 +16,6 @@
       />
 
       <template v-if="editor.isEditable">
-        <div class="resizeHandleContainer" style="left: 0;" @mousedown="startResize">
-          <div class="resizeHandle"></div>
-        </div>
         <div class="resizeHandleContainer" style="right: 0;" @mousedown="startResize">
           <div class="resizeHandle"></div>
         </div>

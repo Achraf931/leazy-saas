@@ -7,11 +7,11 @@ const links = [[{
     icon: 'i-heroicons-user-circle',
     to: localePath({ name: 'settings' }),
     exact: true
-  }, {
+  }, /*{
     label: t('page.settings.members.label'),
     icon: 'i-heroicons-user-group',
     to: localePath({ name: 'settings-members' })
-  }, {
+  },*/ {
     label: t('page.settings.notifications.label'),
     icon: 'i-heroicons-bell',
     to: localePath({ name: 'settings-notifications' })

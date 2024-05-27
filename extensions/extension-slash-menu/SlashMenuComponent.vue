@@ -107,36 +107,34 @@ const scrollToSelected = () => {
   <div
       v-if="items.length > 0"
       ref="commandListContainer"
-      class="z-50 h-auto max-h-[330px] w-72 overflow-y-auto rounded-md border border-stone-200 bg-white px-1 py-2 shadow-md transition-all"
+      class="flex flex-col z-50 h-auto max-h-[330px] w-60 overflow-y-auto rounded-md border border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700 p-1 gap-1 shadow-md transition-all"
   >
-    <button
+    <UButton
+        size="xs"
+        :variant="index === selectedIndex ? 'soft' : 'ghost'"
+        :color="index === selectedIndex ? 'primary' : 'gray'"
+        :active="index === selectedIndex"
         v-for="(item, index) in items"
         :key="index"
-        class="flex items-center w-full p-1 space-x-2 text-sm text-left rounded-md text-stone-900 hover:bg-stone-100"
-        :class="index === selectedIndex ? 'bg-stone-100 text-stone-900' : ''"
         @click="selectItem(index)"
+        :loading="item.label === 'Complétez avec l\'IA' && isLoading"
     >
-      <span
-          class="flex items-center justify-center w-8 h-8 bg-white border rounded-md border-stone-200"
-      >
-        <svg v-if="item.label === 'Complétez avec l\'IA' && isLoading" class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-        <component
-            :is="item.icon"
-            v-else
-            size="16"
-        />
-      </span>
-      <div>
-        <p class="font-medium">
-          {{ item.label }}
-        </p>
-        <p class="text-xs text-stone-500">
-          {{ item.description }}
-        </p>
+      <template #leading>
+        <div class="flex items-center justify-center p-px font-medium border rounded-sm border-gray-200 dark:border-gray-700">
+          <svg v-if="item.label === 'Complétez avec l\'IA' && isLoading" class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <UIcon v-else :name="item.icon" dynamic class="w-4 h-4" />
+        </div>
+      </template>
+
+      <div class="flex flex-1 items-center justify-between">
+        <span>{{ item.label }}</span>
+        <div class="flex items-center gap-0.5 ml-auto">
+          <UKbd v-if="item.shortcuts.length" v-for="(shortcut, index) in item.shortcuts" :key="index" size="xs" :value="shortcut" />
+        </div>
       </div>
-    </button>
+    </UButton>
   </div>
 </template>

@@ -1,22 +1,24 @@
 <template>
-  <div class="overflow-hidden flex flex-col relative divide-y divide-gray-200 dark:divide-gray-700 ring-1 ring-gray-200 dark:ring-gray-700 rounded-md shadow-lg bg-white dark:bg-gray-800" ref="menuRef">
-    <button class="focus:outline-none focus-visible:outline-0 disabled:cursor-not-allowed disabled:opacity-75 flex-shrink-0 font-medium text-sm gap-x-1.5 px-2.5 py-1.5 text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 focus-visible:ring-inset focus-visible:ring-2 focus-visible:ring-primary-500 dark:focus-visible:ring-primary-400 inline-flex items-center" @click="duplicateContent">
-      <Copy class="w-4 h-4" />
-      Dupliquer
-    </button>
-    <button class="focus:outline-none focus-visible:outline-0 disabled:cursor-not-allowed disabled:opacity-75 flex-shrink-0 font-medium text-sm gap-x-1.5 px-2.5 py-1.5 text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 focus-visible:ring-inset focus-visible:ring-2 focus-visible:ring-primary-500 dark:focus-visible:ring-primary-400 inline-flex items-center" @click="deleteSelection">
-      <Trash class="w-4 h-4" />
-      Supprimer
-    </button>
+  <div class="overflow-hidden flex flex-col p-1 gap-1 relative ring-1 ring-gray-200 dark:ring-gray-700 rounded-md shadow-lg bg-white dark:bg-gray-800" ref="menuRef">
+    <template v-if="isCalloutNode">
+      <div class="flex items-center p-1 gap-1">
+        <UButton variant="soft" size="xs" color="primary" icon="i-fluent-note-24-regular" @click="editor.commands.updateAttributes('calloutBox', { type: 'note' })" />
+        <UButton variant="soft" size="xs" color="gray" icon="i-heroicons-information-circle" @click="editor.commands.updateAttributes('calloutBox', { type: 'info' })" />
+        <UButton variant="soft" size="xs" color="orange" icon="i-heroicons-exclamation-triangle" @click="editor.commands.updateAttributes('calloutBox', { type: 'warning' })" />
+        <UButton variant="soft" size="xs" color="red" icon="i-heroicons-x-circle" @click="editor.commands.updateAttributes('calloutBox', { type: 'danger' })" />
+        <UButton variant="soft" size="xs" color="green" icon="i-lucide-check-circle" @click="editor.commands.updateAttributes('calloutBox', { type: 'success' })" />
+      </div>
+    </template>
+    <UButton v-if="canNodeMoveUp" size="xs" variant="ghost" color="gray" icon="i-lucide-chevron-up" label="Remonter" @click="moveNode('UP')" />
+    <UButton v-if="canNodeMoveDown" size="xs" variant="ghost" color="gray" icon="i-lucide-chevron-down" label="Descendre" @click="moveNode('DOWN')" />
+    <UButton size="xs" variant="ghost" color="gray" icon="i-lucide-copy" label="Dupliquer" @click="duplicateContent" />
+    <UButton size="xs" variant="soft" color="red" icon="i-lucide-trash" label="Supprimer" @click="deleteSelection" />
   </div>
 </template>
 
 <script setup>
-import { Trash, Copy } from 'lucide-vue-next'
+import { MoveNode } from '@/utils/pm-utils'
 import tippy from 'tippy.js';
-
-const menuRef = ref(null);
-const popup = ref(null);
 
 const { editor } = defineProps({
   editor: {
@@ -25,6 +27,12 @@ const { editor } = defineProps({
   }
 });
 const view = editor.view;
+
+const menuRef = ref(null);
+const isCalloutNode = ref(false);
+const popup = ref(null);
+const canNodeMoveUp = ref(false);
+const canNodeMoveDown = ref(false);
 
 const handleClickDragHandle = (event) => {
   const target = event.target;
@@ -63,7 +71,11 @@ onMounted(() => {
       trigger: 'manual',
       placement: 'top-start',
       hideOnClick: true,
-      ally: false,
+      onBeforeUpdate() {
+        canNodeMoveUp.value = canMoveNodeUp();
+        canNodeMoveDown.value = canMoveNodeDown();
+        isCalloutNode.value = editor.state?.selection?.node?.type?.name === 'calloutBox';
+      },
       onShown: () => {
         menuRef.value?.focus();
       }
@@ -101,5 +113,23 @@ const duplicateContent = () => {
       .run();
 
   popup.value?.hide();
+};
+
+const moveNode = (dir) => {
+  MoveNode({
+    view: editor.view,
+    dir,
+    currentResolved: editor.state.selection.$from
+  })
+};
+
+const canMoveNodeUp = () => {
+  const selectionStart = editor.view.state.selection.$from
+  return selectionStart.index(0) > 0
+};
+
+const canMoveNodeDown = () => {
+  const selectionStart = editor.view.state.selection.$from
+  return selectionStart.index(0) < selectionStart.node(0).childCount - 1
 };
 </script>
