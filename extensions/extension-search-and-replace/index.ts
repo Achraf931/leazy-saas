@@ -1,3 +1,3 @@
-import { SearchAndReplace } from './searchAndReplace'
-export * from './searchAndReplace'
+import { SearchAndReplace } from './SearchAndReplace'
+export * from './SearchAndReplace'
 export default SearchAndReplace
