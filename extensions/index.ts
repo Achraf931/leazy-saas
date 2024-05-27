@@ -233,7 +233,7 @@ export default [
     },
     blockquote: {
       HTMLAttributes: {
-        class: 'border-l-4 border-stone-700 my-3 relative pl-4'
+        class: 'border-l-4 border-gray-400 my-3 relative pl-4'
       }
     },
     /*codeBlock: {

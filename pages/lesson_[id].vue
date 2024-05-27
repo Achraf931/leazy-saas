@@ -361,7 +361,7 @@ const handleVisibility = async () => {
     <UDashboardNavbar :ui="{ wrapper: 'z-10 bg-white dark:bg-zinc-900' }">
       <template #title>
         <ToggleDrawer />
-        <UBreadcrumb :links="links" :ui="{ active: 'truncate w-full max-w-32' }" />
+        <UBreadcrumb divider="/" :links="links" :ui="{ active: 'truncate w-full max-w-32' }" />
       </template>
 
       <template #badge>
