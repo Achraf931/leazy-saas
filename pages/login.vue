@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import type { FormError } from '#ui/types'
+import { resetStores } from '@/stores/library'
 
 definePageMeta({
   layout: 'auth'
 })
+
+if (process.client) resetStores(localStorage)
 
 useSeoMeta({
   title: 'Connexion',

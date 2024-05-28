@@ -9,8 +9,6 @@ export const Tweet = Node.create({
 
   atom: true,
 
-  isolating: true,
-
   draggable: true,
 
   addPasteRules() {

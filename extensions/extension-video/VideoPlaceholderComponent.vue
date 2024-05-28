@@ -34,7 +34,7 @@ const isValidURL = (url) => {
 
 <template>
   <NodeViewWrapper :class="[selected ? 'ProseMirror-selectednode' : '', 'videoPlaceholder']">
-    <div class="placeholderContainer">
+    <div>
       <div class="flex items-center justify-start gap-2">
         <UInput placeholder="Saisir l'URL de la vidéo" class="flex-1" v-model="videoUrl"/>
         <UButton label="Importer" @click="importVideo" />

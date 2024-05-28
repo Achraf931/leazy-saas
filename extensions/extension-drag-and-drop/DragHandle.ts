@@ -26,15 +26,17 @@ function nodeDOMAtCoords(coords: { x: number; y: number }) {
         elem.parentElement?.matches?.(".ProseMirror") ||
         elem.matches(
           [
-            "p:not(:first-child)",
-            "pre",
-            "blockquote",
-            "h1, h2, h3",
-            "[data-node-name=calloutBox]",
-            "[data-type=horizontalRule]",
-            "table",
-            ".node-subdocument",
-            ".node-equationBlock"
+            "p:not(:first-child):not(blockquote p)",
+            "pre:not(blockquote pre)",
+            "blockquote", // Garder blockquote s'il ne doit pas être exclu
+            "h1:not(blockquote h1)",
+            "h2:not(blockquote h2)",
+            "h3:not(blockquote h3)",
+            "[data-node-name=calloutBox]:not(blockquote [data-node-name=calloutBox])",
+            "[data-type=horizontalRule]:not(blockquote [data-type=horizontalRule])",
+            "table:not(blockquote table)",
+            ".node-subdocument:not(blockquote .node-subdocument)",
+            ".node-equationBlock:not(blockquote .node-equationBlock)"
           ].join(", ")
         )
     )

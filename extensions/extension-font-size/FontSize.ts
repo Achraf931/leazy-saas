@@ -36,38 +36,45 @@ export const FontSize = Extension.create<FontSizeOptions>({
         attributes: {
           fontSize: {
             default: null,
-            parseHTML: (element) =>
-              element.style.fontSize.replace(/['"]+/g, ""),
+            parseHTML: (element) => element.style.fontSize.replace(/['"]+/g, ""),
             renderHTML: (attributes) => {
-              if (!attributes.fontSize) {
-                return {};
-              }
+              if (!attributes.fontSize) return {}
 
               return {
-                style: `font-size: ${attributes.fontSize}`,
-              };
-            },
-          },
-        },
-      },
-    ];
+                style: `font-size: ${ attributes.fontSize }`
+              }
+            }
+          }
+        }
+      }
+    ]
   },
 
   addCommands() {
     return {
-      setFontSize:
-        (fontSize) =>
-          ({ chain }) => {
-            return chain().setMark("textStyle", { fontSize }).run();
-          },
-      unsetFontSize:
-        () =>
-          ({ chain }) => {
-            return chain()
-              .setMark("textStyle", { fontSize: null })
-              .removeEmptyTextStyle()
-              .run();
-          },
-    };
+      setFontSize: (fontSize) => ({ chain }) => chain().setMark("textStyle", { fontSize }).run(),
+      unsetFontSize: () => ({ chain }) => chain().setMark("textStyle", { fontSize: null }).removeEmptyTextStyle().run()
+    }
   },
-});
+
+  addKeyboardShortcuts() {
+    return {
+      "Ctrl-]": ({ editor }) => {
+        editor
+          .chain()
+          .focus()
+          .setFontSize(`${Math.min(120, Math.ceil((editor.getAttributes("fontSize") || 16) * 1.2))}px`)
+          .run()
+        return true
+      },
+      "Ctrl-[": ({ editor }) => {
+        editor
+          .chain()
+          .focus()
+          .setFontSize(`${Math.max(8, Math.floor((editor.getAttributes("fontSize") || 16) / 1.2))}px`)
+          .run()
+        return true
+      }
+    }
+  }
+})

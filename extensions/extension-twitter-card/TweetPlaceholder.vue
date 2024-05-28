@@ -34,7 +34,7 @@ const isValidURL = (url) => {
 
 <template>
   <NodeViewWrapper :class="[selected ? 'ProseMirror-selectednode' : '', 'tweetPlaceholder']">
-    <div class="placeholderContainer">
+    <div>
       <div class="flex items-center justify-start gap-2">
         <UInput placeholder="Saisir l'URL du tweet" class="flex-1" v-model="tweetUrl"/>
         <UButton label="Importer" @click="importTweet" />

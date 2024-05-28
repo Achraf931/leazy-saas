@@ -1,19 +1,24 @@
 <template>
-  <div class="items z-50 flex flex-col h-auto max-h-[330px] w-28 overflow-y-auto rounded-md border border-stone-200 bg-white p-1 shadow-md transition-all">
-    <button
-        class="item"
+  <div
+      v-if="items.length"
+      class="items z-50 flex flex-col h-auto max-h-[330px] w-28 overflow-y-auto rounded-md border border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700 p-1 gap-1 shadow-md transition-all">
+    <UButton
+        size="xs"
         v-for="(item, index) in items"
+        :variant="index === selectedIndex ? 'soft' : 'ghost'"
+        :color="index === selectedIndex ? 'primary' : 'gray'"
+        :active="index === selectedIndex"
         :key="index"
         @click="selectItem(index)"
     >
-      <div class="flex items-center w-full p-1 gap-1.5 space-x-2 text-sm text-left rounded-md text-stone-900 hover:bg-stone-100" :class="index === selectedIndex ? 'bg-stone-100 text-stone-900' : ''">
-        <img v-if="item.fallbackImage" :src="item.fallbackImage" align="absmiddle">
-        <template v-else>
-          {{ item.emoji }}
-        </template>
-        :{{ item.name }}:
-      </div>
-    </button>
+      <template #leading>
+        <div class="flex items-center justify-center p-px font-medium border rounded-sm border-gray-200 dark:border-gray-700">
+          <img v-if="item.fallbackImage" class="w-4" :src="item.fallbackImage" align="absmiddle" :alt="item.name">
+        </div>
+      </template>
+
+      <span>:{{ item.name }}:</span>
+    </UButton>
   </div>
 </template>
 
@@ -86,16 +91,7 @@ export default {
       if (item) {
         this.command({ name: item.name })
       }
-    },
-  },
-}
-</script>
-
-<style lang="scss">
-.item {
-  img {
-    width: 1em;
-    height: 1em;
+    }
   }
 }
-</style>
+</script>

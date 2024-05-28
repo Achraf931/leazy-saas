@@ -78,7 +78,7 @@
           </template>
         </UPopover>
       </TipTapBubbleMenu>
-      <BubbleMenu :editor="editor" />
+      <BubbleMenu :editor="editor" :tippyOptions="{ maxWidth: 'none' }" />
       <BlockMenu :editor="editor" />
     </div>
   </ClientOnly>
@@ -359,31 +359,6 @@ defineExpose({ editor })
   [data-indent='#{$i}'] {
     $val: $i * 3rem;
     padding-left: $val;
-  }
-}
-
-.placeholderContainer {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  background-color: #fbfbfb;
-  border: 1px solid #e6e8ec;
-  padding: 1rem;
-  color: #676768;
-  cursor: pointer;
-  gap: 0.5rem;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: #f4f4f4;
-  }
-
-  .placeholderText {
-    text-align: center;
-    font-size: 0.95rem;
-    user-select: none;
-    line-height: 120%;
   }
 }
 
@@ -895,7 +870,7 @@ defineExpose({ editor })
           vertical-align: top;
           box-sizing: border-box;
           position: relative;
-          @apply bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600;
+          @apply bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600;
 
           > * {
             margin-bottom: 0;
@@ -1014,6 +989,8 @@ defineExpose({ editor })
           &.videoPlaceholder,
           &.lesson,
           &.lessonPlaceholder,
+          &.tweet,
+          &.tweetPlaceholder,
           &.iframe-wrapper,
           &.callout-box-content {
             background-color: transparent !important;
@@ -1030,13 +1007,15 @@ defineExpose({ editor })
           &.videoPlaceholder,
           &.lesson,
           &.lessonPlaceholder,
+          &.tweet,
+          &.tweetPlaceholder,
           &.iframe-wrapper,
           &.callout-box-content {
-            box-shadow: rgb(51, 102, 255, 0.9) 0px 0px 0px 2px !important;
+            box-shadow: rgb(51, 102, 255, 0.9) 0 0 0 2px !important;
           }
 
           &.tableWrapper {
-            box-shadow: rgb(51, 102, 255, 0.9) 0px 0px 0px 2px inset !important;
+            box-shadow: rgb(51, 102, 255, 0.9) 0 0 0 2px inset !important;
           }
         }
       }
