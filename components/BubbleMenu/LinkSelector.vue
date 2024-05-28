@@ -1,10 +1,12 @@
 <template>
   <UPopover :ui="{ trigger: 'h-full', arrow: { base: 'w-4 h-4' } }" :popper="{ placement: 'bottom-start' }">
     <UButton
-      size="xs"
+      size="2xs"
       :variant="editor.isActive('link') ? 'soft' : 'ghost'"
       leading-icon="i-lucide-link"
       :color="editor.isActive('link') ? 'primary' : 'gray'"
+      square
+      :ui="{ icon: { size: { '2xs': 'h-3.5 w-3.5' } } }"
     />
     <template #panel="{ close }">
       <UForm @submit="() => { editor.getAttributes('link').href ? editor.chain().focus().unsetLink().run() : editor.chain().focus().setLink({ href: url }).run(); close(); }" class="flex gap-1 p-1">

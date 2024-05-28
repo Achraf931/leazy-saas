@@ -1,13 +1,15 @@
 <template>
-  <UPopover :ui="{ trigger: 'h-full', arrow: { base: 'w-4 h-4' } }" :popper="{ placement: 'bottom-start' }">
+  <UPopover :ui="{ trigger: 'h-full', arrow: { base: 'w-3.5 h-3.5' } }" :popper="{ placement: 'bottom-start' }">
     <UButton
-      size="xs"
+      size="2xs"
       :icon="activeItem?.icon ?? 'i-lucide-subscript'"
       :variant="activeItem ? 'soft' : 'ghost'"
       :color="activeItem ? 'primary' : 'gray'"
+      square
+      :ui="{ icon: { size: { '2xs': 'h-3.5 w-3.5' } } }"
     >
       <template #trailing>
-        <UIcon name="i-heroicons-chevron-down-20-solid" class="w-4 h-4" />
+        <UIcon name="i-heroicons-chevron-down-20-solid" class="w-3.5 h-3.5" />
       </template>
     </UButton>
     <template #panel="{ close }">

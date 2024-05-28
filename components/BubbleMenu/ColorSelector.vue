@@ -1,21 +1,23 @@
 <template>
-  <UPopover :ui="{ trigger: 'h-full', arrow: { base: 'w-4 h-4' } }" :popper="{ placement: 'bottom-start' }">
+  <UPopover :ui="{ trigger: 'h-full', arrow: { base: 'w-3.5 h-3.5' } }" :popper="{ placement: 'bottom-start' }">
     <UButton
-        size="xs"
+        size="2xs"
         :variant="editor.isActive('textStyle', { color: activeColorItem?.color }) || editor.isActive('highlight', { color: activeHighlightItem?.color }) ? 'soft' : 'ghost'"
         label="A"
         :color="editor.isActive('textStyle', { color: activeColorItem?.color }) || editor.isActive('highlight', { color: activeHighlightItem?.color }) ? 'primary' : 'gray'"
+        square
+        :ui="{ icon: { size: { '2xs': 'h-3.5 w-3.5' } } }"
     >
       <template #default>
-        <p :style="{ color: activeColorItem?.color, backgroundColor: activeHighlightItem?.color }" class="px-1 font-medium border rounded-sm border-stone-200">A</p>
+        <p :style="{ color: activeColorItem?.color, backgroundColor: activeHighlightItem?.color }" class="w-3.5 h-3.5 flex items-center justify-center text-xs font-medium border rounded-sm border-stone-200">A</p>
       </template>
       <template #trailing>
-        <UIcon name="i-heroicons-chevron-down-20-solid" class="w-4 h-4" />
+        <UIcon name="i-heroicons-chevron-down-20-solid" class="w-3.5 h-3.5" />
       </template>
     </UButton>
 
     <template #panel="{ close }">
-      <div class="flex flex-col gap-1 p-1 max-h-80 w-36 overflow-x-hidden overflow-y-auto">
+      <div class="flex flex-col gap-1 p-1 max-h-80 w-3.56 overflow-x-hidden overflow-y-auto">
         <p class="px-2 mb-1 text-xs text-stone-500">Couleur</p>
         <UButton
             v-for="(textColor, index) in TEXT_COLORS"

@@ -9,6 +9,7 @@ export const useLessonsStore = defineStore('lessons', () => {
     try {
       lessons.value = await client('/api/teacher/lessons', { method: 'GET', query: { page } })
       isLessonEdited.value = false
+      pending.value = false
     } catch (e) {
       error.value = e
     }
@@ -58,10 +59,19 @@ export const useLessonsStore = defineStore('lessons', () => {
     }
   }
 
+  const reset = (localStorage) => {
+    lessons.value = {}
+    isLessonEdited.value = false
+    pending.value = false
+    error.value = null
+    localStorage.removeItem('lessons')
+  }
+
   return {
     lessons,
     pending,
     error,
+    reset,
     fetchLessons,
     refresh,
     addLesson,
@@ -79,6 +89,7 @@ export const useThemesStore = defineStore('themes', () => {
   const refresh = async (page = 1) => {
     try {
       themes.value = await client('/api/teacher/themes', { method: 'GET', query: { page } })
+      pending.value = false
     } catch (e) {
       error.value = e
     }
@@ -105,10 +116,18 @@ export const useThemesStore = defineStore('themes', () => {
     }
   }
 
+  const reset = (localStorage) => {
+    themes.value = {}
+    pending.value = false
+    error.value = null
+    localStorage.removeItem('themes')
+  }
+
   return {
     themes,
     pending,
     error,
+    reset,
     fetchThemes,
     refresh,
     addTheme
@@ -123,7 +142,8 @@ export const useChaptersStore = defineStore('chapters', () => {
 
   const refresh = async (page = 1) => {
     try {
-      chapters.value = await client('/api/teacher/chapters', { method: 'GET', query: { page } })
+      chapters.value = await client('/api/teacher/chapters-paginate', { method: 'GET', query: { page } })
+      pending.value = false
     } catch (e) {
       error.value = e
     }
@@ -161,13 +181,27 @@ export const useChaptersStore = defineStore('chapters', () => {
     }
   }
 
+  const reset = (localStorage) => {
+    chapters.value = {}
+    pending.value = false
+    error.value = null
+    localStorage.removeItem('chapters')
+  }
+
   return {
     chapters,
     pending,
     error,
+    reset,
     fetchChapters,
     refresh,
     addChapter,
     fetchChapter
   }
 }, { persist: { storage: persistedState.localStorage } })
+
+export const resetStores = (localStorage) => {
+  useLessonsStore().reset(localStorage)
+  useThemesStore().reset(localStorage)
+  useChaptersStore().reset(localStorage)
+}

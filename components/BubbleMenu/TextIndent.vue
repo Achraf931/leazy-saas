@@ -8,9 +8,11 @@
       <UButton
         :icon="item.icon"
         variant="ghost"
-        size="xs"
+        size="2xs"
         color="gray"
         @click="item.command()"
+        square
+        :ui="{ icon: { size: { '2xs': 'h-3.5 w-3.5' } } }"
       />
     </UTooltip>
   </div>

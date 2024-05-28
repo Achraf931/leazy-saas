@@ -18,18 +18,20 @@
           v-for="(item, index) in items"
           :key="index"
           :variant="item.isActive() ? 'soft' : 'ghost'"
-          size="xs"
+          size="2xs"
           :color="item.isActive() ? 'primary' : 'gray'"
           :icon="item.icon"
           @click="item.command()"
+          square
+          :ui="{ icon: { size: { '2xs': 'h-3.5 w-3.5' } } }"
         />
 
         <TextSubSup :editor="editor" />
 
-<!--        <UInput :ui="{ base: 'w-16' }" v-model="fontSize" @change="editor.chain().focus().setFontSize(`${fontSize}px`).run()" size="xs" placeholder="14" type="number" inputmode="numeric" />-->
+<!--        <UInput :ui="{ base: 'w-16' }" v-model="fontSize" @change="updateFontSize" size="xs" placeholder="15" type="number" inputmode="numeric" />-->
 
         <UTooltip text="Effacer la mise en forme">
-          <UButton size="xs" variant="ghost" color="red" @click="editor.chain().focus().unsetAllMarks().run()" icon="i-lucide-remove-formatting" />
+          <UButton size="2xs" variant="ghost" color="red" @click="editor.chain().focus().unsetAllMarks().run()" icon="i-lucide-remove-formatting" square :ui="{ icon: { size: { '2xs': 'h-3.5 w-3.5' } } }" />
         </UTooltip>
 
         <UDivider orientation="vertical" />
@@ -47,7 +49,7 @@
         <UDivider orientation="vertical" />
 
         <UTooltip text="Demander de l'aide">
-          <UButton size="xs" variant="ghost" color="gray" icon="i-lucide-message-square-quote" />
+          <UButton size="2xs" variant="ghost" color="gray" icon="i-lucide-message-square-quote" square :ui="{ icon: { size: { '2xs': 'h-3.5 w-3.5' } } }" />
         </UTooltip>
       </div>
     </div>
@@ -64,13 +66,18 @@ import TextAlign from './TextAlign'
 import TextSubSup from './TextSubSup'
 import TextIndent from './TextIndent'
 
-// const fontSize = ref(15)
 const props = defineProps({
   editor: {
     type: Object,
     required: true,
   }
 })
+
+/*const parseFontSize = (fontSize) => {
+  return parseFloat(fontSize) || 15.2
+}
+
+const fontSize = ref(parseFontSize(props.editor.getAttributes('textStyle').fontSize))*/
 
 const isCellSelection = (value: unknown): value is CellSelection => {
   return value instanceof CellSelection
@@ -83,7 +90,11 @@ const shouldShow = ({ view, state }) => {
   const isProhibitedType = $anchor.parent.type.name === 'calloutBox'
 
   return !(!hasEditorFocus || empty || !props.editor.isEditable || isNodeSelection(selection) || isCellSelection(selection) || isProhibitedType)
-};
+}
+
+/*const updateFontSize = () => {
+  props.editor.chain().focus().setFontSize(`${fontSize.value}px`).run()
+}*/
 
 const items = [
   {
@@ -117,4 +128,8 @@ const items = [
     icon: 'i-lucide-code'
   }
 ]
+
+/*watch(() => props.editor.state.selection, () => {
+  fontSize.value = parseFontSize(props.editor.getAttributes('textStyle').fontSize)
+})*/
 </script>

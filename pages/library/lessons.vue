@@ -50,7 +50,7 @@ const themes = [
 ]
 
 const filteredLessons = computed(() => {
-  return lessons.value?.data.filter(lesson => {
+  return lessons.value?.data?.filter(lesson => {
     return lesson.name.search(new RegExp(q.value, 'i')) !== -1 || lesson.description.search(new RegExp(q.value, 'i')) !== -1
   })
 })
@@ -168,7 +168,7 @@ watch(page, async (page) => {
           <p v-else class="text-center text-gray-400 dark:text-white text-sm mt-4">Aucune leçon trouvée</p>
         </UDashboardPanelContent>
 
-        <div v-if="filteredLessons && lessons.last_page > 1" class="p-2.5 flex items-center justify-center border-t border-gray-200 dark:border-gray-800">
+        <div v-if="filteredLessons.length && lessons.last_page > 1" class="p-2.5 flex items-center justify-center border-t border-gray-200 dark:border-gray-800">
           <UPagination size="xs" show-first show-last :page-count="lessons.per_page" :total="lessons.total" v-model="page" :max="5" />
         </div>
       </template>
