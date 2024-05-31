@@ -681,8 +681,8 @@ defineExpose({ editor })
       div[data-type="detailsContent"] > *,
       div[data-type="callout"] > .content > *,
       blockquote > * {
-        margin-top: 0.5rem;
-        margin-bottom: 0.5rem;
+        margin-top: 1.2rem;
+        margin-bottom: 1.2rem;
       }
 
       /**
