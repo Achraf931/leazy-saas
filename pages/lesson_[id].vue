@@ -1,16 +1,26 @@
 <script setup lang="ts">
 import { Editor as EditorType } from '@tiptap/core'
 import { useChaptersStore, useLessonsStore } from '@/stores/library'
+import { BaseKit, type BaseKitOptions } from '@/extensions'
+import { isMobile } from '@/utils/is-mobile'
 
 definePageMeta({
   pageTransition: false
 })
 
+const tiptap = ref(null)
+const editor = computed(() => tiptap.value?.editor as EditorType)
+const theme = ref<string | null>(null)
+const hideToolbar = ref(isMobile())
+const extensions: BaseKitOptions = [BaseKit.configure({
+  speechSynthesis: false,
+  speechRecognition: false
+})]
+
 const toast = useToast()
 const localePath = useLocalePath()
 const client = useSanctumClient()
 const { t } = useI18n()
-const editor = ref<EditorType>()
 const savePending = ref(false)
 const searchOpened = ref(false)
 const searchTerm = ref('')
@@ -60,7 +70,7 @@ watchEffect(() => {
 const handleTitleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
   if (event.shiftKey) return
 
-  if (event.key === 'Enter') editor.value?.editor.commands.focus()
+  if (event.key === 'Enter') editor.value?.commands.focus()
 
   if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
     const selection = window.getSelection()
@@ -72,7 +82,7 @@ const handleTitleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
       const textContent = event.currentTarget.textContent || ''
 
       if (endOffset >= textContent.length) {
-        editor.value?.editor.commands.focus('start')
+        editor.value?.commands.focus('start')
 
         event.preventDefault()
       }
@@ -160,7 +170,7 @@ const options = ref([
     label: 'Imprimer',
     icon: 'i-heroicons-printer',
     click: () => {
-      editor.value?.editor.commands.print()
+      editor.value?.commands.print()
     }
   }], [{
     label: 'Supprimer',
@@ -195,11 +205,11 @@ const goNextLesson = async () => {
 const save = async () => {
   // if (!isContentUnsaved.value) return
 
-  if (!editor.value?.editor) return
+  if (!editor.value) return
 
   savePending.value = true
 
-  const json = editor.value?.editor.getJSON()
+  const json = editor.value?.getJSON()
 
   const response = await updateLesson({
     ...lesson,
@@ -222,27 +232,27 @@ const save = async () => {
 }
 
 const updateSearchReplace = (clearIndex = false) => {
-  if (!editor.value?.editor) return
-  if (clearIndex) editor.value?.editor.commands.resetIndex()
+  if (!editor.value) return
+  if (clearIndex) editor.value?.commands.resetIndex()
 
-  editor.value?.editor.commands.setSearchTerm(searchTerm.value)
-  editor.value?.editor.commands.setReplaceTerm(replaceTerm.value)
-  editor.value?.editor.commands.setCaseSensitive(caseSensitive.value)
+  editor.value?.commands.setSearchTerm(searchTerm.value)
+  editor.value?.commands.setReplaceTerm(replaceTerm.value)
+  editor.value?.commands.setCaseSensitive(caseSensitive.value)
 }
 
 
 const goToSelection = () => {
-  if (!editor.value?.editor) return;
+  if (!editor.value) return;
 
-  const { results, resultIndex } = editor.value.editor.storage.searchAndReplace;
+  const { results, resultIndex } = editor.value.storage.searchAndReplace;
   const position: Range = results[resultIndex];
 
   if (!position) return;
 
-  editor.value?.editor.commands.setTextSelection(position);
+  editor.value?.commands.setTextSelection(position);
 
-  const { node } = editor.value.editor.view.domAtPos(
-      editor.value.editor.state.selection.anchor
+  const { node } = editor.value.view.domAtPos(
+      editor.value.state.selection.anchor
   );
   node instanceof HTMLElement &&
   node.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -274,26 +284,26 @@ watch(
 );
 
 const replace = () => {
-  editor.value?.editor.commands.replace();
+  editor.value?.commands.replace();
   goToSelection();
 };
 
 const next = () => {
-  editor.value?.editor.commands.nextSearchResult();
+  editor.value?.commands.nextSearchResult();
   goToSelection();
 };
 
 const previous = () => {
-  editor.value?.editor.commands.previousSearchResult();
+  editor.value?.commands.previousSearchResult();
   goToSelection();
 };
 
 const clear = () => {
   searchTerm.value = replaceTerm.value = "";
-  editor.value.editor.commands.resetIndex();
+  editor.value.commands.resetIndex();
 };
 
-const replaceAll = () => editor.value?.editor.commands.replaceAll();
+const replaceAll = () => editor.value?.commands.replaceAll();
 
 onMounted(() => {
   setTimeout(updateSearchReplace)
@@ -301,9 +311,9 @@ onMounted(() => {
 
 const getText = async () => {
   console.log('click on get plain text')
-  // console.log('JSON => ', editor.value?.editor.getJSON())
-  // console.log('HTML => ', editor.value?.editor.getHTML())
-  /*const plainText = editor.value?.editor.getText({ blockSeparator: `\n\n` })
+  // console.log('JSON => ', editor.value?.getJSON())
+  // console.log('HTML => ', editor.value?.getHTML())
+  /*const plainText = editor.value?.getText({ blockSeparator: `\n\n` })
   plainText.replace(/<pre[^>]*>([\s\S]*?)<\/pre[^>]*>/m, '')
 
   const test = await $fetch('/api/enrich', {
@@ -314,7 +324,7 @@ const getText = async () => {
   })
 
   console.log('test => ', test)*/
-  editor.value?.editor.commands.setEnrich()
+  editor.value?.commands.setEnrich()
 }
 
 const handleDraft = async () => {
@@ -396,17 +406,33 @@ const handleVisibility = async () => {
         </div>
       </template>
     </UDashboardNavbar>
-    <UDashboardPanelContent v-if="lesson">
-      <div contenteditable @input="title = $event.target.innerText" data-placeholder="Titre de la leçon" class="empty:before:content-['Titre de la leçon'] empty:before:pointer-events-none empty:before:text-[#adb5bd] font-bold px-[calc((100%_-_(750px))_/_2)] mt-[25px] text-3xl tracking-tight text-gray-900 dark:text-white sm:text-4xl lg:text-5xl outline-none ring-none" @keydown="handleTitleKeyDown">
+
+    <UDashboardPanelContent v-if="lesson" :ui="{ wrapper: 'p-0' }">
+      <div contenteditable @input="title = $event.target.innerText" data-placeholder="Titre de la leçon" class="empty:before:content-['Titre de la leçon'] empty:before:pointer-events-none empty:before:text-[#adb5bd] font-bold px-4 lg:px-[calc((100%_-_(750px))_/_2)] mt-[25px] text-3xl tracking-tight text-gray-900 dark:text-white sm:text-4xl lg:text-5xl outline-none ring-none" @keydown="handleTitleKeyDown">
         {{ title }}
       </div>
-      <LeazyEditor ref="editor" :default-value="content" :storage-key="`leazy-editor-${documentId}`" />
+
+      <TableOfContents :editor="editor" />
+
+      <!--      <LeazyEditor ref="editor" :default-value="content" :storage-key="`leazy-editor-${documentId}`" />-->
+      <ClientOnly>
+        <Editor ref="tiptap" v-model="content" :extensions="extensions" :hideToolbar="hideToolbar" class="flex-1" max-width="800" />
+      </ClientOnly>
     </UDashboardPanelContent>
 
     <UDashboardToolbar :ui="{ wrapper: 'bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 z-10', left: 'items-center gap-2 relative' }">
-      <template v-if="editor?.editor" #left>
+      <template v-if="editor" #left>
+        <UCheckbox v-model="hideToolbar" label="Cacher les options" class="cursor-pointer" name="hideToolbar" />
+
+        <UDivider orientation="vertical" class="h-4 -mr-2" />
+
         <UPopover :popper="{ placement: 'top-start' }" v-model:open="searchOpened">
-          <UButton icon="i-lucide-replace-all" label="Chercher et remplacer" variant="soft" color="white" />
+          <UButton size="sm" variant="soft" color="white">
+            <p class="hidden lg:block">Chercher et remplacer</p>
+            <template #leading>
+              <UIcon name="i-lucide-replace-all" class="w-4 h-4" />
+            </template>
+          </UButton>
 
           <template #panel>
             <div class="p-2">
@@ -429,7 +455,7 @@ const handleVisibility = async () => {
                 <UButton variant="soft" color="red" size="2xs" @click="clear" icon="i-heroicons-x-mark" />
                 <UButton variant="soft" color="gray" size="2xs" @click="previous" icon="i-heroicons-chevron-left-20-solid" />
                 <p class="text-[11px] font-medium text-gray-700">
-                  {{ editor?.editor?.storage?.searchAndReplace?.resultIndex + (editor?.editor?.storage?.searchAndReplace?.results.length ? 1 : 0) }} / {{ editor?.editor?.storage?.searchAndReplace?.results.length }}
+                  {{ editor?.storage?.searchAndReplace?.resultIndex + (editor?.storage?.searchAndReplace?.results.length ? 1 : 0) }} / {{ editor?.storage?.searchAndReplace?.results.length }}
                 </p>
                 <UButton variant="soft" color="gray" size="2xs" @click="next" icon="i-heroicons-chevron-right-20-solid" />
                 <UButton variant="soft" size="2xs" @click="replace" label="Remplacer" />
@@ -439,11 +465,7 @@ const handleVisibility = async () => {
           </template>
         </UPopover>
 
-        <div class="flex items-center justify-start gap-1 px-2 border-gray-200 dark:border-gray-800 h-full border-x border-solid">
-          <UButton @click="editor?.editor.chain().focus().undo().run()" :disabled="!editor?.editor.can().undo()" icon="i-lucide-undo" variant="soft" size="xs" :color="editor?.editor.can().undo() ? 'primary' : 'white'" />
-          <UButton @click="editor?.editor.chain().focus().redo().run()" :disabled="!editor?.editor.can().redo()" icon="i-lucide-redo" variant="soft" size="xs" :color="editor?.editor.can().redo() ? 'primary' : 'white'" />
-        </div>
-        <p class="text-xs">{{ new Intl.NumberFormat('fr-FR').format(editor.editor.storage.characterCount.words()).replace(/\s/g, '&nbsp;') }} mots</p>
+<!--        <p class="text-xs">{{ new Intl.NumberFormat('fr-FR').format(editor.storage.characterCount.words()).replace(/\s/g, '&nbsp;') }} mots</p>-->
       </template>
 
       <template #right>

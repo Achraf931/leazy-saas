@@ -143,5 +143,10 @@ export default defineNuxtConfig({
   },
   tailwindcss: {
     quiet: true
+  },
+  vite: {
+    optimizeDeps: {
+      include: ['zod']
+    }
   }
 })

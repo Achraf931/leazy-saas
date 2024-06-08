@@ -13,6 +13,8 @@ await fetchChapters()
 
 const localePath = useLocalePath()
 
+const chapterToUpdate = ref(null)
+
 const q = ref('')
 
 const page = ref(chapters.value?.current_page)
@@ -44,11 +46,30 @@ const handleDelete = chapter => {
   isDeleteChapterModalOpen.value.chapter = chapter
 }
 
+
 const fields = reactive({
   name: undefined,
   theme_id: 1,
   image: 'https://excalidraw.com/og-image-2.png'
 })
+
+const handleModal = (chapter, opened) => {
+  if (chapter) {
+    chapterToUpdate.value = chapter
+    fields.name = chapter.name
+    fields.image = chapter.image
+    fields.theme_id = chapter.theme_id
+    isOpen.value = opened
+  } else {
+    isOpen.value = opened
+    setTimeout(() => {
+      chapterToUpdate.value = null
+      fields.name = undefined
+      fields.image = 'https://excalidraw.com/og-image-2.png'
+      fields.theme_id = 1
+    }, 200)
+  }
+}
 
 const validate = (state) => {
   const errors = []
@@ -65,7 +86,7 @@ const onSubmit = async (state) => {
 
     if (response) setTimeout(async () => {
       isLoading.value = false
-      isOpen.value = false
+      if (chapterToUpdate.value) handleModal(null, false)
       await refresh()
       toast.add({ icon: 'i-heroicons-check-circle', title: 'Nouveau chapitre crée', color: 'green' })
     }, 2000)
@@ -88,7 +109,7 @@ watch(page, async (page) => {
           <UInput v-model="q" icon="i-heroicons-magnifying-glass" placeholder="Rechercher un chapitre" />
         </template>
         <template #right>
-          <UButton trailing-icon="i-heroicons-plus" @click="isOpen = true" label="Créer un chapitre" />
+          <UButton trailing-icon="i-heroicons-plus" @click="handleModal(null, true)" label="Créer un chapitre" />
         </template>
       </UDashboardToolbar>
 
@@ -112,11 +133,11 @@ watch(page, async (page) => {
                       <p class="text-gray-400 text-xs">{{ chapter.updated_at === chapter.created_at ? 'Créé' : 'Modifié' }} {{ formatDistanceToNow(new Date(chapter.updated_at), { locale: frLocale, addSuffix: true }) }}</p>
                     </div>
                   </div>
-                  <UDropdown :ui="{ wrapper: 'absolute top-2.5 right-2.5', item: { size: 'text-xs' }, width: 'w-auto' }" :items="[[{ label: 'Renommer', icon: 'i-heroicons-pencil-square' }, { label: 'Supprimer', icon: 'i-heroicons-trash', color: 'red', click: () => handleDelete(chapter) }]]" :popper="{ placement: 'bottom-end' }">
+                  <UDropdown :ui="{ wrapper: 'absolute top-2.5 right-2.5', item: { size: 'text-xs' }, width: 'w-auto' }" :items="[[{ label: 'Modifier', icon: 'i-heroicons-pencil-square', click: () => handleModal(chapter, true) }, { label: 'Supprimer', icon: 'i-heroicons-trash', color: 'red', click: () => handleDelete(chapter) }]]" :popper="{ placement: 'bottom-end' }">
                     <UButton icon="i-heroicons-ellipsis-horizontal" variant="soft" color="gray" :padded="false" />
 
                     <template #item="{ item }">
-                      <UIcon :name="item.icon" class="flex-shrink-0 h-4 w-4 ms-auto" :class="item.label === 'Supprimer' ? 'text-red-500 dark:text-red-400' : ''" />
+                      <UIcon :name="item.icon" class="flex-shrink-0 h-4 w-4" :class="item.label === 'Supprimer' ? 'text-red-500 dark:text-red-400' : ''" />
 
                       <span class="truncate" :class="item.label === 'Supprimer' ? 'text-red-500 dark:text-red-400' : ''">{{ item.label }}</span>
                     </template>
@@ -134,15 +155,19 @@ watch(page, async (page) => {
       </template>
     </UDashboardPanel>
 
-    <UDashboardModal prevent-close v-model="isOpen" title="Créer un chapitre" :ui="{ width: 'sm:max-w-md' }">
+    <UDashboardModal prevent-close v-model="isOpen" :title="`${chapterToUpdate ? 'Modifier' : 'Créer'} un chapitre`" :ui="{ width: 'sm:max-w-md' }" :close-button="{ icon: 'i-heroicons-x-mark', onClick: () => handleModal(null, false) }">
       <UForm class="space-y-4" :state="fields" :validate="validate" @submit="onSubmit">
         <UFormGroup label="Titre" name="name">
           <UInput type="text" placeholder="Titre du chapitre" autofocus v-model="fields.name" />
         </UFormGroup>
 
+        <UFormGroup label="Image" name="image">
+          <UInput type="text" placeholder="URL de l'image" v-model="fields.image" />
+        </UFormGroup>
+
         <div class="flex justify-end gap-3">
-          <UButton label="Annuler" color="gray" variant="ghost" @click="isOpen = false" />
-          <UButton :loading="isLoading" type="submit" label="Créer" color="black" />
+          <UButton label="Annuler" color="gray" variant="ghost" @click="handleModal(null, false)" />
+          <UButton :loading="isLoading" type="submit" :label="chapterToUpdate ? 'Modifier' : 'Créer'" color="black" />
         </div>
       </UForm>
     </UDashboardModal>

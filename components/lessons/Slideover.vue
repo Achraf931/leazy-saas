@@ -1,6 +1,9 @@
 <script lang="ts" setup>
 import { formatDistanceToNow } from 'date-fns'
 import frLocale from 'date-fns/locale/fr'
+import { BaseKit, type BaseKitOptions } from '@/extensions'
+
+const extensions: BaseKitOptions = [BaseKit]
 
 const props = defineProps({
   lesson: {
@@ -12,8 +15,6 @@ const props = defineProps({
 const emits = defineEmits<{
   close: [];
 }>()
-
-console.log('lesson', typeof props.lesson.content === 'object' ? props.lesson.content : JSON.parse(props.lesson.content))
 </script>
 
 <template>
@@ -30,7 +31,10 @@ console.log('lesson', typeof props.lesson.content === 'object' ? props.lesson.co
       </template>
 
       <div class="h-full overflow-auto">
-        <LeazyEditor :default-value="typeof lesson.content === 'object' ? lesson.content : JSON.parse(lesson.content)" class-name="editorContainer sidepanelLesson p-0" :editable="false" />
+<!--        <LeazyEditor :default-value="typeof lesson.content === 'object' ? lesson.content : JSON.parse(lesson.content)" class-name="editorContainer sidepanelLesson p-0" :editable="false" />-->
+        <ClientOnly>
+          <Editor v-model="lesson.content" content-class="sidepanelLesson" :extensions="extensions" :editable="false" :disabled="true" :hideToolbar="true" :hideBubble="true" max-width="100%" />
+        </ClientOnly>
       </div>
 
       <template #footer>
@@ -44,7 +48,7 @@ console.log('lesson', typeof props.lesson.content === 'object' ? props.lesson.co
 </template>
 
 <style>
-.sidepanelLesson .contentEditor .ProseMirror {
+.sidepanelLesson .tiptap.ProseMirror {
   padding: 0!important;
 }
 </style>
