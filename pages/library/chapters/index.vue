@@ -6,7 +6,7 @@ import { useChaptersStore } from '@/stores/library'
 const toast = useToast()
 
 const store = useChaptersStore()
-const { fetchChapters, refresh, addChapter } = store
+const { fetchChapters, refresh, addChapter, updateChapter } = store
 const { chapters, pending, error } = storeToRefs(store)
 
 await fetchChapters()
@@ -82,13 +82,13 @@ const validate = (state) => {
 const onSubmit = async (state) => {
   try {
     isLoading.value = true
-    const response = await addChapter({ ...state.data })
+    const response = (chapterToUpdate.value ? await updateChapter({ ...state.data, id: chapterToUpdate.value.id }) : await addChapter({ ...state.data }))
 
     if (response) setTimeout(async () => {
       isLoading.value = false
       if (chapterToUpdate.value) handleModal(null, false)
       await refresh()
-      toast.add({ icon: 'i-heroicons-check-circle', title: 'Nouveau chapitre crée', color: 'green' })
+      toast.add({ icon: 'i-heroicons-check-circle', title: chapterToUpdate.value ? 'Chapitre modifié' : 'Nouveau chapitre crée', color: 'green' })
     }, 2000)
     else isLoading.value = false
   } catch (error) {
@@ -102,7 +102,7 @@ watch(page, async (page) => {
 </script>
 
 <template>
-  <UDashboardPage>
+  <UDashboardPage :ui="{  wrapper: 'overflow-hidden'}">
     <UDashboardPanel grow>
       <UDashboardToolbar>
         <template #left>

@@ -6,7 +6,7 @@ import { useThemesStore } from '@/stores/library'
 const toast = useToast()
 
 const store = useThemesStore()
-const { fetchThemes, refresh, addTheme } = store
+const { fetchThemes, refresh, addTheme, updateTheme } = store
 
 await fetchThemes()
 
@@ -79,13 +79,13 @@ const validate = (state) => {
 
 const onSubmit = async (state) => {
   isLoading.value = true
-  const response = await addTheme({ ...state.data })
+  const response = themeToUpdate.value ? await updateTheme({ ...state.data, id: themeToUpdate.value.id }) : await addTheme({ ...state.data })
 
   if (response) setTimeout(async () => {
     isLoading.value = false
     if (themeToUpdate.value) handleModal(null, false)
     await refresh()
-    toast.add({ icon: 'i-heroicons-check-circle', title: 'Nouveau thème crée', color: 'green' })
+    toast.add({ icon: 'i-heroicons-check-circle', title: themeToUpdate.value ? 'Thème modifié' : 'Nouveau thème crée', color: 'green' })
   }, 2000)
   else isLoading.value = false
 }
@@ -96,7 +96,7 @@ watch(page, async (page) => {
 </script>
 
 <template>
-  <UDashboardPage>
+  <UDashboardPage :ui="{  wrapper: 'overflow-hidden'}">
     <UDashboardPanel grow>
       <UDashboardToolbar>
         <template #left>

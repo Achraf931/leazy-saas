@@ -112,7 +112,7 @@ watch(page, async (page) => {
 </script>
 
 <template>
-  <UDashboardPage>
+  <UDashboardPage :ui="{  wrapper: 'overflow-hidden'}">
     <UDashboardPanel grow>
       <UDashboardToolbar>
         <template #left>
