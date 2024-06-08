@@ -45,6 +45,11 @@ id: 'agenda',
     icon: 'i-heroicons-rectangle-stack',
     to: localePath({ name: 'kanban' })
   }, {
+  id: 'course',
+  label: 'Emargement',
+  icon: 'i-heroicons-clipboard-document-list',
+  to: localePath({ name: 'course' })
+}, {
   id: 'library',
   label: t('drawer.library.label'),
   icon: 'i-heroicons-folder-open',
