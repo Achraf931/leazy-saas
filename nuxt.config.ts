@@ -20,7 +20,7 @@ export default defineNuxtConfig({
     '@pinia-plugin-persistedstate/nuxt'
   ],
   ui: {
-    icons: ['simple-icons', 'lucide', 'fluent'],
+    icons: ['simple-icons', 'lucide', 'fluent', 'mdi'],
     safelistColors: ['primary', 'red', 'orange', 'green']
   },
   sanctum: {
@@ -131,6 +131,10 @@ export default defineNuxtConfig({
       inbox: {
         en: '/inbox',
         fr: '/messages'
+      },
+      kanban: {
+        en: '/kanban',
+        fr: '/kanban'
       },
       index: {
         en: '/',

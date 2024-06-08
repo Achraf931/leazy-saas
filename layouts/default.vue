@@ -26,10 +26,16 @@ const links = computed(() => [{
     text: 'Inbox',
     shortcuts: ['G', 'I']
   }
-}, {
+},
+  {
+    id: 'kanban',
+    label: 'Mes tâches',
+    icon: 'i-heroicons-rectangle-stack',
+    to: localePath({ name: 'kanban' })
+  }, {
   id: 'library',
   label: t('drawer.library.label'),
-  icon: 'i-lucide-library-big',
+  icon: 'i-heroicons-folder-open',
   to: localePath({ name: 'library' }),
   collapsible: false,
   children: [

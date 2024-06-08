@@ -3,7 +3,7 @@ const localePath = useLocalePath()
 
 const links = [[{
   label: 'Tout',
-  icon: 'i-lucide-library-big',
+  icon: 'i-heroicons-folder-open',
   to: localePath({ name: 'library' }),
   exact: true
 }, {
@@ -22,7 +22,7 @@ const links = [[{
   to: localePath({ name: 'library-chapters' })
 }, {
   label: 'Thèmes',
-  icon: 'i-lucide-swatch-book',
+  icon: 'i-heroicons-book-open',
   exactQuery: true,
   exactHash: true,
   exact: true,

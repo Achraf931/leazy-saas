@@ -41,3 +41,18 @@ export interface Range {
   start: Date
   end: Date
 }
+
+export interface Task {
+  id: number
+  title: string
+  description: string
+  createdAt: Date
+}
+
+export interface Column {
+  id: number
+  title: string
+  icon: string
+  color: string
+  tasks: Task[]
+}
