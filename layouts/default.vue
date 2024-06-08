@@ -26,8 +26,15 @@ const links = computed(() => [{
     text: 'Inbox',
     shortcuts: ['G', 'I']
   }
-},
-  {
+}, {
+  id: 'classes',
+  label: 'Mes classes',
+  icon: 'i-heroicons-academic-cap',
+  exactQuery: true,
+  exactHash: true,
+  exact: true,
+  to: localePath({ name: 'classes-id', params: { id: 1 } })
+}, {
     id: 'kanban',
     label: 'Mes tâches',
     icon: 'i-heroicons-rectangle-stack',

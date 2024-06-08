@@ -3,18 +3,13 @@ const localePath = useLocalePath()
 const { t } = useI18n()
 
 const links = [[{
-    label: t('page.settings.general.label'),
-    icon: 'i-heroicons-user-circle',
-    to: localePath({ name: 'settings' }),
-    exact: true
-  }, /*{
-    label: t('page.settings.members.label'),
+    label: 'Terminal PI',
     icon: 'i-heroicons-user-group',
-    to: localePath({ name: 'settings-members' })
-  },*/ {
-    label: t('page.settings.notifications.label'),
-    icon: 'i-heroicons-bell',
-    to: localePath({ name: 'settings-notifications' })
+    to: localePath({ name: 'classes-id', params: { id: 1 } })
+  }, {
+    label: 'Seconde PG',
+    icon: 'i-heroicons-user-group',
+    to: localePath({ name: 'classes-id', params: { id: 2 } })
   }]]
 </script>
 
@@ -24,9 +19,7 @@ const links = [[{
       <UDashboardNavbar>
         <template #title>
           <ToggleDrawer />
-          <h1 class="flex items-center gap-1.5 font-semibold text-gray-900 dark:text-white min-w-0">
-            {{ $t('commons.settings') }}
-          </h1>
+          <h1 class="flex items-center gap-1.5 font-semibold text-gray-900 dark:text-white min-w-0">Mes classes</h1>
         </template>
       </UDashboardNavbar>
 
