@@ -641,6 +641,35 @@
   resolved "https://registry.npmjs.org/@fastify/busboy/-/busboy-2.1.1.tgz#b9da6a878a371829a0502c9b6c1c143ef6663f4d"
   integrity sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==
 
+"@fullcalendar/core@^6.1.14":
+  version "6.1.14"
+  resolved "https://registry.npmjs.org/@fullcalendar/core/-/core-6.1.14.tgz#75cd70ab28600dec630970e1015e4e7b59cd4a94"
+  integrity sha512-hIPRBevm0aMc2aHy1hRIJgXmI1QTvQM1neQa9oxtuqUmF1+ApYC3oAdwcQMTuI7lHHw3pKJDyJFkKLPPnL6HXA==
+  dependencies:
+    preact "~10.12.1"
+
+"@fullcalendar/daygrid@^6.1.14", "@fullcalendar/daygrid@~6.1.14":
+  version "6.1.14"
+  resolved "https://registry.npmjs.org/@fullcalendar/daygrid/-/daygrid-6.1.14.tgz#4afc48adbdd905b79777ff4c822c9ed0205df995"
+  integrity sha512-DSyjiA1dEM8k3bOCrZpZOmAOZu71KGtH02ze+4QKuhxkmn/zQghmmLRdfzpOrcyJg6xGKkoB4pBcO+2lXar8XQ==
+
+"@fullcalendar/interaction@^6.1.14":
+  version "6.1.14"
+  resolved "https://registry.npmjs.org/@fullcalendar/interaction/-/interaction-6.1.14.tgz#c758581419e324cf82b53a38e7941942f7f0dd14"
+  integrity sha512-rXum5XCjq+WEPNctFeYL/JKZGeU2rlxrElygocdMegcrIBJQW5hnWWVE+i4/1dOmUKF80CbGVlXUyYXoqK2eFg==
+
+"@fullcalendar/timegrid@^6.1.14":
+  version "6.1.14"
+  resolved "https://registry.npmjs.org/@fullcalendar/timegrid/-/timegrid-6.1.14.tgz#ff1849278b4991002ae1337d5435aaba3ae9aadc"
+  integrity sha512-ZByc3BVAtxWSVfyaNedROLlg/Tb2NQ43+MZZAfBSrVwVm2xyfQ+Bsx3pJyCXsRsUh2TFFTO07q7nMWe0jet3KQ==
+  dependencies:
+    "@fullcalendar/daygrid" "~6.1.14"
+
+"@fullcalendar/vue3@^6.1.14":
+  version "6.1.14"
+  resolved "https://registry.npmjs.org/@fullcalendar/vue3/-/vue3-6.1.14.tgz#6e98011338bea3f010eb47e769ea48793dd97636"
+  integrity sha512-cD4tGlXOoIfRn5sz/+uT+50rAuCtPEgXfG3O5LJXI4xRWztAXqkmZetcuTEDb3OOy/D03IdtpjvoayCHib7rZg==
+
 "@headlessui/tailwindcss@^0.2.0":
   version "0.2.1"
   resolved "https://registry.npmjs.org/@headlessui/tailwindcss/-/tailwindcss-0.2.1.tgz#1becc201f69358a40e08bd676acc234b2cabe6e4"
@@ -8208,6 +8237,11 @@ potpack@^1.0.2:
   version "1.0.2"
   resolved "https://registry.npmjs.org/potpack/-/potpack-1.0.2.tgz#23b99e64eb74f5741ffe7656b5b5c4ddce8dfc14"
   integrity sha512-choctRBIV9EMT9WGAZHn3V7t0Z2pMQyl0EZE6pFc/6ml3ssw7Dlf/oAOvFwjm1HVsqfQN8GfeFyJ+d8tRzqueQ==
+
+preact@~10.12.1:
+  version "10.12.1"
+  resolved "https://registry.npmjs.org/preact/-/preact-10.12.1.tgz#8f9cb5442f560e532729b7d23d42fd1161354a21"
+  integrity sha512-l8386ixSsBdbreOAkqtrwqHwdvR35ID8c3rKPa8lCWuO86dBi32QWHV4vfsZK1utLLFMvw+Z5Ad4XLkZzchscg==
 
 prebuild-install@^7.1.1:
   version "7.1.2"

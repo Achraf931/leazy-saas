@@ -12,6 +12,11 @@
     "typecheck": "nuxt typecheck"
   },
   "dependencies": {
+    "@fullcalendar/core": "^6.1.14",
+    "@fullcalendar/daygrid": "^6.1.14",
+    "@fullcalendar/interaction": "^6.1.14",
+    "@fullcalendar/timegrid": "^6.1.14",
+    "@fullcalendar/vue3": "^6.1.14",
     "@headlessui/vue": "^1.7.22",
     "@iconify-json/fluent": "^1.1.55",
     "@iconify-json/heroicons": "^1.1.21",
