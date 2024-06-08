@@ -14,7 +14,7 @@ const { themes } = storeToRefs(themesStore)
   <UDashboardPanelContent>
     <LibraryLessons v-if="lessons?.data?.length" :lessons="lessons.data"/>
 
-    <div class="grid lg:grid-cols-2 lg:items-start gap-5 mt-8">
+    <div class="grid lg:grid-cols-2 lg:items-start gap-4 mt-4">
       <LibraryChapters v-if="chapters?.data?.length" :chapters="chapters.data"/>
       <LibraryThemes v-if="themes?.data?.length" :themes="themes.data"/>
     </div>
