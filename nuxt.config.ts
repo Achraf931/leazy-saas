@@ -136,6 +136,14 @@ export default defineNuxtConfig({
         en: '/kanban',
         fr: '/kanban'
       },
+      classes: {
+        en: '/classes',
+        fr: '/classes'
+      },
+      'classes/[id]': {
+        en: '/classes/[id]',
+        fr: '/classes/[id]'
+      },
       index: {
         en: '/',
         fr: '/'
