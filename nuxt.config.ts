@@ -84,6 +84,10 @@ export default defineNuxtConfig({
         en: '/users',
         fr: '/utilisateurs'
       },
+      course: {
+        en: '/course',
+        fr: '/cours'
+      },
       'settings/index': {
         en: '/settings',
         fr: '/parametres'
