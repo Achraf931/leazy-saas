@@ -46,7 +46,7 @@ function onFileClick () {
 
 async function onSubmit (event: FormSubmitEvent<any>) {
   console.log(event.data)
-  const { data } = await client('user', { method: 'PATCH', body: event.data })
+  const { data } = await client('/api/me', { method: 'PATCH', body: event.data })
   console.log(data)
   user.value = data
   toast.add({ title: 'Profil modifié !', icon: 'i-heroicons-check-circle' })
