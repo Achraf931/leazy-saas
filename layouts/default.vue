@@ -35,6 +35,11 @@ const links = computed(() => [{
   exact: true,
   to: localePath({ name: 'classes-id', params: { id: 1 } })
 }, {
+id: 'agenda',
+  label: 'Agenda',
+  icon: 'i-heroicons-calendar-days',
+  to: localePath({ name: 'agenda' })
+}, {
     id: 'kanban',
     label: 'Mes tâches',
     icon: 'i-heroicons-rectangle-stack',

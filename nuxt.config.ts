@@ -136,6 +136,10 @@ export default defineNuxtConfig({
         en: '/kanban',
         fr: '/kanban'
       },
+      agenda: {
+        en: '/agenda',
+        fr: '/agenda'
+      },
       classes: {
         en: '/classes',
         fr: '/classes'
