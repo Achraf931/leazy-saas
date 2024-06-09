@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import frLocale from 'date-fns/locale/fr'
 import { format } from 'date-fns'
+
+const { isNotificationsSlideoverOpen } = useDashboard()
 </script>
 
 <template>
@@ -856,7 +858,7 @@ import { format } from 'date-fns'
                       <UIcon :name="`i-heroicons-pencil`" class="w-3.5 h-3.5" dynamic />
                     </label>
                     <div class="timeline-event-copy">
-                      <p class="leading-3">Demande d'aide sur la leçon <strong>"HTML pour les débutants"</strong> de la part de<strong> John Aplogan</strong> <span class="mx-1.5">•</span> <span class="text-xs">il y a 3 heures</span></p>
+                      <p class="leading-3">Demande d'aide sur la leçon <strong class="cursor-pointer" @click="isNotificationsSlideoverOpen = true">"HTML pour les débutants"</strong> de la part de<strong> John Aplogan</strong> <span class="mx-1.5">•</span> <span class="text-xs">il y a 3 heures</span></p>
                     </div>
                   </li>
                   <li class="relative leading-none">
@@ -864,7 +866,7 @@ import { format } from 'date-fns'
                       <UIcon :name="`i-heroicons-question-mark-circle`" class="w-3.5 h-3.5 text-orange-500" dynamic />
                     </label>
                     <div class="timeline-event-copy">
-                      <p class="leading-3">Demande d'aide sur la leçon <strong>"HTML pour les débutants"</strong> de la part de<strong> John Aplogan</strong> <span class="mx-1.5">•</span> <span class="text-xs">il y a 3 heures</span></p>
+                      <p class="leading-3">Demande d'aide sur la leçon <strong class="cursor-pointer" @click="isNotificationsSlideoverOpen = true">"HTML pour les débutants"</strong> de la part de<strong> John Aplogan</strong> <span class="mx-1.5">•</span> <span class="text-xs">il y a 3 heures</span></p>
                     </div>
                   </li>
                   <li class="relative leading-none">
@@ -872,7 +874,7 @@ import { format } from 'date-fns'
                       <UIcon :name="`i-heroicons-archive-box`" class="w-3.5 h-3.5" dynamic />
                     </label>
                     <div class="timeline-event-copy">
-                      <p class="leading-3">Demande d'aide sur la leçon <strong>"HTML pour les débutants"</strong> de la part de<strong> John Aplogan</strong> <span class="mx-1.5">•</span> <span class="text-xs">il y a 3 heures</span></p>
+                      <p class="leading-3">Demande d'aide sur la leçon <strong class="cursor-pointer" @click="isNotificationsSlideoverOpen = true">"HTML pour les débutants"</strong> de la part de<strong> John Aplogan</strong> <span class="mx-1.5">•</span> <span class="text-xs">il y a 3 heures</span></p>
                     </div>
                   </li>
                   <li class="relative leading-none">
@@ -880,7 +882,7 @@ import { format } from 'date-fns'
                       <UIcon :name="`i-heroicons-archive-box`" class="w-3.5 h-3.5" dynamic />
                     </label>
                     <div class="timeline-event-copy">
-                      <p class="leading-3">Demande d'aide sur la leçon <strong>"HTML pour les débutants"</strong> de la part de<strong> John Aplogan</strong> <span class="mx-1.5">•</span> <span class="text-xs">il y a 3 heures</span></p>
+                      <p class="leading-3">Demande d'aide sur la leçon <strong class="cursor-pointer" @click="isNotificationsSlideoverOpen = true">"HTML pour les débutants"</strong> de la part de<strong> John Aplogan</strong> <span class="mx-1.5">•</span> <span class="text-xs">il y a 3 heures</span></p>
                     </div>
                   </li>
                   <li class="relative leading-none">
@@ -888,7 +890,7 @@ import { format } from 'date-fns'
                       <UIcon :name="`i-heroicons-archive-box`" class="w-3.5 h-3.5" dynamic />
                     </label>
                     <div class="timeline-event-copy">
-                      <p class="leading-3">Demande d'aide sur la leçon <strong>"HTML pour les débutants"</strong> de la part de<strong> John Aplogan</strong> <span class="mx-1.5">•</span> <span class="text-xs">il y a 3 heures</span></p>
+                      <p class="leading-3">Demande d'aide sur la leçon <strong class="cursor-pointer" @click="isNotificationsSlideoverOpen = true">"HTML pour les débutants"</strong> de la part de<strong> John Aplogan</strong> <span class="mx-1.5">•</span> <span class="text-xs">il y a 3 heures</span></p>
                     </div>
                   </li>
                   <li class="relative leading-none">
@@ -896,7 +898,7 @@ import { format } from 'date-fns'
                       <UIcon :name="`i-heroicons-archive-box`" class="w-3.5 h-3.5" dynamic />
                     </label>
                     <div class="timeline-event-copy">
-                      <p class="leading-3">Demande d'aide sur la leçon <strong>"HTML pour les débutants"</strong> de la part de<strong> John Aplogan</strong> <span class="mx-1.5">•</span> <span class="text-xs">il y a 3 heures</span></p>
+                      <p class="leading-3">Demande d'aide sur la leçon <strong class="cursor-pointer" @click="isNotificationsSlideoverOpen = true">"HTML pour les débutants"</strong> de la part de<strong> John Aplogan</strong> <span class="mx-1.5">•</span> <span class="text-xs">il y a 3 heures</span></p>
                     </div>
                   </li>
                   <li class="relative leading-none">
@@ -904,7 +906,7 @@ import { format } from 'date-fns'
                       <UIcon :name="`i-heroicons-archive-box`" class="w-3.5 h-3.5" dynamic />
                     </label>
                     <div class="timeline-event-copy">
-                      <p class="leading-3">Demande d'aide sur la leçon <strong>"HTML pour les débutants"</strong> de la part de<strong> John Aplogan</strong> <span class="mx-1.5">•</span> <span class="text-xs">il y a 3 heures</span></p>
+                      <p class="leading-3">Demande d'aide sur la leçon <strong class="cursor-pointer" @click="isNotificationsSlideoverOpen = true">"HTML pour les débutants"</strong> de la part de<strong> John Aplogan</strong> <span class="mx-1.5">•</span> <span class="text-xs">il y a 3 heures</span></p>
                     </div>
                   </li>
                   <li class="relative leading-none">
@@ -912,7 +914,7 @@ import { format } from 'date-fns'
                       <UIcon :name="`i-heroicons-archive-box`" class="w-3.5 h-3.5" dynamic />
                     </label>
                     <div class="timeline-event-copy">
-                      <p class="leading-3">Demande d'aide sur la leçon <strong>"HTML pour les débutants"</strong> de la part de<strong> John Aplogan</strong> <span class="mx-1.5">•</span> <span class="text-xs">il y a 3 heures</span></p>
+                      <p class="leading-3">Demande d'aide sur la leçon <strong class="cursor-pointer" @click="isNotificationsSlideoverOpen = true">"HTML pour les débutants"</strong> de la part de<strong> John Aplogan</strong> <span class="mx-1.5">•</span> <span class="text-xs">il y a 3 heures</span></p>
                     </div>
                   </li>
                   <li class="relative leading-none">
@@ -920,7 +922,7 @@ import { format } from 'date-fns'
                       <UIcon :name="`i-heroicons-archive-box`" class="w-3.5 h-3.5" dynamic />
                     </label>
                     <div class="timeline-event-copy">
-                      <p class="leading-3">Demande d'aide sur la leçon <strong>"HTML pour les débutants"</strong> de la part de<strong> John Aplogan</strong> <span class="mx-1.5">•</span> <span class="text-xs">il y a 3 heures</span></p>
+                      <p class="leading-3">Demande d'aide sur la leçon <strong class="cursor-pointer" @click="isNotificationsSlideoverOpen = true">"HTML pour les débutants"</strong> de la part de<strong> John Aplogan</strong> <span class="mx-1.5">•</span> <span class="text-xs">il y a 3 heures</span></p>
                     </div>
                   </li>
                   <li class="relative leading-none">
@@ -928,7 +930,7 @@ import { format } from 'date-fns'
                       <UIcon :name="`i-heroicons-archive-box`" class="w-3.5 h-3.5" dynamic />
                     </label>
                     <div class="timeline-event-copy">
-                      <p class="leading-3">Demande d'aide sur la leçon <strong>"HTML pour les débutants"</strong> de la part de<strong> John Aplogan</strong> <span class="mx-1.5">•</span> <span class="text-xs">il y a 3 heures</span></p>
+                      <p class="leading-3">Demande d'aide sur la leçon <strong class="cursor-pointer" @click="isNotificationsSlideoverOpen = true">"HTML pour les débutants"</strong> de la part de<strong> John Aplogan</strong> <span class="mx-1.5">•</span> <span class="text-xs">il y a 3 heures</span></p>
                     </div>
                   </li>
                 </ul>
