@@ -6,13 +6,15 @@ import { useThemesStore } from '@/stores/library'
 const toast = useToast()
 
 const store = useThemesStore()
-const { fetchThemes, refresh, addTheme } = store
+const { fetchThemes, refresh, addTheme, updateTheme } = store
 
 await fetchThemes()
 
 const { themes, pending, error } = storeToRefs(store)
 
 const localePath = useLocalePath()
+
+const themeToUpdate = ref(null)
 
 const q = ref('')
 
@@ -51,6 +53,22 @@ const fields = reactive({
   discipline_id: 1
 })
 
+const handleModal = (theme, opened) => {
+  if (theme) {
+    themeToUpdate.value = theme
+    fields.name = theme.name
+    fields.discipline_id = theme.discipline_id
+    isOpen.value = opened
+  } else {
+    isOpen.value = opened
+    setTimeout(() => {
+      themeToUpdate.value = null
+      fields.name = undefined
+      fields.discipline_id = 1
+    }, 200)
+  }
+}
+
 const validate = (state) => {
   const errors = []
 
@@ -61,13 +79,13 @@ const validate = (state) => {
 
 const onSubmit = async (state) => {
   isLoading.value = true
-  const response = await addTheme({ ...state.data })
+  const response = themeToUpdate.value ? await updateTheme({ ...state.data, id: themeToUpdate.value.id }) : await addTheme({ ...state.data })
 
   if (response) setTimeout(async () => {
     isLoading.value = false
-    isOpen.value = false
+    if (themeToUpdate.value) handleModal(null, false)
     await refresh()
-    toast.add({ icon: 'i-heroicons-check-circle', title: 'Nouveau thème crée', color: 'green' })
+    toast.add({ icon: 'i-heroicons-check-circle', title: themeToUpdate.value ? 'Thème modifié' : 'Nouveau thème crée', color: 'green' })
   }, 2000)
   else isLoading.value = false
 }
@@ -78,14 +96,14 @@ watch(page, async (page) => {
 </script>
 
 <template>
-  <UDashboardPage>
+  <UDashboardPage :ui="{  wrapper: 'overflow-hidden'}">
     <UDashboardPanel grow>
       <UDashboardToolbar>
         <template #left>
           <UInput v-model="q" icon="i-heroicons-magnifying-glass" placeholder="Rechercher un thème" />
         </template>
         <template #right>
-          <UButton trailing-icon="i-heroicons-plus" @click="isOpen = true" label="Créer un thème" />
+          <UButton trailing-icon="i-heroicons-plus" @click="handleModal(null, true)" label="Créer un thème" />
         </template>
       </UDashboardToolbar>
 
@@ -97,11 +115,11 @@ watch(page, async (page) => {
                 <div class="flex items-center justify-center rounded-lg bg-blue-100 p-2">
                   <UIcon name="i-heroicons-book-open" class="w-6 h-6 text-blue-400" />
                 </div>
-                <UDropdown :ui="{ item: { size: 'text-xs' }, width: 'w-auto' }" :items="[[{ label: 'Renommer', icon: 'i-heroicons-pencil-square' }, { label: 'Supprimer', icon: 'i-heroicons-trash', color: 'red', click: () => handleDelete(theme) }]]" :popper="{ placement: 'bottom-end' }">
+                <UDropdown :ui="{ item: { size: 'text-xs' }, width: 'w-auto' }" :items="[[{ label: 'Modifier', icon: 'i-heroicons-pencil-square', click: () => handleModal(theme, true) }, { label: 'Supprimer', icon: 'i-heroicons-trash', color: 'red', click: () => handleDelete(theme) }]]" :popper="{ placement: 'bottom-end' }">
                   <UButton icon="i-heroicons-ellipsis-vertical" variant="ghost" color="gray" :padded="false" />
 
                   <template #item="{ item }">
-                    <UIcon :name="item.icon" class="flex-shrink-0 h-4 w-4 ms-auto" :class="item.label === 'Supprimer' ? 'text-red-500 dark:text-red-400' : ''" />
+                    <UIcon :name="item.icon" class="flex-shrink-0 h-4 w-4" dynamic :class="item.label === 'Supprimer' ? 'text-red-500 dark:text-red-400' : ''" />
 
                     <span class="truncate" :class="item.label === 'Supprimer' ? 'text-red-500 dark:text-red-400' : ''">{{ item.label }}</span>
                   </template>
@@ -123,15 +141,15 @@ watch(page, async (page) => {
       </template>
     </UDashboardPanel>
 
-    <UDashboardModal prevent-close v-model="isOpen" title="Créer un thème" :ui="{ width: 'sm:max-w-md' }">
+    <UDashboardModal prevent-close v-model="isOpen" :title="`${themeToUpdate ? 'Modifier' : 'Créer'} un thème`" :ui="{ width: 'sm:max-w-md' }" :close-button="{ icon: 'i-heroicons-x-mark', onClick: () => handleModal(null, false) }">
       <UForm class="space-y-4" :state="fields" :validate="validate" @submit="onSubmit">
         <UFormGroup label="Titre" name="name">
           <UInput type="text" placeholder="Titre du thème" autofocus v-model="fields.name" />
         </UFormGroup>
 
         <div class="flex justify-end gap-3">
-          <UButton label="Annuler" color="gray" variant="ghost" @click="isOpen = false" />
-          <UButton :loading="isLoading" type="submit" label="Créer" color="black" />
+          <UButton label="Annuler" color="gray" variant="ghost" @click="handleModal(null, false)" />
+          <UButton :loading="isLoading" type="submit" :label="themeToUpdate ? 'Modifier' : 'Créer'" color="black" />
         </div>
       </UForm>
     </UDashboardModal>

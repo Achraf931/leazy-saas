@@ -1,3 +1,5 @@
+import { Editor } from '@tiptap/vue-3'
+
 export const getRenderContainer = (editor: Editor, nodeType: string) => {
   const {
     view,
@@ -19,7 +21,7 @@ export const getRenderContainer = (editor: Editor, nodeType: string) => {
   }
 
   const node = view.domAtPos(from).node as HTMLElement
-  let container = node
+  let container: any = node
 
   if (!container.tagName) {
     container = node.parentElement

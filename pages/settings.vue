@@ -21,7 +21,14 @@ const links = [[{
 <template>
   <UDashboardPage>
     <UDashboardPanel grow>
-      <UDashboardNavbar :title="$t('commons.settings')" />
+      <UDashboardNavbar>
+        <template #title>
+          <ToggleDrawer />
+          <h1 class="flex items-center gap-1.5 font-semibold text-gray-900 dark:text-white min-w-0">
+            {{ $t('commons.settings') }}
+          </h1>
+        </template>
+      </UDashboardNavbar>
 
       <UDashboardToolbar class="py-0 px-1.5 overflow-x-auto">
         <UHorizontalNavigation :links="links" />

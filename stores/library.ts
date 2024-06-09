@@ -116,6 +116,16 @@ export const useThemesStore = defineStore('themes', () => {
     }
   }
 
+  const updateTheme = async (theme) => {
+    error.value = null
+
+    try {
+      return await client(`/api/teacher/themes/${theme.id}`, { method: 'PATCH', body: theme })
+    } catch (e) {
+      error.value = e
+    }
+  }
+
   const reset = (localStorage) => {
     themes.value = {}
     pending.value = false
@@ -130,7 +140,8 @@ export const useThemesStore = defineStore('themes', () => {
     reset,
     fetchThemes,
     refresh,
-    addTheme
+    addTheme,
+    updateTheme
   }
 }, { persist: { storage: persistedState.localStorage } })
 
@@ -181,6 +192,16 @@ export const useChaptersStore = defineStore('chapters', () => {
     }
   }
 
+  const updateChapter = async (chapter) => {
+    error.value = null
+
+    try {
+      return await client(`/api/teacher/chapters/${chapter.id}`, { method: 'PATCH', body: chapter })
+    } catch (e) {
+      error.value = e
+    }
+  }
+
   const reset = (localStorage) => {
     chapters.value = {}
     pending.value = false
@@ -196,6 +217,7 @@ export const useChaptersStore = defineStore('chapters', () => {
     fetchChapters,
     refresh,
     addChapter,
+    updateChapter,
     fetchChapter
   }
 }, { persist: { storage: persistedState.localStorage } })

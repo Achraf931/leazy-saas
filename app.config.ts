@@ -9,7 +9,7 @@ export default defineAppConfig({
     gray: 'zinc',
     tooltip: {
       default: {
-        openDelay: 500
+        openDelay: 250
       }
     }
   }

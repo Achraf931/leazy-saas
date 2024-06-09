@@ -20,11 +20,11 @@ export default defineNuxtConfig({
     '@pinia-plugin-persistedstate/nuxt'
   ],
   ui: {
-    icons: ['simple-icons', 'lucide', 'fluent'],
+    icons: ['simple-icons', 'lucide', 'fluent', 'mdi'],
     safelistColors: ['primary', 'red', 'orange', 'green']
   },
   sanctum: {
-    baseUrl: 'http://leazy.local:8000',
+    baseUrl: process.env.NUXT_API_URL || 'http://leazy.local:8000',
     redirectIfAuthenticated: false,
     endpoints: {
       csrf: '/sanctum/csrf-cookie',
@@ -84,6 +84,10 @@ export default defineNuxtConfig({
         en: '/users',
         fr: '/utilisateurs'
       },
+      course: {
+        en: '/course',
+        fr: '/cours'
+      },
       'settings/index': {
         en: '/settings',
         fr: '/parametres'
@@ -132,6 +136,22 @@ export default defineNuxtConfig({
         en: '/inbox',
         fr: '/messages'
       },
+      kanban: {
+        en: '/kanban',
+        fr: '/kanban'
+      },
+      agenda: {
+        en: '/agenda',
+        fr: '/agenda'
+      },
+      classes: {
+        en: '/classes',
+        fr: '/classes'
+      },
+      'classes/[id]': {
+        en: '/classes/[id]',
+        fr: '/classes/[id]'
+      },
       index: {
         en: '/',
         fr: '/'
@@ -143,5 +163,10 @@ export default defineNuxtConfig({
   },
   tailwindcss: {
     quiet: true
+  },
+  vite: {
+    optimizeDeps: {
+      include: ['zod']
+    }
   }
 })

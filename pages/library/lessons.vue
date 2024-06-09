@@ -14,6 +14,8 @@ await fetchLessons()
 
 const localePath = useLocalePath()
 
+const lessonToUpdate = ref(null)
+
 const q = ref('')
 
 const page = ref(lessons.value?.current_page)
@@ -67,6 +69,22 @@ const fields = reactive({
   description: undefined
 })
 
+const handleModal = (lesson, opened) => {
+  if (lesson) {
+    lessonToUpdate.value = lesson
+    fields.name = lesson.name
+    fields.description = lesson.description
+    isOpen.value = opened
+  } else {
+    isOpen.value = opened
+    setTimeout(() => {
+      lessonToUpdate.value = null
+      fields.name = undefined
+      fields.description = undefined
+    }, 200)
+  }
+}
+
 const validate = (state) => {
   const errors = []
 
@@ -81,7 +99,7 @@ const onSubmit = async (state) => {
 
   if (response) setTimeout(async () => {
     isLoading.value = false
-    isOpen.value = false
+    if (lessonToUpdate.value) handleModal(null, false)
     await router.push(localePath({ name: 'library-lessons-id', params: { id: response.id } }))
     toast.add({ icon: 'i-heroicons-check-circle', title: 'Nouvelle leçon crée', color: 'green' })
   }, 2000)
@@ -94,7 +112,7 @@ watch(page, async (page) => {
 </script>
 
 <template>
-  <UDashboardPage>
+  <UDashboardPage :ui="{  wrapper: 'overflow-hidden'}">
     <UDashboardPanel grow>
       <UDashboardToolbar>
         <template #left>
@@ -129,7 +147,7 @@ watch(page, async (page) => {
             </USelectMenu>
           </template>
 
-          <UButton trailing-icon="i-heroicons-plus" @click="isOpen = true" label="Créer une leçon" />
+          <UButton trailing-icon="i-heroicons-plus" @click="handleModal(null, true)" label="Créer une leçon" />
         </template>
       </UDashboardToolbar>
 
@@ -141,11 +159,11 @@ watch(page, async (page) => {
                 <div class="flex items-center justify-center rounded-lg bg-pink-100 p-2">
                   <UIcon name="i-heroicons-document-text" class="w-6 h-6 text-pink-400" />
                 </div>
-                <UDropdown :ui="{ item: { size: 'text-xs' }, width: 'w-auto' }" :items="[[{ label: 'Renommer', icon: 'i-heroicons-pencil-square' }, { label: 'Supprimer', icon: 'i-heroicons-trash', color: 'red', click: (e) => handleDelete(e, lesson) }]]" :popper="{ placement: 'bottom-end' }">
+                <UDropdown :ui="{ item: { size: 'text-xs' }, width: 'w-auto' }" :items="[[{ label: 'Modifier', icon: 'i-heroicons-pencil-square', click: () => handleModal(lesson, true) }, { label: 'Supprimer', icon: 'i-heroicons-trash', color: 'red', click: (e) => handleDelete(e, lesson) }]]" :popper="{ placement: 'bottom-end' }">
                   <UButton icon="i-heroicons-ellipsis-vertical" variant="ghost" color="gray" :padded="false" />
 
                   <template #item="{ item }">
-                    <UIcon :name="item.icon" class="flex-shrink-0 h-4 w-4 ms-auto" :class="item.label === 'Supprimer' ? 'text-red-500 dark:text-red-400' : ''" />
+                    <UIcon :name="item.icon" class="flex-shrink-0 h-4 w-4" :class="item.label === 'Supprimer' ? 'text-red-500 dark:text-red-400' : ''" />
 
                     <span class="truncate" :class="item.label === 'Supprimer' ? 'text-red-500 dark:text-red-400' : ''">{{ item.label }}</span>
                   </template>
@@ -174,7 +192,7 @@ watch(page, async (page) => {
       </template>
     </UDashboardPanel>
 
-    <UDashboardModal prevent-close v-model="isOpen" title="Créer une leçon" :ui="{ width: 'sm:max-w-md' }">
+    <UDashboardModal prevent-close v-model="isOpen" :title="`${lessonToUpdate ? 'Modifier' : 'Créer'} une leçon`" :ui="{ width: 'sm:max-w-md' }" :close-button="{ icon: 'i-heroicons-x-mark', onClick: () => handleModal(null, false) }">
       <UForm class="space-y-4" :state="fields" :validate="validate" @submit="onSubmit">
         <UFormGroup label="Titre" name="name">
           <UInput type="text" placeholder="Titre de la leçon" autofocus v-model="fields.name" />
@@ -185,8 +203,8 @@ watch(page, async (page) => {
         </UFormGroup>
 
         <div class="flex justify-end gap-3">
-          <UButton label="Annuler" color="gray" variant="ghost" @click="isOpen = false" />
-          <UButton :loading="isLoading" type="submit" label="Créer" color="black" />
+          <UButton label="Annuler" color="gray" variant="ghost" @click="handleModal(null, false)" />
+          <UButton :loading="isLoading" type="submit" :label="lessonToUpdate ? 'Modifier' : 'Créer'" color="black" />
         </div>
       </UForm>
     </UDashboardModal>

@@ -27,9 +27,32 @@ const links = computed(() => [{
     shortcuts: ['G', 'I']
   }
 }, {
+  id: 'classes',
+  label: 'Mes classes',
+  icon: 'i-heroicons-academic-cap',
+  exactQuery: true,
+  exactHash: true,
+  exact: true,
+  to: localePath({ name: 'classes-id', params: { id: 1 } })
+}, {
+id: 'agenda',
+  label: 'Agenda',
+  icon: 'i-heroicons-calendar-days',
+  to: localePath({ name: 'agenda' })
+}, {
+    id: 'kanban',
+    label: 'Mes tâches',
+    icon: 'i-heroicons-rectangle-stack',
+    to: localePath({ name: 'kanban' })
+  }, {
+  id: 'course',
+  label: 'Emargement',
+  icon: 'i-heroicons-clipboard-document-list',
+  to: localePath({ name: 'course' })
+}, {
   id: 'library',
   label: t('drawer.library.label'),
-  icon: 'i-lucide-library-big',
+  icon: 'i-heroicons-folder-open',
   to: localePath({ name: 'library' }),
   collapsible: false,
   children: [
