@@ -98,7 +98,7 @@ const subLinks = computed(() => [{
   id: 'blog',
   label: t('drawer.community'),
   icon: 'i-heroicons-newspaper',
-  to: '/landing',
+  to: 'https://leazy-blog.vercel.app',
   target: '_blank',
   tooltip: {
     text: 'Blog',
