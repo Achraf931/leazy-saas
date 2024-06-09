@@ -194,7 +194,7 @@
         "placeholder": "URL de l'image",
         "tab": {
           "url": "Url",
-          "upload": "Télécharger"
+          "upload": "Importer"
         },
         "uploading": "Téléchargement en cours",
         "form": {

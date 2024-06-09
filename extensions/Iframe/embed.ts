@@ -46,7 +46,7 @@ export const AllEmbedServices = [
 ]
 
 export const getEmbedService = value => {
-  for (var item of AllEmbedServices) {
+  for (let item of AllEmbedServices) {
     if (item.value === value) {
       return item
     }
@@ -92,6 +92,18 @@ export const EmbedServiceLink = {
     src: 'https://www.amap.com/place/B000A45467',
     srcPrefix: '',
     linkRule: ['\\.amap\\.com'],
+  },
+  google_map: {
+    example: 'https://www.google.fr/maps/place/1+Pl.+de+la+Concorde,+75001+Paris/@48.8658016,2.3215526,17z/data=!3m1!4b1!4m6!3m5!1s0x47e66e2d43c9b371:0x95e62d21bb185ad8!8m2!3d48.8658016!4d2.3241275!16s%2Fg%2F11b8zdrlpc?entry=ttu',
+    src: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2624.069988382091!2d2.321552615674724!3d48.86580157928807!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66e2d43c9b371%3A0x95e62d21bb185ad8!2s1%20Pl.%20de%20la%20Concorde%2C%207501%20Paris!5e0!3m2!1sfr!2sfr!4v1617377087009!5m2!1sfr!2sfr',
+    srcPrefix: 'https://www.google.com/maps/embed?pb=',
+    linkRule: [
+      'google\\.[a-z]+\\/maps\\/place\\/[^/]+\\/[^/]+\\/(?:@[^/]+)?', // Places
+      'google\\.[a-z]+\\/maps\\/dir\\/[^/]+\\/[^/]+', // Directions
+      'google\\.[a-z]+\\/maps\\/search\\/[^/]+', // Search
+      'google\\.[a-z]+\\/maps\\/view', // Street view
+      'google\\.[a-z]+\\/maps\\/@' // Coordinates
+    ],
   },
   baidu_map: {
     example: 'https://j.map.baidu.com/15/fo',
@@ -230,12 +242,29 @@ function getBaiduMapSrc(originalLink, result) {
   return result
 }
 
-function getGoogleMapSrc(originalLink, result) {
+/*function getGoogleMapSrc(originalLink, result) {
   result.src = result.matchedUrl
   result.validId = true
   result.originalLink = result.src
 
   return result
+}*/
+
+function getGoogleMapSrc(originalLink, result) {
+  let link = EmbedServiceLink.google_map;
+  let url = result.matchedUrl;
+
+  // Extract the path part that starts after '/maps/'
+  let pathMatch = url.match(/\/maps\/(.*)$/);
+  if (pathMatch && pathMatch[1]) {
+    let path = pathMatch[1];
+    result.src = `${link.srcPrefix}!1m0!2m0!3m1!4b1!4m${path}`;
+    result.validId = true;
+  } else {
+    result.validId = false;
+  }
+
+  return result;
 }
 
 function getModaoSrc(originalLink, result) {
@@ -312,7 +341,7 @@ function getMatchedUrl(service, originalLink, result) {
     let match = originalLink.match(regex)
     if (match && match.length > 0) {
       result.validLink = true
-      result.matchedUrl = match[0]
+      result.matchedUrl = originalLink
 
       return result
     }

@@ -195,7 +195,7 @@ const calendarOptions = reactive({
   headerToolbar: {
     left: 'prev,next today',
     center: 'title',
-    right: 'dayGridMonth,timeGridWeek,timeGridDay' // user can switch between the two
+    right: 'timeGridDay,timeGridWeek,dayGridMonth'
   },
   initialEvents: [
     {

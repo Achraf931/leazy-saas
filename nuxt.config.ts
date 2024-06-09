@@ -24,7 +24,7 @@ export default defineNuxtConfig({
     safelistColors: ['primary', 'red', 'orange', 'green']
   },
   sanctum: {
-    baseUrl: 'http://leazy.local:8000',
+    baseUrl: process.env.NUXT_API_URL || 'http://leazy.local:8000',
     redirectIfAuthenticated: false,
     endpoints: {
       csrf: '/sanctum/csrf-cookie',
