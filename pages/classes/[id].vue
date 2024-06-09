@@ -15,7 +15,7 @@ const filteredStudents = computed(() => {
 
 <template>
   <UDashboardPanelContent class="pb-24">
-    <UDashboardSection title="Gérer la classe" description="Inviter de nouveaux élèves par email." :ui="{ container: 'lg:sticky top-2' }">
+    <UDashboardSection title="Gérer la classe" description="Inviter de nouveaux élèves par email.">
       <template #links>
         <UButton label="Inviter des élèves" color="black" @click="isInviteModalOpen = true" />
       </template>
