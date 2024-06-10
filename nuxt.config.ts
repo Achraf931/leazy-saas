@@ -152,6 +152,10 @@ export default defineNuxtConfig({
         en: '/classes/[id]',
         fr: '/classes/[id]'
       },
+      templates: {
+        en: '/templates',
+        fr: '/templates'
+      },
       index: {
         en: '/',
         fr: '/'

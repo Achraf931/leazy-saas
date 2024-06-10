@@ -1,5 +1,7 @@
 <script lang="ts" setup>
-import type { User } from '~/types'
+import type { User } from '@/types'
+
+const qrOpen = ref(false)
 
 const defaultColumns = [{
   key: 'id',
@@ -48,7 +50,14 @@ defineShortcuts({
 <template>
   <UDashboardPage>
     <UDashboardPanel grow>
-      <UDashboardNavbar title="Cours" badge="Vendredi 7 Juin 2024">
+      <UDashboardNavbar :ui="{ left: 'items-center' }">
+        <template #left>
+          <ToggleDrawer />
+          <h1 class="flex items-center gap-1.5 font-semibold text-gray-900 dark:text-white min-w-0">Cours</h1>
+          <UBadge size="xs" label="Vendredi 7 Juin 2024" variant="subtle" />
+          <NuxtImg src="/qr.png" alt="QR Code" width="20" height="20" class="cursor-pointer w-6 h-6" @click="qrOpen = true" />
+        </template>
+
         <template #right>
           <UInput
               ref="input"
@@ -144,6 +153,10 @@ defineShortcuts({
           </div>
         </template>
       </UTable>
+
+      <UDashboardModal v-model="qrOpen" title="QR Code">
+        <NuxtImg src="/qr.png" alt="QR Code" />
+      </UDashboardModal>
     </UDashboardPanel>
   </UDashboardPage>
 </template>

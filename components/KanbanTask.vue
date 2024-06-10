@@ -56,7 +56,7 @@ onMounted(() => {
   <div class="relative cursor-pointer group p-3 mb-1.5 bg-gray-100 dark:bg-gray-800 hover:bg-opacity-75 focus:bg-opacity-75 dark:hover:bg-opacity-75 dark:focus:bg-opacity-75 rounded-md" tabindex="0">
     <div class="flex items-center gap-1.5 justify-between mb-1.5">
 <!--        <div class="w-3 h-3 rounded-full" @click="changePriority" :class="priorityIcon" />-->
-      <p class="text-sm" :title="task.createdAt.toLocaleDateString()">{{ task.title }}</p>
+      <p class="text-sm font-semibold">{{ task.title }}</p>
       <UButton icon="i-heroicons-trash" size="xs" variant="ghost" color="gray" @click="deleteTask" />
     </div>
 
@@ -66,7 +66,7 @@ onMounted(() => {
 
     <div class="mt-2 flex items-center gap-1">
       <UPopover :popper="{ placement: 'bottom' }" :ui="{ base: 'flex flex-col gap-0.5 p-0.5' }">
-        <UButton size="2xs" variant="soft" color="gray" :label="column.title">
+        <UButton size="2xs" color="white" :label="column.title">
           <template #leading>
             <UIcon :name="column.icon" class="w-3 h-3" :class="column.color" dynamic />
           </template>
@@ -74,7 +74,7 @@ onMounted(() => {
 
         <template #panel>
           <template v-for="target in columns">
-            <UButton size="2xs" variant="soft" color="gray" :label="target.title" @click="switchTaskToColumn(task, column, target.id)">
+            <UButton size="2xs" color="white" :label="target.title" @click="switchTaskToColumn(task, column, target.id)">
               <template #leading>
                 <UIcon :name="target.icon" class="w-3 h-3" :class="target.color" dynamic />
               </template>
@@ -84,7 +84,7 @@ onMounted(() => {
       </UPopover>
 
       <UPopover :popper="{ placement: 'bottom' }" :ui="{ base: 'flex flex-col gap-0.5 p-0.5' }">
-        <UButton size="2xs" variant="soft" color="gray" :label="['Basse', 'Moyenne', 'Haute'][priority]">
+        <UButton size="2xs" color="white" :label="['Basse', 'Moyenne', 'Haute'][priority]">
           <template #leading>
             <UIcon name="i-heroicons-flag" class="w-3 h-3" :class="['bg-green-500', 'bg-yellow-500', 'bg-red-500'][priority]" />
           </template>
@@ -92,7 +92,7 @@ onMounted(() => {
 
         <template #panel>
           <template v-for="(priority, index) in ['Basse', 'Moyenne', 'Haute']">
-            <UButton size="2xs" variant="soft" color="gray" :label="priority" @click="changePriority(index)">
+            <UButton size="2xs" color="white" :label="priority" @click="changePriority(index)">
               <template #leading>
                 <UIcon name="i-heroicons-flag" class="w-3 h-3" :class="['bg-green-500', 'bg-yellow-500', 'bg-red-500'][index]" />
               </template>
@@ -100,6 +100,8 @@ onMounted(() => {
           </template>
         </template>
       </UPopover>
+
+      <p class="text-xs ml-auto opacity-75">{{ task.createdAt.toLocaleDateString() }}</p>
     </div>
   </div>
 </template>

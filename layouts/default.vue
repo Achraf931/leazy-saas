@@ -92,6 +92,11 @@ id: 'agenda',
       exact: true,
       to: localePath({ name: 'library-themes' })
     }]
+}, {
+  id: 'templates',
+  label: 'Templates',
+  icon: 'i-heroicons-document-text',
+  to: localePath({ name: 'templates' })
 }])
 
 const subLinks = computed(() => [{
@@ -126,20 +131,6 @@ const groups = [
     key: 'links',
     label: 'Go to',
     commands: links.value.map(link => ({ ...link, shortcuts: link.tooltip?.shortcuts }))
-  },
-  {
-    key: 'code',
-    label: 'Code',
-    commands: [
-      {
-        id: 'source',
-        label: 'View page source',
-        icon: 'i-simple-icons-github',
-        click: () => {
-          window.open(`https://github.com/nuxt-ui-pro/dashboard/blob/main/pages${ route.path === '/' ? '/index' : route.path }.vue`, '_blank')
-        }
-      }
-    ]
   }
 ]
 </script>
