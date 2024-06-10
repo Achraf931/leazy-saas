@@ -186,8 +186,8 @@ watch(
 
         <template #panel>
           <div class="w-max flex flex-col">
-            <UButton variant="soft" size="xs" color="gray" @click="moveNode('UP')" icon="i-heroicons-chevron-up" label="Remonter" :disabled="!canMoveUp" />
-            <UButton variant="soft" size="xs" color="gray" @click="moveNode('DOWN')" icon="i-heroicons-chevron-down" label="Descendre" :disabled="!canMoveDown" />
+            <UButton variant="ghost" size="xs" color="gray" @click="moveNode('UP')" icon="i-heroicons-chevron-up" label="Remonter" :disabled="!canMoveUp" />
+            <UButton variant="ghost" size="xs" color="gray" @click="moveNode('DOWN')" icon="i-heroicons-chevron-down" label="Descendre" :disabled="!canMoveDown" />
 
             <UDivider orientation="horizontal" class="my-1" />
 
