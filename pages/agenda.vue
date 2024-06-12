@@ -1,12 +1,27 @@
 <script setup lang="ts">
-const selectedTab = ref(0)
-
 const q = ref('')
 const tabItems = [{
   label: 'Timeline'
 }, {
   label: 'Calendrier'
 }]
+
+const route = useRoute()
+const router = useRouter()
+
+const selectedTab = computed({
+  get () {
+    const index = tabItems.findIndex((item) => item.label === route.query.tab)
+    if (index === -1) {
+      return 0
+    }
+
+    return index
+  },
+  set (value) {
+    router.replace({ query: { tab: tabItems[value].label } })
+  }
+})
 </script>
 
 <template>

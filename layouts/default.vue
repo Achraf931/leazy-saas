@@ -44,12 +44,9 @@ id: 'agenda',
     label: 'Mes tâches',
     icon: 'i-heroicons-rectangle-stack',
     to: localePath({ name: 'kanban' })
-  }, {
-  id: 'course',
-  label: 'Emargement',
-  icon: 'i-heroicons-clipboard-document-list',
-  to: localePath({ name: 'course' })
-}, {
+  }])
+
+const subLinks = computed(() => [{
   id: 'library',
   label: t('drawer.library.label'),
   icon: 'i-heroicons-folder-open',
@@ -99,7 +96,7 @@ id: 'agenda',
   to: localePath({ name: 'templates' })
 }])
 
-const subLinks = computed(() => [{
+const otherLinks = computed(() => [{
   id: 'blog',
   label: t('drawer.community'),
   icon: 'i-heroicons-newspaper',
@@ -164,7 +161,11 @@ const groups = [
 
             <UDivider/>
 
-            <UDashboardSidebarLinks :links="subLinks">
+            <UDashboardSidebarLinks :links="subLinks"/>
+
+            <UDivider/>
+
+            <UDashboardSidebarLinks :links="otherLinks">
               <template #badge="{ link }">
                 <UIcon v-if="link.target === '_blank'" name="i-lucide-arrow-up-right" dynamic class="w-4 h-4 ml-auto"/>
               </template>
@@ -210,7 +211,11 @@ const groups = [
 
         <UDivider/>
 
-        <UDashboardSidebarLinks :links="subLinks">
+        <UDashboardSidebarLinks :links="subLinks"/>
+
+        <UDivider/>
+
+        <UDashboardSidebarLinks :links="otherLinks">
           <template #badge="{ link }">
             <UIcon v-if="link.target === '_blank'" name="i-heroicons-arrow-up-right" class="w-4 h-4 ml-auto"/>
           </template>

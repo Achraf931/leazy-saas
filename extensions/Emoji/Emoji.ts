@@ -15,7 +15,6 @@ export default {
   },
 
   render: () => {
-    console.log('render')
     let component
     let popup
 
