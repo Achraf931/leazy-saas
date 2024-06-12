@@ -1,9 +1,12 @@
 <script setup lang="ts">
+import { createApp, h } from 'vue'
 import FullCalendar from '@fullcalendar/vue3'
 import interactionPlugin from '@fullcalendar/interaction'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import frLocale from '@fullcalendar/core/locales/fr'
+import tippy from 'tippy.js'
+import AgendaEvent from '@/components/AgendaEvent.vue'
 
 const props = defineProps({
   modelValue: {
@@ -158,16 +161,39 @@ const handleDateSelect = (selectInfo) => {
   if (title) {
     calendarApi.addEvent({
       title,
+      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed quis neque non turpis fermentum aliquet.',
       start: selectInfo.startStr,
       end: selectInfo.endStr
     })
   }
 }
 
-const handleEventClick = (clickInfo) => {
-  if (confirm(`Are you sure you want to delete the event '${clickInfo.event.title}'`)) {
-    clickInfo.event.remove()
-  }
+const handleEventClick = (clickInfo, test) => {
+  console.log(clickInfo, test)
+  const container = document.createElement('div')
+
+  createApp({
+    render() {
+      return h(AgendaEvent, clickInfo)
+    }
+  }).mount(container)
+
+  tippy(clickInfo.el, {
+    content: container,
+    trigger: 'manual',
+    placement: 'left',
+    arrow: true,
+    interactive: true,
+    popperOptions: {
+      strategy: 'fixed',
+      modifiers: [
+        {
+          name: 'flip',
+          enabled: false
+        }
+      ]
+    }
+  }).show()
 }
 
 const handleEvents = (events) => {
@@ -201,12 +227,14 @@ const calendarOptions = reactive({
     {
       id: 1,
       title: 'All day event',
+      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed quis neque non turpis fermentum aliquet.',
       start: new Date(2024, 5, 8, 12, 30).toISOString().replace(/T.*$/, '') + 'T10:30:00',
       end: new Date(2024, 5, 8, 12, 30).toISOString().replace(/T.*$/, '') + 'T12:30:00'
     },
     {
       id: 2,
       title: 'Timed event',
+      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed quis neque non turpis fermentum aliquet.',
       start: new Date(2024, 5, 6, 14, 30).toISOString().replace(/T.*$/, '') + 'T12:00:00',
       end: new Date(2024, 5, 6, 14, 30).toISOString().replace(/T.*$/, '') + 'T14:00:00'
     }
@@ -287,6 +315,10 @@ const calendarOptions = reactive({
 
   --fc-list-event-dot-width: 10px;
   --fc-list-event-hover-bg-color: #f5f5f5;
+}
+
+.fc-event-main {
+  display: flex;
 }
 
 .fc-toolbar-chunk {
