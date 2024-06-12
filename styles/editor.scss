@@ -386,6 +386,11 @@
       }
     }
   }
+  .ProseMirror[contenteditable='false'] {
+    .image-view__body:hover {
+      outline-color: transparent;
+    }
+  }
   /*  */
   &.dense {
     .ProseMirror {

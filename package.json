@@ -12,11 +12,6 @@
     "typecheck": "nuxt typecheck"
   },
   "dependencies": {
-    "@fullcalendar/core": "^6.1.14",
-    "@fullcalendar/daygrid": "^6.1.14",
-    "@fullcalendar/interaction": "^6.1.14",
-    "@fullcalendar/timegrid": "^6.1.14",
-    "@fullcalendar/vue3": "^6.1.14",
     "@headlessui/vue": "^1.7.22",
     "@iconify-json/fluent": "^1.1.55",
     "@iconify-json/heroicons": "^1.1.21",
@@ -100,6 +95,7 @@
     "uuid": "^9.0.1",
     "v-calendar": "^3.1.2",
     "vue": "^3.4.27",
+    "vue-cal": "^4.8.1",
     "vue-sonner": "^1.1.2",
     "vuedraggable": "^4.1.0",
     "y-prosemirror": "^1.2.5",

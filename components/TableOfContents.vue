@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { nodeViewProps } from '@tiptap/vue-3';
+import { nodeViewProps } from '@tiptap/vue-3'
 
 const props = defineProps(nodeViewProps);
 
@@ -21,7 +21,7 @@ function handleUpdate() {
   const transaction = props.editor.state.tr;
   const numbering = []
 
-  props.editor.state.doc.descendants((node, pos) => {
+  props.editor.state.doc.descendants(node => {
     if (node.type.name === 'heading') {
       const level = node.attrs.level;
 
@@ -57,6 +57,7 @@ onMounted(() => {
   }
 });
 
+watch(() => props.editor, handleUpdate)
 </script>
 
 <style lang="scss">

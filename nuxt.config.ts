@@ -144,6 +144,10 @@ export default defineNuxtConfig({
         en: '/agenda',
         fr: '/agenda'
       },
+      'agenda_[id]': {
+        en: '/agenda/[id]',
+        fr: '/agenda/[id]'
+      },
       classes: {
         en: '/classes',
         fr: '/classes'

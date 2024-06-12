@@ -68,7 +68,6 @@ const validate = (state) => {
 const onSubmit = async (state) => {
   try {
     isLoading.value = true
-    console.log(state)
     const response = await client('/api/teacher/chapters', { method: 'POST', body: state.data })
 
     if (response) setTimeout(async () => {
