@@ -13,7 +13,7 @@ const links = computed(() => [{
   icon: 'i-heroicons-home',
   to: '/',
   tooltip: {
-    text: 'Home',
+    text: 'Accueil',
     shortcuts: ['G', 'H']
   }
 }, {
@@ -23,16 +23,13 @@ const links = computed(() => [{
   to: localePath({ name: 'inbox' }),
   badge: '4',
   tooltip: {
-    text: 'Inbox',
+    text: 'Messages',
     shortcuts: ['G', 'I']
   }
 }, {
   id: 'classes',
   label: 'Mes classes',
   icon: 'i-heroicons-academic-cap',
-  exactQuery: true,
-  exactHash: true,
-  exact: true,
   to: localePath({ name: 'classes-id', params: { id: 1 } })
 }, {
 id: 'agenda',
@@ -52,41 +49,21 @@ const subLinks = computed(() => [{
   icon: 'i-heroicons-folder-open',
   to: localePath({ name: 'library' }),
   collapsible: false,
+  exact: true,
   children: [
     {
       label: t('drawer.library.lessons'),
-      badge: {
-        label: '+',
-        variant: 'ghost',
-        padded: false
-      },
-      exactQuery: true,
-      exactHash: true,
-      exact: true,
+      // badge: '23',
       to: localePath({ name: 'library-lessons' })
     },
     {
       label: t('drawer.library.chapters'),
-      badge: {
-        label: '+',
-        variant: 'ghost',
-        padded: false
-      },
-      exactQuery: true,
-      exactHash: true,
-      exact: true,
+      // badge: '10',
       to: localePath({ name: 'library-chapters' })
     },
     {
       label: t('drawer.library.themes'),
-      badge: {
-        label: '+',
-        variant: 'ghost',
-        padded: false
-      },
-      exactQuery: true,
-      exactHash: true,
-      exact: true,
+      // badge: '3',
       to: localePath({ name: 'library-themes' })
     }]
 }, {
@@ -99,7 +76,7 @@ const subLinks = computed(() => [{
 const otherLinks = computed(() => [{
   id: 'blog',
   label: t('drawer.community'),
-  icon: 'i-heroicons-newspaper',
+  icon: 'i-heroicons-arrow-top-right-on-square',
   to: 'https://leazy-blog.vercel.app',
   target: '_blank',
   tooltip: {
@@ -165,11 +142,7 @@ const groups = [
 
             <UDivider/>
 
-            <UDashboardSidebarLinks :links="otherLinks">
-              <template #badge="{ link }">
-                <UIcon v-if="link.target === '_blank'" name="i-lucide-arrow-up-right" dynamic class="w-4 h-4 ml-auto"/>
-              </template>
-            </UDashboardSidebarLinks>
+            <UDashboardSidebarLinks :links="otherLinks" />
 
             <div class="flex-1"/>
 
@@ -215,11 +188,7 @@ const groups = [
 
         <UDivider/>
 
-        <UDashboardSidebarLinks :links="otherLinks">
-          <template #badge="{ link }">
-            <UIcon v-if="link.target === '_blank'" name="i-heroicons-arrow-up-right" class="w-4 h-4 ml-auto"/>
-          </template>
-        </UDashboardSidebarLinks>
+        <UDashboardSidebarLinks :links="otherLinks" />
 
         <div class="flex-1"/>
 

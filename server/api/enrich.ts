@@ -1,3 +1,4 @@
+/*
 import { getChatStream } from '@/server/utils/ai'
 
 export default defineEventHandler(async (event) => {
@@ -26,3 +27,4 @@ export default defineEventHandler(async (event) => {
 
   return sendStream(event, stream)
 })
+*/

@@ -1,250 +1,65 @@
 <script setup lang="ts">
+import { BaseKit, type BaseKitOptions } from '@/extensions/index.js'
+import { useLessonsStore } from '@/stores/library'
+
+const store = useLessonsStore()
+const isOpen = ref(false)
+const { fetchLessons, addLesson } = store
+const { lessons } = storeToRefs(store)
+
+await fetchLessons()
+
+const localePath = useLocalePath()
+const toast = useToast()
+const isLoading = ref(false)
+const extensions: BaseKitOptions = [BaseKit]
 const modal = reactive({
   template: null,
   open: false
 })
-const templates = ref([
-  {
-    id: 1,
-    title: 'Leçon de mathématiques',
-    description: 'Une leçon de mathématiques pour les élèves de 6ème.',
-    image: 'https://imgproxy.services.pitch.com/_/resizing_type:fit/plain/pitch-publish-user-assets/templates/posters/moodboard.jpg',
-    author: {
-      name: 'John Doe',
-      avatar: {
-        src: 'https://picsum.photos/560/400'
-      }
-    },
-    badge: {
-      size: 'xs',
-      label: 'Mathématiques'
-    }
-  },
-  {
-    id: 2,
-    title: 'Leçon de français',
-    description: 'Une leçon de français pour les élèves de 6ème.',
-    image: 'https://imgproxy.services.pitch.com/_/resizing_type:fit/plain/pitch-publish-user-assets/templates/posters/moodboard.jpg',
-    author: {
-      name: 'Jane Doe',
-      avatar: {
-        src: 'https://picsum.photos/560/400'
-      }
-    },
-    badge: {
-      size: 'xs',
-      label: 'Français'
-    }
-  },
-  {
-    id: 3,
-    title: 'Leçon de science',
-    description: 'Une leçon de science pour les élèves de 6ème.',
-    image: 'https://imgproxy.services.pitch.com/_/resizing_type:fit/plain/pitch-publish-user-assets/templates/posters/moodboard.jpg',
-    author: {
-      name: 'Alice Smith',
-      avatar: {
-        src: 'https://picsum.photos/560/400'
-      }
-    },
-    badge: {
-      size: 'xs',
-      label: 'Science'
-    }
-  },
-  {
-    id: 4,
-    title: 'Leçon d\'histoire',
-    description: 'Une leçon d\'histoire pour les élèves de 6ème.',
-    image: 'https://imgproxy.services.pitch.com/_/resizing_type:fit/plain/pitch-publish-user-assets/templates/posters/moodboard.jpg',
-    author: {
-      name: 'Bob Brown',
-      avatar: {
-        src: 'https://picsum.photos/560/400'
-      }
-    },
-    badge: {
-      size: 'xs',
-      label: 'Histoire'
-    }
-  },
-  {
-    id: 5,
-    title: 'Leçon de géographie',
-    description: 'Une leçon de géographie pour les élèves de 6ème.',
-    image: 'https://imgproxy.services.pitch.com/_/resizing_type:fit/plain/pitch-publish-user-assets/templates/posters/moodboard.jpg',
-    author: {
-      name: 'Carol White',
-      avatar: {
-        src: 'https://picsum.photos/560/400'
-      }
-    },
-    badge: {
-      size: 'xs',
-      label: 'Géographie'
-    }
-  },
-  {
-    id: 6,
-    title: 'Leçon de musique',
-    description: 'Une leçon de musique pour les élèves de 6ème.',
-    image: 'https://imgproxy.services.pitch.com/_/resizing_type:fit/plain/pitch-publish-user-assets/templates/posters/moodboard.jpg',
-    author: {
-      name: 'David Green',
-      avatar: {
-        src: 'https://picsum.photos/560/400'
-      }
-    },
-    badge: {
-      size: 'xs',
-      label: 'Musique'
-    }
-  },
-  {
-    id: 7,
-    title: 'Leçon d\'art',
-    description: 'Une leçon d\'art pour les élèves de 6ème.',
-    image: 'https://imgproxy.services.pitch.com/_/resizing_type:fit/plain/pitch-publish-user-assets/templates/posters/moodboard.jpg',
-    author: {
-      name: 'Eve Black',
-      avatar: {
-        src: 'https://picsum.photos/560/400'
-      }
-    },
-    badge: {
-      size: 'xs',
-      label: 'Art'
-    }
-  },
-  {
-    id: 8,
-    title: 'Leçon de sport',
-    description: 'Une leçon de sport pour les élèves de 6ème.',
-    image: 'https://imgproxy.services.pitch.com/_/resizing_type:fit/plain/pitch-publish-user-assets/templates/posters/moodboard.jpg',
-    author: {
-      name: 'Frank Blue',
-      avatar: {
-        src: 'https://picsum.photos/560/400'
-      }
-    },
-    badge: {
-      size: 'xs',
-      label: 'Sport'
-    }
-  },
-  {
-    id: 9,
-    title: 'Leçon de technologie',
-    description: 'Une leçon de technologie pour les élèves de 6ème.',
-    image: 'https://imgproxy.services.pitch.com/_/resizing_type:fit/plain/pitch-publish-user-assets/templates/posters/moodboard.jpg',
-    author: {
-      name: 'Grace Yellow',
-      avatar: {
-        src: 'https://picsum.photos/560/400'
-      }
-    },
-    badge: {
-      size: 'xs',
-      label: 'Technologie'
-    }
-  },
-  {
-    id: 10,
-    title: 'Leçon de chimie',
-    description: 'Une leçon de chimie pour les élèves de 6ème.',
-    image: 'https://imgproxy.services.pitch.com/_/resizing_type:fit/plain/pitch-publish-user-assets/templates/posters/moodboard.jpg',
-    author: {
-      name: 'Henry Orange',
-      avatar: {
-        src: 'https://picsum.photos/560/400'
-      }
-    },
-    badge: {
-      size: 'xs',
-      label: 'Chimie'
-    }
-  },
-  {
-    id: 11,
-    title: 'Leçon de biologie',
-    description: 'Une leçon de biologie pour les élèves de 6ème.',
-    image: 'https://imgproxy.services.pitch.com/_/resizing_type:fit/plain/pitch-publish-user-assets/templates/posters/moodboard.jpg',
-    author: {
-      name: 'Ivy Purple',
-      avatar: {
-        src: 'https://picsum.photos/560/400'
-      }
-    },
-    badge: {
-      size: 'xs',
-      label: 'Biologie'
-    }
-  },
-  {
-    id: 12,
-    title: 'Leçon de physique',
-    description: 'Une leçon de physique pour les élèves de 6ème.',
-    image: 'https://imgproxy.services.pitch.com/_/resizing_type:fit/plain/pitch-publish-user-assets/templates/posters/moodboard.jpg',
-    author: {
-      name: 'Jack Red',
-      avatar: {
-        src: 'https://picsum.photos/560/400'
-      }
-    },
-    badge: {
-      size: 'xs',
-      label: 'Physique'
-    }
-  },
-  {
-    id: 13,
-    title: 'Leçon de littérature',
-    description: 'Une leçon de littérature pour les élèves de 6ème.',
-    image: 'https://imgproxy.services.pitch.com/_/resizing_type:fit/plain/pitch-publish-user-assets/templates/posters/moodboard.jpg',
-    author: {
-      name: 'Kate Gray',
-      avatar: {
-        src: 'https://picsum.photos/560/400'
-      }
-    },
-    badge: {
-      size: 'xs',
-      label: 'Littérature'
-    }
-  },
-  {
-    id: 14,
-    title: 'Leçon d\'informatique',
-    description: 'Une leçon d\'informatique pour les élèves de 6ème.',
-    image: 'https://imgproxy.services.pitch.com/_/resizing_type:fit/plain/pitch-publish-user-assets/templates/posters/moodboard.jpg',
-    author: {
-      name: 'Leo Pink',
-      avatar: {
-        src: 'https://picsum.photos/560/400'
-      }
-    },
-    badge: {
-      size: 'xs',
-      label: 'Informatique'
-    }
-  },
-  {
-    id: 15,
-    title: 'Leçon de philosophie',
-    description: 'Une leçon de philosophie pour les élèves de 6ème.',
-    image: 'https://imgproxy.services.pitch.com/_/resizing_type:fit/plain/pitch-publish-user-assets/templates/posters/moodboard.jpg',
-    author: {
-      name: 'Mia Brown',
-      avatar: {
-        src: 'https://picsum.photos/560/400'
-      }
-    },
-    badge: {
-      size: 'xs',
-      label: 'Philosophie'
-    }
+
+const fields = reactive({
+  name: undefined,
+  description: undefined
+})
+
+const validate = (state) => {
+  const errors = []
+
+  if (!state.name) errors.push({ path: 'name', message: 'Le titre est requis' })
+
+  return errors
+}
+
+const onSubmit = async (state) => {
+  isLoading.value = true
+  const response = await addLesson({ ...state.data })
+
+  if (response) {
+    toast.add({ icon: 'i-heroicons-check-circle', title: 'Nouvelle leçon crée', color: 'green' })
+
+    setTimeout(async () => {
+      isLoading.value = false
+      return navigateTo(localePath({ name: 'lesson_id', params: { id: response.id } }))
+    }, 2000)
   }
-])
+  else isLoading.value = false
+}
+
+const addFromTemplate = async (template) => {
+  isLoading.value = true
+  const response = await addLesson({ name: template.name, description: template.description, content: template.content })
+
+  if (response) {
+    toast.add({ icon: 'i-heroicons-check-circle', title: 'Nouvelle leçon crée', color: 'green' })
+
+    setTimeout(async () => {
+      isLoading.value = false
+      modal.open = false
+      return navigateTo(localePath({ name: 'lesson_id', params: { id: response.id } }))
+    })
+  } else isLoading.value = false
+}
 </script>
 
 <template>
@@ -258,58 +73,70 @@ const templates = ref([
       </UDashboardNavbar>
 
       <UDashboardPanelContent>
-        <UDashboardSection title="Créer une nouvelle leçon" description="Choisissez un modèle de leçon pour commencer.">
-          <UBlogList orientation="horizontal" class="sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-5 gap-y-8">
-            <UBlogPost v-for="template in templates" :ui="{ wrapper: 'gap-y-2 cursor-pointer', title: 'text-base', description: 'text-sm' }" :key="template.id" @click="() => { modal.template = template; modal.open = true }" :title="template.title" :description="template.description" :image="{ src: template.image, alt: template.title }" :authors="[template.author]" :badge="template.badge">
-              <template #authors>
-                <div class="flex items-center gap-2">
-                  <UAvatar :src="template.author.avatar.src" :alt="template.author.name" size="xs" />
-                  <span class="text-sm text-gray-600 dark:text-gray-400">{{ template.author.name }}</span>
-                </div>
+        <UDashboardSection title="Créer une nouvelle leçon" description="Ou choisissez un modèle de leçon pour commencer.">
+          <template #links>
+            <UButton trailing-icon="i-heroicons-plus" @click="isOpen = true" label="Créer une leçon" />
+          </template>
+          <UBlogList orientation="horizontal" :ui="{ wrapper: 'p-px overflow-y-auto gap-x-4 gap-y-6 sm:grid sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5' }">
+            <UBlogPost v-for="lesson in lessons.data" :key="lesson.id" @click="() => { modal.template = lesson; modal.open = true }" :ui="{ wrapper: 'gap-y-2 cursor-pointer', image: { wrapper: 'rounded-sm' } }" class="text-xs">
+              <template #image>
+                <Editor :model-value="JSON.parse(lesson.content)" content-class="preview-editor" :extensions="extensions" :editable="false" :disabled="true" :hideToolbar="true" :hideBubble="true" max-width="100%" />
               </template>
+              <div class="mb-2">
+                <h2 class="text-gray-900 dark:text-white font-semibold line-clamp-1 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-200 text-base">{{ lesson.name }}</h2>
+                <p class="line-clamp-2 text-gray-400 text-xs mt-0.5">{{ lesson.description }}</p>
+              </div>
+              <div v-if="lesson.chapter" class="flex items-start gap-2">
+                <UBadge v-if="lesson.chapter.theme" variant="soft" color="yellow" size="xs">{{ lesson.chapter.theme.name }}</UBadge>
+                <UBadge variant="soft" color="blue" size="xs">{{ lesson.chapter.name }}</UBadge>
+              </div>
             </UBlogPost>
           </UBlogList>
         </UDashboardSection>
       </UDashboardPanelContent>
     </UDashboardPanel>
 
-    <UDashboardModal v-model="modal.open" title="Créer une nouvelle leçon" :ui="{ width: 'sm:max-w-4xl' }">
-      <div class="grid grid-cols-2 gap-4">
-        <NuxtImg :src="modal.template.image" :alt="modal.template.title" class="col-span-1 rounded-md" />
-        <div class="col-span-1">
-          Contenu de la leçon
-          Contenu de la leçon
-          Contenu de la leçon
-          Contenu de la leçon
-          Contenu de la leçon
-          Contenu de la leçon
-          Contenu de la leçon
-          Contenu de la leçon
-          Contenu de la leçon
-          Contenu de la leçon
-          Contenu de la leçon
-          Contenu de la leçon
-          Contenu de la leçon
-          Contenu de la leçon
-          Contenu de la leçon
-          Contenu de la leçon
-          Contenu de la leçon
-          Contenu de la leçon
-        </div>
+    <UDashboardModal v-model="modal.open" :title="modal.template?.name" :description="modal.template?.description" :ui="{ width: 'sm:max-w-4xl', height: 'sm:h-[95dvh]', margin: 'sm:my-0', body: { padding: 'px-0 py-4 pb-0 sm:p-4 sm:px-0 sm:pb-0', base: 'px-0 overflow-hidden' } }">
+      <div class="flex-1 overflow-y-auto">
+        <Editor :model-value="JSON.parse(modal.template.content)" content-class="template-editor" :extensions="extensions" :editable="false" :disabled="true" :hideToolbar="true" :hideBubble="true" max-width="100%" />
       </div>
-
-      <div>
-        <h2 class="text-lg font-semibold">{{ modal.template.title }}</h2>
-        <p class="text-sm text-gray-600 dark:text-gray-400">{{ modal.template.description }}</p>
-        <div class="flex items-center gap-2 mt-4">
-          <UAvatar :src="modal.template.author.avatar.src" :alt="modal.template.author.name" size="xs" />
-          <span class="text-sm text-gray-600 dark:text-gray-400">{{ modal.template.author.name }}</span>
-        </div>
-      </div>
-
       <template #footer>
-        <UButton label="Utiliser ce modèle" />
+        <div class="flex items-center justify-between w-full">
+          <span class="text-xs text-gray-600 dark:text-gray-400">By <b>John Doe</b></span>
+          <UButton :loading="isLoading" label="Utiliser ce modèle" @click="addFromTemplate(modal.template)" />
+        </div>
       </template>
+    </UDashboardModal>
+
+    <UDashboardModal prevent-close v-model="isOpen" title="Créer une leçon" :ui="{ width: 'sm:max-w-md' }">
+      <UForm class="space-y-4" :state="fields" :validate="validate" @submit="onSubmit">
+        <UFormGroup label="Titre" name="name">
+          <UInput type="text" placeholder="Titre de la leçon" autofocus v-model="fields.name" />
+        </UFormGroup>
+
+        <UFormGroup label="Description (optionnelle)" name="description">
+          <UTextarea placeholder="Description de la leçon" v-model="fields.description" />
+        </UFormGroup>
+
+        <div class="flex justify-end gap-3">
+          <UButton label="Annuler" color="gray" variant="ghost" @click="isOpen = false" />
+          <UButton :loading="isLoading" type="submit" label="Créer" color="black" />
+        </div>
+      </UForm>
     </UDashboardModal>
   </UDashboardPage>
 </template>
+
+<style lang="scss">
+.template-lesson {
+  margin: 0!important;
+
+  .tiptap.ProseMirror {
+    padding: 0!important;
+  }
+
+  & img {
+    height: auto!important;
+  }
+}
+</style>

@@ -1,35 +1,19 @@
 <script setup lang="ts">
-const lessons = [{
-  id: 1,
-  name: 'Lesson 1',
-  description: 'Description of lesson 1',
-  created_at: '2021-10-01',
-  visible: true,
-}, {
-  id: 2,
-  name: 'Lesson 2',
-  description: 'Description of lesson 2',
-  created_at: '2021-10-02',
-  visible: true,
-}, {
-  id: 3,
-  name: 'Lesson 3',
-  description: 'Description of lesson 3',
-  created_at: '2021-10-03',
-  visible: true,
-}, {
-  id: 4,
-  name: 'Lesson 4',
-  description: 'Description of lesson 4',
-  created_at: '2021-10-04',
-  visible: true,
-}, {
-  id: 5,
-  name: 'Lesson 5',
-  description: 'Description of lesson 5',
-  created_at: '2021-10-05',
-  visible: true,
-}]
+import { useChaptersStore, useLessonsStore } from '@/stores/library'
+import { formatDistanceToNow } from "date-fns";
+import frLocale from "date-fns/locale/fr";
+
+const { fetchLessons } = useLessonsStore()
+const { fetchChapter, refresh } = useChaptersStore()
+const documentId = computed(() => useRoute().params.id)
+
+const chapter = await fetchChapter(documentId.value)
+
+await fetchLessons()
+
+const { lessons } = storeToRefs(useLessonsStore())
+
+const isDeleteChapterModalOpen = ref({ open: false, chapter: null, refresh })
 
 const columns = [{
   key: 'id',
@@ -48,6 +32,11 @@ const columns = [{
   label: 'Actions',
   sortable: false
 }]
+
+const handleDelete = () => {
+  isDeleteChapterModalOpen.value.open = true
+  isDeleteChapterModalOpen.value.chapter = chapter
+}
 
 const selectedColumns = ref(columns)
 const columnsTable = computed(() => columns.filter((column) => selectedColumns.value.includes(column)))
@@ -138,48 +127,33 @@ const { data: todos, pending } = await useLazyAsyncData<{
   <UDashboardPage :ui="{ wrapper: 'overflow-hidden' }">
       <UDashboardPanelContent>
         <div class="w-full flex items-center justify-between mb-4">
-          <h1 class="font-bold text-xl">Chapitres</h1>
+          <h1 class="font-bold text-xl">{{ chapter.name }}</h1>
 
-          <div v-if="true" class="flex items-center justify-end gap-1">
-            <UTooltip text="Chapitre précédent" :popper="{ placement: 'top' }">
-              <UButton :disabled="true" variant="solid" color="white" square>
-                <UIcon name="i-heroicons-chevron-left" />
-              </UButton>
-            </UTooltip>
-            <UTooltip text="Chapitre suivant" :popper="{ placement: 'top' }">
-              <UButton :disabled="false" variant="solid" color="primary" square>
-                <UIcon name="i-heroicons-chevron-right" />
-              </UButton>
-            </UTooltip>
-            <UTooltip text="Menu" :popper="{ placement: 'top' }">
-              <UButton variant="solid" color="white" square>
-                <UIcon name="i-heroicons-ellipsis-horizontal" />
-              </UButton>
-            </UTooltip>
-          </div>
+          <UButton icon="i-heroicons-trash" label="Supprimer" color="red" size="xs" @click="handleDelete" />
         </div>
 
         <section class="flex-1 flex flex-col md:flex-row gap-5 p-px overflow-hidden w-full">
           <div class="flex flex-col gap-3">
             <NuxtImg
-              src="https://source.unsplash.com/random/800x600"
+              :src="chapter.image || 'https://imgproxy.services.pitch.com/_/resizing_type:fit/plain/pitch-publish-user-assets/templates/posters/moodboard.jpg'"
               alt="Random image"
-              class="rounded-lg w-full aspect-video max-w-auto md:max-w-72"
+              class="rounded-lg w-full aspect-video max-w-auto object-cover md:max-w-72"
               layout="responsive"
             />
 
-            <p class="text-sm">Chapter description</p>
-            <p class="text-sm">Crée le 01/10/2021</p>
+            <p v-if="chapter.description" class="text-sm">{{ chapter.description }}</p>
+            <p class="text-gray-400 text-xs">Créé {{ formatDistanceToNow(new Date(chapter.created_at), { locale: frLocale, addSuffix: true }) }}</p>
+            <p class="text-gray-400 text-xs">Modifié {{ formatDistanceToNow(new Date(chapter.updated_at), { locale: frLocale, addSuffix: true }) }}</p>
           </div>
 
           <UCard :ui="{ base: 'overflow-scroll flex-1' }">
             <UForm class="space-y-3">
               <h3 class="font-semibold">Détails</h3>
               <UFormGroup label="Titre">
-                <UInput placeholder="Titre du chapitre" />
+                <UInput placeholder="Titre du chapitre" v-model="chapter.name" />
               </UFormGroup>
               <UFormGroup label="Description">
-                <UTextarea placeholder="Description du chapitre" />
+                <UTextarea placeholder="Description du chapitre" v-model="chapter.description"/>
               </UFormGroup>
               <UFormGroup label="Thème associé">
                 <USelect :options="['Option 1', 'Option 2', 'Option 3']" />
@@ -322,5 +296,7 @@ const { data: todos, pending } = await useLazyAsyncData<{
           </UCard>
         </section>
       </UDashboardPanelContent>
+
+    <ChaptersDeleteChapterModal v-model="isDeleteChapterModalOpen" />
   </UDashboardPage>
 </template>

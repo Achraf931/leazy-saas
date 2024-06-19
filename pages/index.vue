@@ -8,7 +8,12 @@ const { isNotificationsSlideoverOpen } = useDashboard()
 <template>
   <UDashboardPage>
     <UDashboardPanel grow>
-      <UDashboardNavbar title="Accueil">
+      <UDashboardNavbar>
+        <template #title>
+          <ToggleDrawer />
+          <h1 class="flex items-center gap-1.5 font-semibold text-gray-900 dark:text-white min-w-0">Accueil</h1>
+        </template>
+
         <template #right>
           <p class="text-sm">{{ format(new Date(), 'dd MMMM yyyy', { locale: frLocale, addSuffix: true }) }}</p>
         </template>

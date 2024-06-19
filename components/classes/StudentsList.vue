@@ -42,7 +42,7 @@ function onRoleChange (student: Member, role: string) {
       </div>
 
       <div class="flex items-center gap-3">
-        <USelectMenu :model-value="student.role" :options="['enseignant', 'élève']" color="white" :ui-menu="{ select: 'capitalize', option: { base: 'capitalize' } }" @update:model-value="onRoleChange(student, $event)" />
+        <UButton color="white" :label="student.role" class="capitalize" />
 
         <UDropdown :items="getItems(student)" position="bottom-end">
           <UButton icon="i-heroicons-ellipsis-vertical" color="gray" variant="ghost" />

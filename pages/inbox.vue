@@ -63,7 +63,12 @@ watch(filteredMails, () => {
         <UDashboardPanelHandle :ui="{ container: 'group-hover:bg-primary-500 dark:group-hover:bg-primary-400' }" @mousedown="onDrag" />
       </template>
 
-      <UDashboardNavbar title="Inbox" :badge="filteredMails.length">
+      <UDashboardNavbar :badge="filteredMails.length">
+        <template #title>
+          <ToggleDrawer />
+          <h1 class="flex items-center gap-1.5 font-semibold text-gray-900 dark:text-white min-w-0">Messages</h1>
+        </template>
+
         <template #right>
           <UTabs v-model="selectedTab" :items="tabItems" :ui="{ wrapper: '', list: { height: 'h-9', tab: { height: 'h-7', size: 'text-[13px]' } } }" />
         </template>
