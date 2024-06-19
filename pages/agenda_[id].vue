@@ -163,35 +163,11 @@ const lesson = ref({
 
           <template #status-data="{ row }">
             <div class="flex items-center gap-1.5">
-              <UButton size="xs" color="green" icon="i-heroicons-check-circle" />
+              <UButton label="Présent" color="green" variant="soft" size="xs" />
 
-              <UButtonGroup size="xs" orientation="horizontal">
-                <UButton label="Retard" color="orange" variant="soft" />
-                <UPopover :popper="{ placement: 'bottom-end' }" :ui="{ base: 'p-1 flex gap-1' }">
-                  <UButton icon="i-heroicons-chevron-down-20-solid" variant="soft" color="orange" />
+              <UButton label="Retard" color="orange" variant="soft" size="xs" />
 
-                  <template #panel>
-                    <UFormGroup label="Justificatif" :ui="{ container: 'flex gap-1 justify-center' }">
-                      <UButton size="2xs" color="red" square variant="soft" class="rounded-md shrink" block icon="i-heroicons-x-circle" />
-                      <UButton size="2xs" color="green" square variant="soft" class="rounded-md shrink" block icon="i-heroicons-check-circle" />
-                    </UFormGroup>
-                  </template>
-                </UPopover>
-              </UButtonGroup>
-
-              <UButtonGroup size="xs" orientation="horizontal">
-                <UButton label="Absent" color="red" variant="soft" />
-                <UPopover :popper="{ placement: 'bottom-end' }" :ui="{ base: 'p-1 flex gap-1' }">
-                  <UButton icon="i-heroicons-chevron-down-20-solid" variant="soft" color="red" />
-
-                  <template #panel>
-                    <UFormGroup label="Justificatif" :ui="{ container: 'flex gap-1 justify-center' }">
-                      <UButton size="2xs" color="red" square variant="soft" class="rounded-md shrink" block icon="i-heroicons-x-circle" />
-                      <UButton size="2xs" color="green" square variant="soft" class="rounded-md shrink" block icon="i-heroicons-check-circle" />
-                    </UFormGroup>
-                  </template>
-                </UPopover>
-              </UButtonGroup>
+              <UButton label="Absent" color="red" variant="soft" size="xs" />
             </div>
           </template>
         </UTable>

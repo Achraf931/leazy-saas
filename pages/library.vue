@@ -9,23 +9,14 @@ const links = [[{
 }, {
   label: 'Leçons',
   icon: 'i-heroicons-document-text',
-  exactQuery: true,
-  exactHash: true,
-  exact: true,
   to: localePath({ name: 'library-lessons' })
 }, {
   label: 'Chapitres',
   icon: 'i-lucide-notebook-text',
-  exactQuery: true,
-  exactHash: true,
-  exact: true,
   to: localePath({ name: 'library-chapters' })
 }, {
   label: 'Thèmes',
   icon: 'i-heroicons-book-open',
-  exactQuery: true,
-  exactHash: true,
-  exact: true,
   to: localePath({ name: 'library-themes' })
 }]]
 </script>

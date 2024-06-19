@@ -15,9 +15,9 @@ const filteredStudents = computed(() => {
 
 <template>
   <UDashboardPanelContent>
-    <UDashboardSection title="Gérer la classe" description="Inviter de nouveaux élèves par email.">
+    <UDashboardSection title="Gérer la classe" description="Ajouter de nouveaux élèves par email.">
       <template #links>
-        <UButton label="Inviter des élèves" color="black" @click="isInviteModalOpen = true" />
+        <UButton label="Ajouter des élèves" color="black" @click="isInviteModalOpen = true" />
       </template>
 
       <UCard :ui="{ header: { padding: 'p-4 sm:px-6' }, body: { padding: '' } }" class="min-w-0">
@@ -30,7 +30,7 @@ const filteredStudents = computed(() => {
       </UCard>
     </UDashboardSection>
 
-    <UDashboardModal v-model="isInviteModalOpen" title="Inviter un élève" description="Inviter de nouveaux élèves par email" :ui="{ width: 'sm:max-w-md' }">
+    <UDashboardModal v-model="isInviteModalOpen" title="Ajouter un élève" description="Ajouter de nouveaux élèves par email" :ui="{ width: 'sm:max-w-md' }">
       <!-- ~/components/settings/MembersForm.vue -->
       <ClassesStudentsForm @close="isInviteModalOpen = false" />
     </UDashboardModal>

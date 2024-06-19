@@ -50,7 +50,7 @@ const handleDelete = chapter => {
 const fields = reactive({
   name: undefined,
   theme_id: 1,
-  image: 'https://excalidraw.com/og-image-2.png'
+  image: 'https://imgproxy.services.pitch.com/_/resizing_type:fit/plain/pitch-publish-user-assets/templates/posters/moodboard.jpg'
 })
 
 const handleModal = (chapter, opened) => {
@@ -65,7 +65,7 @@ const handleModal = (chapter, opened) => {
     setTimeout(() => {
       chapterToUpdate.value = null
       fields.name = undefined
-      fields.image = 'https://excalidraw.com/og-image-2.png'
+      fields.image = 'https://imgproxy.services.pitch.com/_/resizing_type:fit/plain/pitch-publish-user-assets/templates/posters/moodboard.jpg'
       fields.theme_id = 1
     }, 200)
   }
@@ -118,7 +118,7 @@ watch(page, async (page) => {
           <UBlogList v-if="filteredChapters.length" orientation="horizontal" :ui="{ wrapper: 'p-px overflow-y-auto gap-4 sm:grid sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5' }">
             <UBlogPost v-for="chapter in filteredChapters" :key="chapter.id" :to="localePath({ name: 'library-chapters-id', params: { id: chapter.id } })" :ui="{ wrapper: 'gap-y-1', title: 'text-sm', date: 'text-xs', authors: { wrapper: 'mt-0' }, image: { wrapper: 'pointer-events-auto' }, badge: { wrapper: 'absolute top-2 left-2.5 mb-0 py-0' } }">
               <template #image>
-                <img v-if="chapter.image" class="cursor-pointer block object-cover object-top w-full h-full transform transition-transform duration-200 hover:scale-105" :src="chapter.image" :alt="chapter.name">
+                <img v-if="chapter.image" class="cursor-pointer block object-cover w-full h-full transform transition-transform duration-200 hover:scale-105" :src="chapter.image || 'https://imgproxy.services.pitch.com/_/resizing_type:fit/plain/pitch-publish-user-assets/templates/posters/moodboard.jpg'" :alt="chapter.name">
                 <div v-else class="flex items-center justify-center bg-gray-200 dark:bg-gray-800 w-full h-full">
                   <UIcon name="i-heroicons-photo" class="w-24 h-24 text-white" />
                 </div>

@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { formatDistanceToNow } from 'date-fns'
 import frLocale from 'date-fns/locale/fr'
+import { BaseKit, type BaseKitOptions } from '@/extensions/index.js'
+
+const extensions: BaseKitOptions = [BaseKit]
 
 defineProps({
   lessons: {
@@ -21,23 +24,25 @@ defineProps({
     </ULink>
   </div>
   <UBlogList v-if="lessons.length" orientation="horizontal" :ui="{ wrapper: 'p-px gap-4 sm:grid sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5' }">
-    <UBlogPost v-for="lesson in lessons.slice(0, 8)" :key="lesson.id" :to="localePath({ name: 'lesson_id', params: { id: lesson.id } })" :ui="{ wrapper: '' }" class="bg-white dark:bg-gray-900 ring-1 ring-gray-200 dark:ring-gray-800 shadow rounded-lg text-xs p-3">
-      <div class="flex items-start justify-between w-full">
-        <div class="flex items-center justify-center rounded-lg bg-pink-100 p-2">
-          <UIcon name="i-heroicons-document-text" class="w-6 h-6 text-pink-400" />
+    <UBlogPost v-for="lesson in lessons.slice(0, 8)" :key="lesson.id" :to="localePath({ name: 'lesson_id', params: { id: lesson.id } })" :ui="{ wrapper: 'gap-y-2', image: { wrapper: 'rounded-sm' } }" class="text-xs">
+      <template #image>
+        <Editor :model-value="JSON.parse(lesson.content)" content-class="preview-editor" :extensions="extensions" :editable="false" :disabled="true" :hideToolbar="true" :hideBubble="true" max-width="100%" />
+      </template>
+      <div class="mb-2">
+        <div class="flex items-center justify-between">
+          <h2 class="text-gray-900 dark:text-white font-semibold line-clamp-1 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-200 text-base">{{ lesson.name }}</h2>
+          <div class="flex items-start justify-between">
+            <UDropdown :ui="{ item: { size: 'text-xs' }, width: 'w-auto' }" :items="[[{ label: 'Modifier', icon: 'i-heroicons-pencil-square', click: () => handleModal(lesson, true) }, { label: 'Supprimer', icon: 'i-heroicons-trash', color: 'red', click: (e) => handleDelete(e, lesson) }]]" :popper="{ placement: 'bottom-end' }">
+              <UButton icon="i-heroicons-ellipsis-vertical" variant="ghost" color="gray" :padded="false" />
+
+              <template #item="{ item }">
+                <UIcon :name="item.icon" class="flex-shrink-0 h-4 w-4" :class="item.label === 'Supprimer' ? 'text-red-500 dark:text-red-400' : ''" />
+
+                <span class="truncate" :class="item.label === 'Supprimer' ? 'text-red-500 dark:text-red-400' : ''">{{ item.label }}</span>
+              </template>
+            </UDropdown>
+          </div>
         </div>
-        <UDropdown :ui="{ item: { size: 'text-xs' }, width: 'w-auto' }" :items="[[{ label: 'Modifier', color: 'gray', icon: 'i-heroicons-pencil-square' }, { label: 'Supprimer', icon: 'i-heroicons-trash', color: 'red', click: (e) => handleDelete(e, lesson) }]]" :popper="{ placement: 'bottom-end' }">
-          <UButton icon="i-heroicons-ellipsis-vertical" variant="ghost" color="gray" :padded="false" />
-
-          <template #item="{ item }">
-            <UIcon :name="item.icon" class="flex-shrink-0 h-4 w-4" :class="item.label === 'Supprimer' ? 'text-red-500 dark:text-red-400' : ''" />
-
-            <span class="truncate" :class="item.label === 'Supprimer' ? 'text-red-500 dark:text-red-400' : ''">{{ item.label }}</span>
-          </template>
-        </UDropdown>
-      </div>
-      <div class="my-2">
-        <h2 class="text-gray-900 dark:text-white font-semibold line-clamp-1 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-200 text-base">{{ lesson.name }}</h2>
         <p class="line-clamp-2 text-gray-400 text-xs mt-0.5">{{ lesson.description }}</p>
       </div>
       <div v-if="lesson.chapter" class="flex items-start gap-2">

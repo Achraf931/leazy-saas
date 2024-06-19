@@ -912,19 +912,18 @@ export const BaseKit = Extension.create<BaseKitOptions>({
 })
 
 async function AICompletions(text?: string) {
+  console.log(text)
   // API Key
-  const apiKey = import.meta.env.VITE_OPENAI_API_KEY
+  const apiKey = useRuntimeConfig().public.openaiApiKey
   if (!apiKey) {
     console.error('Please set your OpenAI API key in .env file')
     return
   }
   const openai = new OpenAI({
     apiKey: apiKey,
-    dangerouslyAllowBrowser: true,
-    baseURL: 'https://api.deepseek.com/v1',
+    dangerouslyAllowBrowser: true
   })
   const stream = await openai.chat.completions.create({
-    model: 'deepseek-chat',
     messages: [
       {
         role: 'system',
@@ -935,9 +934,10 @@ async function AICompletions(text?: string) {
         content: `${text}`,
       },
     ],
-    temperature: 0.7,
+    temperature: 0.5,
     max_tokens: 256,
     top_p: 0.9,
+    model: 'gpt-3.5-turbo',
     stream: true,
   })
 

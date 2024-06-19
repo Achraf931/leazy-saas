@@ -1,5 +1,6 @@
 <script setup>
 import VueCal from 'vue-cal'
+import { format } from 'date-fns'
 import tippy from 'tippy.js'
 
 const vueCal = ref(null)
@@ -83,26 +84,39 @@ const filteredEvents = computed(() => {
     return selected.value.first && event.class.includes('first') || selected.value.last && event.class.includes('last')
   })
 })
+
+const newEvent = () => {
+  const now = new Date()
+  const start = format(now.setHours(8), 'yyyy-MM-dd HH:mm')
+  vueCal.value.createEvent(start, 120, {
+    title: 'Nouvel événement',
+    content: 'Description de l\'événement',
+    class: 'sport last',
+    deletable: true,
+    resizable: true,
+    draggable: true
+  })
+}
 </script>
 
 <template>
   <ClientOnly>
     <div class="flex items-start justify-start gap-4 relative flex-1 overflow-hidden">
       <div class="flex flex-col gap-3 sticky top-0 left-0 max-w-[210px]">
-        <UButton label="Ajouter un événement" block @click="vueCal.createEvent('2024-06-12 13:15', 120, { title: 'New Event', class: 'blue-event' })" />
+        <UButton label="Ajouter un événement" block @click="newEvent" />
 
         <VueCal
-            class="vuecal--date-picker sticky top-0 left-0"
+            class="*:leading-7 *:cursor-pointer sticky top-0 left-0"
             xsmall
             hide-view-selector
+            :time-from="8 * 60"
             :time="false"
-            :transitions="false"
             active-view="month"
             locale="fr"
-            :disable-views="['week']"
+            :disable-views="['day', 'week', 'year', 'years']"
             :events="filteredEvents"
             @cell-focus="selectedDate = $event"
-            style="width: 210px;height: 230px;flex:none;">
+          >
         </VueCal>
 
         <div class="flex flex-col justify-start gap-2">
@@ -135,7 +149,6 @@ const filteredEvents = computed(() => {
           today-button
           :sticky-split-labels="true"
           show-all-day-events="short"
-          @cell-dblclick="vueCal.createEvent($event, 120, { title: 'New Event', class: 'blue-event' })"
       >
         <template #arrow-prev>
           <UButton size="2xs" icon="i-heroicons-chevron-left-20-solid" class="mr-2" square color="white" />
@@ -269,5 +282,13 @@ const filteredEvents = computed(() => {
 
 .vuecal__event.leisure {
   background: rgb(253 186 116);
+}
+
+.vuecal__cell-events-count {
+  width: 18px;
+  height: 2px;
+  margin-top: 5px;
+  background-color: #6366F1;
+  color: transparent;
 }
 </style>

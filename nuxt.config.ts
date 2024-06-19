@@ -5,13 +5,14 @@ export default defineNuxtConfig({
     pageTransition: { name: "page", mode: "out-in" },
   },
   runtimeConfig: {
-    openaiApiKey: process.env.OPENAI_API_KEY
+    public: {
+      openaiApiKey: process.env.NUXT_OPENAI_API_KEY
+    }
   },
   extends: [process.env.NUXT_UI_PRO_PATH || '@nuxt/ui-pro'],
   modules: [
     '@nuxt/ui',
     '@nuxt/fonts',
-    '@vueuse/nuxt',
     '@nuxtjs/i18n',
     '@nuxt/image',
     '@nuxtjs/tailwindcss',
@@ -171,10 +172,5 @@ export default defineNuxtConfig({
   },
   tailwindcss: {
     quiet: true
-  },
-  vite: {
-    optimizeDeps: {
-      include: ['zod']
-    }
   }
 })

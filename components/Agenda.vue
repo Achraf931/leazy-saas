@@ -143,19 +143,20 @@ const dates = [
     <div class="flex-1 flex flex-col gap-5 overflow-hidden" :class="{ 'overflow-y-auto snap-y snap-mandatory': modelValue === 0 }">
       <template v-if="modelValue === 0">
         <div v-for="item in dates" :key="item.id" class="flex gap-5 snap-start w-full">
-          <h3 class="text-sm">{{ item.date }}</h3>
+          <h3 class="text-sm opacity-50" :class="{ 'text-primary font-bold !opacity-100': item.id === 1 }">{{ item.date }}</h3>
           <div class="overflow-hidden rounded-md flex-1">
-            <NuxtLink v-for="(event, index) in item.events" :key="index" :class="{ 'bg-primary-100': date === 1 && index === 1 }" :to="localePath({ name: 'agenda_id', params: { id: 1 } })" class="flex items-center justify-start cursor-pointer gap-2 p-2 bg-gray-100 dark:bg-gray-800 hover:opacity-75">
-              <div class="flex items-center gap-1">
-                <div class="rounded-full w-2 h-2 bg-green-500" />
-                <p class="text-sm font-semibold">
-                  {{ event.time }}
-                </p>
-              </div>
-
+            <NuxtLink v-for="(event, index) in item.events" :key="index" :class="{ 'bg-primary-50': item.id === 1 }" :to="localePath({ name: 'agenda_id', params: { id: 1 } })" class="flex items-center justify-start cursor-pointer gap-2 p-2 bg-gray-50 dark:bg-gray-800 hover:opacity-75">
               <p class="text-sm">
+                {{ event.time }}
+              </p>
+
+              <UDivider class="h-5" orientation="vertical" />
+
+              <p class="text-sm font-semibold">
                 {{ event.title }}
               </p>
+
+              <UIcon name="i-heroicons-chevron-right-20-solid" class="w-4 h-4" />
             </NuxtLink>
           </div>
         </div>
