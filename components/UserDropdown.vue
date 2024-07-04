@@ -4,7 +4,15 @@ const localePath = useLocalePath()
 const { t } = useI18n()
 const user = useSanctumUser()
 const { logout } = useSanctumAuth()
-
+const colorMode = useColorMode()
+const isDark = computed({
+  get () {
+    return colorMode.value === 'dark'
+  },
+  set () {
+    colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'
+  }
+})
 const items = computed(() => [
   [{
     slot: 'account',
@@ -15,6 +23,12 @@ const items = computed(() => [
     icon: 'i-heroicons-cog-8-tooth',
     shortcuts: ['G', 'S'],
     to: localePath({ name: 'settings' })
+  }, {
+    label: 'Passer en mode ' + (isDark.value ? 'jour' : 'nuit'),
+    icon: isDark.value ? 'i-heroicons-moon' : 'i-heroicons-sun',
+    click: () => {
+      isDark.value = !isDark.value
+    }
   }, {
     label: t('commons.help'),
     icon: 'i-heroicons-question-mark-circle',

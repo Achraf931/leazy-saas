@@ -158,8 +158,8 @@ watch(page, async (page) => {
 
       <template v-if="!pending">
         <UDashboardPanelContent>
-          <UBlogList v-if="filteredLessons.length > 0" orientation="horizontal" :ui="{ wrapper: 'p-px overflow-y-auto gap-x-4 gap-y-6 sm:grid sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5' }">
-            <UBlogPost v-for="lesson in filteredLessons" :key="lesson.id" :to="localePath({ name: 'lesson_id', params: { id: lesson.id } })" :ui="{ wrapper: 'gap-y-2', image: { wrapper: 'rounded-sm' } }" class="text-xs">
+          <UBlogList v-if="filteredLessons.length > 0" orientation="horizontal" :ui="{ wrapper: 'p-px overflow-y-auto gap-x-4 gap-y-6 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }">
+            <UBlogPost v-for="lesson in filteredLessons" :key="lesson.id" :to="localePath({ name: 'lesson_id', params: { id: lesson.id } })" :ui="{ wrapper: 'gap-y-0', container: 'p-2 rounded-b-lg bg-white dark:bg-gray-800 border border-t-0 border-solid border-gray-200 dark:border-gray-800', image: { wrapper: 'ring-0 border border-solid border-gray-200 dark:border-gray-800 rounded-none rounded-t-lg' } }" class="text-xs">
               <template #image>
                 <Editor :model-value="JSON.parse(lesson.content)" content-class="preview-editor" :extensions="extensions" :editable="false" :disabled="true" :hideToolbar="true" :hideBubble="true" max-width="100%" />
               </template>
@@ -185,7 +185,7 @@ watch(page, async (page) => {
                 <UBadge variant="soft" color="blue" size="xs">{{ lesson.chapter.name }}</UBadge>
               </div>
               <div class="flex items-center justify-start gap-1 mt-2">
-                <UIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-gray-400 dark:text-white" />
+                <UIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-gray-400" />
                 <p class="text-gray-400 text-xs">{{ lesson.updated_at === lesson.created_at ? 'Créé' : 'Modifié' }} {{ formatDistanceToNow(new Date(lesson.updated_at), { locale: frLocale, addSuffix: true }) }}</p>
               </div>
             </UBlogPost>
@@ -199,22 +199,28 @@ watch(page, async (page) => {
       </template>
     </UDashboardPanel>
 
-    <UDashboardModal prevent-close v-model="isOpen" :title="`${lessonToUpdate ? 'Modifier' : 'Créer'} une leçon`" :ui="{ width: 'sm:max-w-md' }" :close-button="{ icon: 'i-heroicons-x-mark', onClick: () => handleModal(null, false) }">
-      <UForm class="space-y-4" :state="fields" :validate="validate" @submit="onSubmit">
-        <UFormGroup label="Titre" name="name">
-          <UInput type="text" placeholder="Titre de la leçon" autofocus v-model="fields.name" />
-        </UFormGroup>
-
-        <UFormGroup label="Description (optionnelle)" name="description">
-          <UTextarea placeholder="Description de la leçon" v-model="fields.description" />
-        </UFormGroup>
-
-        <div class="flex justify-end gap-3">
-          <UButton label="Annuler" color="gray" variant="ghost" @click="handleModal(null, false)" />
-          <UButton :loading="isLoading" type="submit" :label="lessonToUpdate ? 'Modifier' : 'Créer'" color="black" />
+    <UModal prevent-close v-model="isOpen" :ui="{ width: 'sm:max-w-md' }">
+      <UCard>
+        <div class="flex items-start justify-between gap-x-1.5 pb-5">
+          <p class="text-gray-900 dark:text-white font-semibold">{{ `${lessonToUpdate ? 'Modifier' : 'Créer'} une leçon` }}</p>
+          <UButton icon="i-heroicons-x-mark" color="gray" variant="ghost" @click="handleModal(null, false)" />
         </div>
-      </UForm>
-    </UDashboardModal>
+        <UForm class="space-y-4" :state="fields" :validate="validate" @submit="onSubmit">
+          <UFormGroup label="Titre" name="name">
+            <UInput type="text" placeholder="Titre de la leçon" autofocus v-model="fields.name" />
+          </UFormGroup>
+
+          <UFormGroup label="Description (optionnelle)" name="description">
+            <UTextarea placeholder="Description de la leçon" v-model="fields.description" />
+          </UFormGroup>
+
+          <div class="flex justify-end gap-3">
+            <UButton label="Annuler" color="gray" variant="ghost" @click="handleModal(null, false)" />
+            <UButton :loading="isLoading" type="submit" :label="lessonToUpdate ? 'Modifier' : 'Créer'" color="black" />
+          </div>
+        </UForm>
+      </UCard>
+    </UModal>
 
     <LessonsDeleteLessonModal v-model="isDeleteLessonModalOpen" />
   </UDashboardPage>

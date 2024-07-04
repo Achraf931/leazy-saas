@@ -25,25 +25,17 @@ async function onDelete () {
 </script>
 
 <template>
-  <UDashboardModal
-      v-model="model.open"
-      title="Supprimer la leçon"
-      description="Êtes-vous sûr de vouloir supprimer votre leçon ?"
-      icon="i-heroicons-exclamation-circle"
-      prevent-close
-      :close-button="null"
-      :ui="{
-      icon: {
-        base: 'text-red-500 dark:text-red-400'
-      } as any,
-      footer: {
-        base: 'ml-16'
-      } as any
-    }"
-  >
-    <template #footer>
-      <UButton color="red" label="Supprimer" :loading="loading" @click="onDelete" />
-      <UButton color="white" label="Annuler" @click="model.open = false" />
-    </template>
-  </UDashboardModal>
+  <UModal v-model="model.open" prevent-close :close-button="null">
+    <UCard :ui="{ body: { base: 'flex items-start gap-4' } }">
+      <UIcon name="i-heroicons-exclamation-circle" class="w-12 h-12 text-red-500 dark:text-red-400" />
+      <div>
+        <p class="text-gray-900 dark:text-white font-semibold">Supprimer la leçon</p>
+        <p class="mt-1 text-gray-500 dark:text-gray-400 text-sm">Êtes-vous sûr de vouloir supprimer votre leçon ?</p>
+        <div class="flex items-center gap-x-1.5 pt-4">
+          <UButton color="red" label="Supprimer" :loading="loading" @click="onDelete" />
+          <UButton color="white" label="Annuler" @click="model.open = false" />
+        </div>
+      </div>
+    </UCard>
+  </UModal>
 </template>

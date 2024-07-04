@@ -23,8 +23,8 @@ defineProps({
       <UIcon name="i-heroicons-chevron-right-20-solid" class="w-4 h-4" />
     </ULink>
   </div>
-  <UBlogList v-if="lessons.length" orientation="horizontal" :ui="{ wrapper: 'p-px gap-4 sm:grid sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5' }">
-    <UBlogPost v-for="lesson in lessons.slice(0, 8)" :key="lesson.id" :to="localePath({ name: 'lesson_id', params: { id: lesson.id } })" :ui="{ wrapper: 'gap-y-2', image: { wrapper: 'rounded-sm' } }" class="text-xs">
+  <UBlogList v-if="lessons.length" orientation="horizontal" :ui="{ wrapper: 'p-px gap-4 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }">
+    <UBlogPost v-for="lesson in lessons.slice(0, 8)" :key="lesson.id" :to="localePath({ name: 'lesson_id', params: { id: lesson.id } })" :ui="{ wrapper: 'gap-y-0', container: 'p-2 rounded-b-lg bg-white dark:bg-gray-800 border border-t-0 border-solid border-gray-200 dark:border-gray-800', image: { wrapper: 'ring-0 border border-solid border-gray-200 dark:border-gray-800 rounded-none rounded-t-lg' } }" class="text-xs">
       <template #image>
         <Editor :model-value="JSON.parse(lesson.content)" content-class="preview-editor" :extensions="extensions" :editable="false" :disabled="true" :hideToolbar="true" :hideBubble="true" max-width="100%" />
       </template>
@@ -50,7 +50,7 @@ defineProps({
         <UBadge variant="soft" color="blue" size="xs">{{ lesson.chapter.name }}</UBadge>
       </div>
       <div class="flex items-center justify-start gap-1 mt-2">
-        <UIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-gray-400 dark:text-white" />
+        <UIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-gray-400" />
         <p class="text-gray-400 text-xs">{{ lesson.updated_at === lesson.created_at ? 'Créé' : 'Modifié' }} {{ formatDistanceToNow(new Date(lesson.updated_at), { locale: frLocale, addSuffix: true }) }}</p>
       </div>
     </UBlogPost>

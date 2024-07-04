@@ -6,7 +6,7 @@ export default defineAppConfig({
       }
     },
     primary: 'indigo',
-    gray: 'zinc',
+    gray: 'stone',
     tooltip: {
       default: {
         openDelay: 250
