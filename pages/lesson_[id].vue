@@ -9,6 +9,8 @@ definePageMeta({
 })
 
 const tiptap = ref(null)
+const mediaInput = ref('')
+const addMediaPending = ref(false)
 const editor = computed(() => tiptap.value?.editor as EditorType)
 const theme = ref<string | null>(null)
 const hideToolbar = ref(isMobile())
@@ -31,22 +33,25 @@ const pendingVisibility = ref(false)
 
 const documentId = computed(() => useRoute().params.id)
 
-const { fetchLesson, updateLesson } = useLessonsStore()
+const { updateLesson } = useLessonsStore()
 const { fetchChapters, addChapter } = useChaptersStore()
-let lesson = await fetchLesson(documentId.value)
+
+let { data: lesson, refresh } = await useAsyncData('lesson', () =>
+    client(`/api/teacher/lessons/${documentId.value}`)
+)
 
 await fetchChapters()
 
 const { chapters } = storeToRefs(useChaptersStore())
 
-let initialContent = JSON.stringify(lesson?.content)
+let initialContent = JSON.stringify(lesson.value?.content)
 
-const content = computed(() => JSON.parse(lesson?.content) || {})
+const content = computed(() => JSON.parse(lesson.value?.content) || {})
 
 const isContentUnsaved = computed(() => JSON.stringify(content.value) !== initialContent)
 
-const title = ref(lesson?.name),
-    description = ref(lesson?.description)
+const title = ref(lesson.value?.name),
+    description = ref(lesson.value?.description)
 
 const panelOpened = ref(false)
 const links = ref([
@@ -90,66 +95,9 @@ const handleTitleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
   }
 };
 
-const images = [
-  {
-    src: "https://images.unsplash.com/photo-1558637845-c8b7ead71a3e?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    label: "image de test",
-  }, {
-    src: "https://images.unsplash.com/photo-1580757468214-c73f7062a5cb?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    label: "image de test",
-  }, {
-    src: "https://images.unsplash.com/photo-1594568284297-7c64464062b1?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    label: "image de test",
-  }, {
-    src: "https://images.unsplash.com/photo-1599454100789-b211e369bd04?q=80&w=2012&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    label: "image de test",
-  }, {
-    src: "https://images.unsplash.com/photo-1626593261859-4fe4865d8cb1?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    label: "image de test",
-  }, {
-    src: "https://images.unsplash.com/photo-1603486002664-a7319421e133?q=80&w=2142&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    label: "image de test",
-  }, {
-    src: "https://images.unsplash.com/photo-1595835018349-198460e1d309?q=80&w=1931&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    label: "image de test",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1559511331-6a3a4e72f588?q=80&w=2147&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    label: "image de test",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1599154456742-c82164d2dfb0?q=80&w=1931&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    label: "image de test",
-  },
-  {
-    src: "https://plus.unsplash.com/premium_photo-1701757034308-0bd354a91537?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    label: "image de test",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1605804097539-f7b052b4960d?q=80&w=1931&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    label: "image de test"
-  },
-  {
-    src: "https://images.unsplash.com/photo-1603550489068-68e60062b3f9?q=80&w=2128&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    label: "image de test"
-  },
-  {
-    src: "https://images.unsplash.com/photo-1602826347632-fc49a8675be6?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    label: "image de test"
-  },
-  {
-    src: "https://images.unsplash.com/photo-1617391766038-970a91689241?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    label: "image de test"
-  },
-  {
-    src: "https://images.unsplash.com/flagged/photo-1556669546-b1f29875df1c?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    label: "image de test"
-  }
-]
-
 const options = ref([
   [{
-    label: lesson?.draft ? 'Publier' : 'Mettre en brouillon',
+    label: lesson.value?.draft ? 'Publier' : 'Mettre en brouillon',
     icon: 'i-heroicons-archive-box',
     click: () => {
       handleDraft()
@@ -178,7 +126,7 @@ const options = ref([
   }]
 ])
 
-const selectedChapter = ref(lesson?.chapter || null)
+const selectedChapter = ref(lesson.value?.chapter || null)
 
 const labels = computed({
   get: () => selectedChapter.value,
@@ -193,13 +141,13 @@ const labels = computed({
 })
 
 const goPrevLesson = async () => {
-  const response = await client(`/api/teacher/lessons/${lesson?.chapter.id}/previous?current_order=${lesson?.order}`)
-  await navigateTo(localePath({ name: 'library-lessons-id', params: { id: response.id } }))
+  const response = await client(`/api/teacher/lessons/${lesson.value?.chapter.id}/previous?current_order=${lesson.value?.order}`)
+  await navigateTo(localePath({ name: 'lesson_id', params: { id: response.id } }))
 }
 
 const goNextLesson = async () => {
-  const response = await client(`/api/teacher/lessons/${lesson?.chapter.id}/next?current_order=${lesson?.order}`)
-  await navigateTo(localePath({ name: 'library-lessons-id', params: { id: response.id } }))
+  const response = await client(`/api/teacher/lessons/${lesson.value?.chapter.id}/next?current_order=${lesson.value?.order}`)
+  await navigateTo(localePath({ name: 'lesson_id', params: { id: response.id } }))
 }
 
 const save = async () => {
@@ -224,7 +172,7 @@ const save = async () => {
   if (response) {
 
     lesson = response
-    initialContent = JSON.stringify(lesson?.content)
+    initialContent = JSON.stringify(lesson.value?.content)
     return toast.add({ icon: 'i-heroicons-check-circle', title: 'Leçon enregistrée avec succès', color: 'green' })
   }
 
@@ -329,40 +277,91 @@ const getText = async () => {
 
 const handleDraft = async () => {
   pendingDraft.value = true
-  const response = await client(`/api/teacher/lessons/${lesson?.id}`, {
+  const response = await client(`/api/teacher/lessons/${lesson.value?.id}`, {
     method: 'PATCH',
     body: {
-      draft: !lesson?.draft
+      draft: !lesson.value?.draft
     }
   })
 
   if (response) {
-    toast.add({ icon: 'i-heroicons-check-circle', title: `Leçon ${lesson?.draft ? 'publiée' : 'mise en brouillon'} avec succès`, color: 'green' })
+    toast.add({ icon: 'i-heroicons-check-circle', title: `Leçon ${lesson.value?.draft ? 'publiée' : 'mise en brouillon'} avec succès`, color: 'green' })
     await refresh()
     return pendingDraft.value = false
   }
 
-  toast.add({ icon: 'i-heroicons-x-circle', title: `Erreur lors de la ${lesson?.draft ? 'publication' : 'mise en brouillon'} de la leçon`, color: 'red' })
+  toast.add({ icon: 'i-heroicons-x-circle', title: `Erreur lors de la ${lesson.value?.draft ? 'publication' : 'mise en brouillon'} de la leçon`, color: 'red' })
   return pendingDraft.value = false
 }
 
 const handleVisibility = async () => {
   pendingVisibility.value = true
-  const response = await client(`/api/teacher/lessons/${lesson?.id}`, {
+  const response = await client(`/api/teacher/lessons/${lesson.value?.id}`, {
     method: 'PATCH',
     body: {
-      private: !lesson?.private
+      private: !lesson.value?.private
     }
   })
 
   if (response) {
-    toast.add({ icon: 'i-heroicons-check-circle', title: `Leçon ${lesson?.draft ? 'rendu publique' : 'rendu privée'} avec succès`, color: 'green' })
+    toast.add({ icon: 'i-heroicons-check-circle', title: `Leçon ${lesson.value?.draft ? 'rendu publique' : 'rendu privée'} avec succès`, color: 'green' })
     await refresh()
     return pendingVisibility.value = false
   }
 
-  toast.add({ icon: 'i-heroicons-x-circle', title: `Erreur lors de la ${lesson?.draft ? 'mise en publique' : 'mise en privée'} de la leçon`, color: 'red' })
+  toast.add({ icon: 'i-heroicons-x-circle', title: `Erreur lors de la ${lesson.value?.draft ? 'mise en publique' : 'mise en privée'} de la leçon`, color: 'red' })
   return pendingVisibility.value = false
+}
+
+const addMedia = async () => {
+  if (!mediaInput.value) return
+  addMediaPending.value = true
+  const metadata = await $fetch('/api/opengraph', {
+    method: 'POST',
+    body: {
+      url: mediaInput.value
+    }
+  })
+
+  if (metadata) {
+    const response = await client('/api/teacher/media', {
+      method: 'POST',
+      body: {
+        lesson_id: documentId.value,
+        title: metadata.title || metadata.site_title || '',
+        description: metadata.description || metadata.site_description || '',
+        image: metadata.image || '',
+        url: mediaInput.value,
+        type: 'link'
+      }
+    })
+
+    if (response) {
+      await refresh()
+      toast.add({ icon: 'i-heroicons-check-circle', title: 'Média ajouté avec succès', color: 'green' })
+      mediaInput.value = ''
+      return addMediaPending.value = false
+    }
+
+    toast.add({ icon: 'i-heroicons-x-circle', title: 'Erreur lors de l\'ajout du média', color: 'red' })
+    return addMediaPending.value = false
+  }
+
+  toast.add({ icon: 'i-heroicons-x-circle', title: 'Erreur lors de la récupération des métadonnées', color: 'red' })
+  return addMediaPending.value = false
+}
+
+const deleteMedia = async (id) => {
+  const response = await client(`/api/teacher/media/${id}`, {
+    method: 'DELETE'
+  })
+
+  if (response) {
+    await refresh()
+    return toast.add({ icon: 'i-heroicons-check-circle', title: 'Média supprimé avec succès', color: 'green' })
+  }
+
+  return toast.add({ icon: 'i-heroicons-x-circle', title: 'Erreur lors de la suppression du média', color: 'red' })
 }
 </script>
 
@@ -521,20 +520,35 @@ const handleVisibility = async () => {
           </USelectMenu>
         </UFormGroup>
 
-        <UAccordion :items="[{ label: `Médias associés (${images.length})` }]" :ui="{ wrapper: 'mt-2 flex-1 overflow-hidden max-w-[287px] w-full', container: 'overflow-y-auto', item: { padding: 'pt-2.5' } }">
+        <UAccordion :items="[{ label: `Médias associés (${lesson.medias.length})` }]" :ui="{ wrapper: 'mt-2 flex-1 overflow-hidden max-w-[287px] w-full', container: 'overflow-y-auto', item: { padding: 'pt-2.5' } }">
           <template #item>
             <UBlogList orientation="horizontal" :ui="{ wrapper: 'overflow-y-auto gap-2 sm:grid sm:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-2' }">
-              <UBlogPost v-for="(item, index) in images" :key="index" :ui="{ wrapper: 'gap-y-0.5', title: 'text-sm', date: 'text-xs', authors: { wrapper: 'mt-0' }, image: { wrapper: 'pointer-events-auto' } }">
+              <UPopover :ui="{ trigger: 'h-full', base: 'flex gap-1 p-1' }">
+                <div class="rounded-lg border border-solid dark:border-gray-700 flex flex-col items-center justify-center p-2 text-xs">
+                  <UIcon name="i-heroicons-plus" class="w-6 h-6" />
+                  <p>Ajouter un média</p>
+                </div>
+
+                <template #panel>
+                  <UInput placeholder="Insérer une URL" v-model="mediaInput" size="xs" @keyup.enter="addMedia" />
+                  <UButton @click="addMedia" size="xs" :loading="addMediaPending" trailing-icon="i-heroicons-chevron-right-20-solid" square />
+                </template>
+              </UPopover>
+              <UBlogPost v-for="(item, index) in lesson.medias" :key="index" :ui="{ wrapper: 'gap-y-0.5', title: 'text-sm', date: 'text-xs', authors: { wrapper: 'mt-0' }, image: { wrapper: 'pointer-events-auto' } }">
                 <template #image>
-                  <img @click="imgOpened = true; currentMedia = { src: item.src, label: item.label }" class="cursor-pointer block object-cover object-top w-full h-full transform transition-transform duration-200 hover:scale-105" :src="item.src" :alt="item.label">
+                  <img @click="imgOpened = true; currentMedia = { src: item.image, label: item.title }" class="cursor-pointer block object-cover object-top w-full h-full transform transition-transform duration-200 hover:scale-105" :src="item.image" :alt="item.title">
                 </template>
                 <template #default>
                   <div class="flex items-center justify-between">
                     <div>
-                      <h2 class="text-gray-900 dark:text-white font-semibold truncate group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-200 text-xs">image de test</h2>
-                      <p class="text-gray-400 text-[10px]">PNG · Dec 25, 2023</p>
+                      <h2 class="text-gray-900 dark:text-white font-semibold group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-200 text-xs line-clamp-1">
+                        {{ item.title }}
+                      </h2>
+                      <p class="text-gray-400 text-[10px] line-clamp-1">
+                        {{ item.description }}
+                      </p>
                     </div>
-                    <UDropdown :ui="{ item: { size: 'text-xs' }, width: 'w-auto' }" :items="[[{ label: 'Renommer', icon: 'i-heroicons-pencil-square' }, { label: 'Supprimer', icon: 'i-heroicons-trash', color: 'red' }]]" :popper="{ placement: 'bottom-end' }">
+                    <UDropdown :ui="{ item: { size: 'text-xs' }, width: 'w-auto' }" :items="[[{ label: 'Renommer', icon: 'i-heroicons-pencil-square' }, { label: 'Supprimer', icon: 'i-heroicons-trash', color: 'red', click: () => deleteMedia(item.id) }]]" :popper="{ placement: 'bottom-end' }">
                       <UButton icon="i-heroicons-ellipsis-vertical" variant="link" size="xs" :padded="false" />
                     </UDropdown>
                   </div>

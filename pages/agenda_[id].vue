@@ -160,7 +160,9 @@ const lesson = ref({
               <span class="text-gray-900 dark:text-white font-medium">{{ row.name }}</span>
             </div>
           </template>
-
+          <template #caption>
+            <caption class="font-semibold my-1">Terminal Production Graphique</caption>
+          </template>
           <template #status-data="{ row }">
             <div class="flex items-center gap-1.5">
               <UButton label="Présent" color="green" variant="soft" size="xs" />

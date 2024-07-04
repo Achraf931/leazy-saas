@@ -104,6 +104,17 @@ export const useThemesStore = defineStore('themes', () => {
     await refresh()
   }
 
+  const fetchTheme = async (id) => {
+    pending.value = true
+    error.value = null
+
+    try {
+      return await client(`/api/teacher/themes/${id}`)
+    } catch (e) {
+      error.value = e
+    }
+  }
+
   const addTheme = async (theme) => {
     error.value = null
 
@@ -141,7 +152,8 @@ export const useThemesStore = defineStore('themes', () => {
     fetchThemes,
     refresh,
     addTheme,
-    updateTheme
+    updateTheme,
+    fetchTheme
   }
 }, { persist: { storage: persistedState.localStorage } })
 

@@ -110,7 +110,7 @@ watch(page, async (page) => {
       <template v-if="!pending">
         <UDashboardPanelContent>
           <UBlogList v-if="filteredThemes.length" orientation="horizontal" :ui="{ wrapper: 'p-px overflow-y-auto gap-4 sm:grid sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5' }">
-            <UCard v-for="theme in filteredThemes" :key="theme.id" :to="localePath({ name: 'library-themes-id', params: { id: theme.id } })" :ui="{ body: { base: 'text-xs flex flex-col items-start gap-4', padding: 'px-3 sm:p-3' } }">
+            <UBlogPost v-for="theme in filteredThemes" :key="theme.id" :to="localePath({ name: 'library-themes-id', params: { id: theme.id } })" :ui="{ wrapper: 'gap-y-0', container: 'p-2 rounded-lg bg-white dark:bg-gray-800 border border-solid border-gray-200 dark:border-gray-800', image: { wrapper: 'ring-0 border border-solid border-gray-200 dark:border-gray-800 rounded-none rounded-t-lg' } }" class="text-xs">
               <div class="flex items-start justify-between w-full">
                 <div class="flex items-center justify-center rounded-lg bg-blue-100 p-2">
                   <UIcon name="i-heroicons-book-open" class="w-6 h-6 text-blue-400" />
@@ -127,10 +127,10 @@ watch(page, async (page) => {
               </div>
               <h2 class="text-gray-900 dark:text-white font-semibold line-clamp-1 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-200 text-base">{{ theme.name }}</h2>
               <div class="flex items-center justify-start gap-1">
-                <UIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-gray-400 dark:text-white" />
+                <UIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-gray-400" />
                 <p class="text-gray-400 text-xs">{{ theme.updated_at === theme.created_at ? 'Créé' : 'Modifié' }} {{ formatDistanceToNow(new Date(theme.updated_at), { locale: frLocale, addSuffix: true }) }}</p>
               </div>
-            </UCard>
+            </UBlogPost>
           </UBlogList>
           <p v-else class="text-center text-gray-400 dark:text-white text-sm mt-4">Aucun thème trouvé</p>
         </UDashboardPanelContent>
@@ -141,18 +141,24 @@ watch(page, async (page) => {
       </template>
     </UDashboardPanel>
 
-    <UDashboardModal prevent-close v-model="isOpen" :title="`${themeToUpdate ? 'Modifier' : 'Créer'} un thème`" :ui="{ width: 'sm:max-w-md' }" :close-button="{ icon: 'i-heroicons-x-mark', onClick: () => handleModal(null, false) }">
-      <UForm class="space-y-4" :state="fields" :validate="validate" @submit="onSubmit">
-        <UFormGroup label="Titre" name="name">
-          <UInput type="text" placeholder="Titre du thème" autofocus v-model="fields.name" />
-        </UFormGroup>
-
-        <div class="flex justify-end gap-3">
-          <UButton label="Annuler" color="gray" variant="ghost" @click="handleModal(null, false)" />
-          <UButton :loading="isLoading" type="submit" :label="themeToUpdate ? 'Modifier' : 'Créer'" color="black" />
+    <UModal prevent-close v-model="isOpen" :ui="{ width: 'sm:max-w-md' }">
+      <UCard>
+        <div class="flex items-start justify-between gap-x-1.5 pb-5">
+          <p class="text-gray-900 dark:text-white font-semibold">{{ `${themeToUpdate ? 'Modifier' : 'Créer'} un thème` }}</p>
+          <UButton icon="i-heroicons-x-mark" color="gray" variant="ghost" @click="handleModal(null, false)" />
         </div>
-      </UForm>
-    </UDashboardModal>
+        <UForm class="space-y-4" :state="fields" :validate="validate" @submit="onSubmit">
+          <UFormGroup label="Titre" name="name">
+            <UInput type="text" placeholder="Titre du thème" autofocus v-model="fields.name" />
+          </UFormGroup>
+
+          <div class="flex justify-end gap-3">
+            <UButton label="Annuler" color="gray" variant="ghost" @click="handleModal(null, false)" />
+            <UButton :loading="isLoading" type="submit" :label="themeToUpdate ? 'Modifier' : 'Créer'" color="black" />
+          </div>
+        </UForm>
+      </UCard>
+    </UModal>
 
     <ThemesDeleteThemeModal v-model="isDeleteThemeModalOpen" />
   </UDashboardPage>

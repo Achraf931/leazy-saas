@@ -77,8 +77,8 @@ const addFromTemplate = async (template) => {
           <template #links>
             <UButton trailing-icon="i-heroicons-plus" @click="isOpen = true" label="Créer une leçon" />
           </template>
-          <UBlogList orientation="horizontal" :ui="{ wrapper: 'p-px overflow-y-auto gap-x-4 gap-y-6 sm:grid sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5' }">
-            <UBlogPost v-for="lesson in lessons.data" :key="lesson.id" @click="() => { modal.template = lesson; modal.open = true }" :ui="{ wrapper: 'gap-y-2 cursor-pointer', image: { wrapper: 'rounded-sm' } }" class="text-xs">
+          <UBlogList orientation="horizontal" :ui="{ wrapper: 'p-px overflow-y-auto gap-x-4 gap-y-6 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }">
+            <UBlogPost v-for="lesson in lessons.data" :key="lesson.id" @click="() => { modal.template = lesson; modal.open = true }" :ui="{ wrapper: 'gap-y-0', container: 'p-2 rounded-b-lg bg-white dark:bg-gray-800 border border-t-0 border-solid border-gray-200 dark:border-gray-800', image: { wrapper: 'ring-0 border border-solid border-gray-200 dark:border-gray-800 rounded-none rounded-t-lg' } }" class="cursor-pointer text-xs">
               <template #image>
                 <Editor :model-value="JSON.parse(lesson.content)" content-class="preview-editor" :extensions="extensions" :editable="false" :disabled="true" :hideToolbar="true" :hideBubble="true" max-width="100%" />
               </template>

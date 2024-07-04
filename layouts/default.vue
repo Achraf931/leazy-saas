@@ -208,11 +208,22 @@ const groups = [
       <UsersForm @close="isNewUserModalOpen = false"/>
     </UDashboardModal>
 
-    <UDashboardModal v-model="isNewFeedbackModalOpen" title="Nouveau feedback"
+    <UModal v-model="isNewFeedbackModalOpen" title="Nouveau feedback"
                      description="Signalez-nous un problème rencontré" :ui="{ width: 'sm:max-w-md' }">
-      <!-- ~/components/feedbacks/FeedbacksForm.vue -->
-      <FeedbacksForm @close="isNewFeedbackModalOpen = false"/>
-    </UDashboardModal>
+      <UCard>
+        <div class="flex items-start justify-between gap-x-1.5 pb-4">
+          <div class="flex items-start gap-4">
+            <div>
+              <p class="text-gray-900 dark:text-white font-semibold">Nouveau feedback</p>
+              <p class="mt-1 text-gray-500 dark:text-gray-400 text-sm">Signalez-nous un problème rencontré</p>
+            </div>
+          </div>
+          <UButton icon="i-heroicons-x-mark" color="gray" variant="ghost" @click="isNewFeedbackModalOpen = false" />
+        </div>
+        <!-- ~/components/feedbacks/FeedbacksForm.vue -->
+        <FeedbacksForm @close="isNewFeedbackModalOpen = false"/>
+      </UCard>
+    </UModal>
 
     <HelpSlideover/>
 
