@@ -169,7 +169,7 @@ const dates = [
           <h3 class="text-sm opacity-50" :class="{ 'text-primary font-bold !opacity-100': item.id === 1 }">{{ item.date }}</h3>
           <div class="flex-1 flex flex-col gap-2">
             <NuxtLink v-for="(event, index) in item.events" :key="index" :class="{ 'bg-primary-50 !opacity-100 hover:!opacity-75': item.id === 1 }" :to="localePath({ name: 'agenda_id', params: { id: 1 } })" class="overflow-hidden flex items-center justify-start cursor-pointer rounded-lg gap-2 bg-gray-50 dark:bg-gray-800 opacity-50 hover:opacity-75">
-              <p class="h-full flex items-center justify-center px-2 bg-indigo-500 text-sm opacity-75">
+              <p class="h-full flex items-center justify-center px-2 bg-indigo-500 text-sm">
                 {{ event.time }}
                 <br />
                 {{ event.end }}
