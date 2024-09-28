@@ -88,7 +88,7 @@ onBeforeUnmount(() => {
 
       <UDashboardPanelContent>
         <div class="grid grid-cols-3 gap-4">
-          <div class="h-[400px] col-span-3 md:col-span-2 font-semibold bg-gray-100 dark:bg-gray-800 text-4xl flex items-center justify-center gap-2 p-4 rounded-lg">
+          <div class="h-[380px] col-span-3 md:col-span-2 font-semibold bg-gray-100 dark:bg-gray-800 text-4xl flex items-center justify-center gap-2 p-4 rounded-lg">
             <UIcon name="i-heroicons-cog-6-tooth" class="w-10 h-10 spin duration-700" />
             <p>Coming soon...</p>
           </div>
@@ -132,7 +132,7 @@ onBeforeUnmount(() => {
                   </div>
                   <!-- Title -->
                   <div class="ml-4 md:ml-14">
-                    <p class="text-gray-500 dark:text-gray-400 text-xs">{{ item.date }}</p>
+                    <p class="text-gray-500 dark:text-gray-400 text-xs mb-2">{{ item.date }}</p>
                     <div class="text-sm text-gray-400 flex items-center gap-2">
                       <template v-if="'author' in item">
                         <UAvatar size="xs" :title="item.author" :src="item.avatar" />
