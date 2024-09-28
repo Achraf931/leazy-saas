@@ -25,14 +25,23 @@ const filteredStudents = computed(() => {
           <UInput v-model="q" icon="i-heroicons-magnifying-glass" placeholder="Rechercher un élève" autofocus />
         </template>
 
-        <!-- ~/components/settings/MembersList.vue -->
         <ClassesStudentsList :students="filteredStudents" />
       </UCard>
     </UDashboardSection>
 
-    <UDashboardModal v-model="isInviteModalOpen" title="Ajouter un élève" description="Ajouter de nouveaux élèves par email" :ui="{ width: 'sm:max-w-md' }">
-      <!-- ~/components/settings/MembersForm.vue -->
-      <ClassesStudentsForm @close="isInviteModalOpen = false" />
-    </UDashboardModal>
+    <UModal v-model="isInviteModalOpen" :ui="{ width: 'sm:max-w-md' }">
+      <UCard>
+        <div class="flex items-start justify-between gap-x-1.5 pb-4">
+          <div class="flex items-start gap-4">
+            <div>
+              <p class="text-gray-900 dark:text-white font-semibold">Ajouter un élève</p>
+              <p class="mt-1 text-gray-500 dark:text-gray-400 text-sm">Ajouter de nouveaux élèves par email</p>
+            </div>
+          </div>
+          <UButton icon="i-heroicons-x-mark" color="gray" variant="ghost" @click="isNewFeedbackModalOpen = false" />
+        </div>
+        <ClassesStudentsForm @close="isInviteModalOpen = false" />
+      </UCard>
+    </UModal>
   </UDashboardPanelContent>
 </template>

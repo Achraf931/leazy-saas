@@ -54,7 +54,6 @@ const selectedColumns = ref(defaultColumns)
 const selectedStatuses = ref([])
 const sort = ref({ column: 'id', direction: 'asc' as const })
 const input = ref<{ input: HTMLInputElement }>()
-const isNewUserModalOpen = ref(false)
 
 const columns = computed(() => defaultColumns.filter((column) => selectedColumns.value.includes(column)))
 
@@ -138,11 +137,6 @@ const lesson = ref({
           </template>
         </UDashboardToolbar>
 
-        <UDashboardModal v-model="isNewUserModalOpen" title="New user" description="Add a new user to your database" :ui="{ width: 'sm:max-w-md' }">
-          <!-- ~/components/users/UsersForm.vue -->
-          <UsersForm @close="isNewUserModalOpen = false" />
-        </UDashboardModal>
-
         <UTable
             v-model="selected"
             v-model:sort="sort"
@@ -174,9 +168,15 @@ const lesson = ref({
           </template>
         </UTable>
 
-        <UDashboardModal v-model="qrOpen" title="QR Code">
-          <NuxtImg src="/qr.png" alt="QR Code" />
-        </UDashboardModal>
+        <UModal v-model="qrOpen">
+          <UCard>
+            <div class="flex items-start justify-between gap-x-1.5 pb-5">
+              <p class="text-gray-900 dark:text-white font-semibold">Scannez ma présence</p>
+              <UButton icon="i-heroicons-x-mark" color="gray" variant="ghost" @click="qrOpen = false" class="ml-auto" />
+            </div>
+            <NuxtImg src="/qr.png" alt="QR Code" class="w-full" />
+          </UCard>
+        </UModal>
       </template>
       <template v-else>
         <UDashboardPanelContent v-if="lesson" :ui="{ wrapper: 'p-0' }">

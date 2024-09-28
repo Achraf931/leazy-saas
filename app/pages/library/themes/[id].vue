@@ -198,7 +198,10 @@ const deleteSelected = async () => {
                   :ui="{ td: { base: 'max-w-[0] truncate', padding: 'px-2 py-2' }, th: { padding: 'px-2 py-1.5' } }"
               >
                 <template #actions-data="{ row }">
-                  <UButton icon="i-heroicons-x-mark" color="red" size="xs" @click="handleDeleteChapter(row)" />
+                  <div class="flex items-center gap-2">
+                    <UButton icon="i-heroicons-trash" variant="soft" label="Supprimer" color="red" size="xs" @click="handleDeleteChapter(row)" />
+                    <UButton :to="localePath({ name: 'library-chapters-id', params: { id: row.id } })" trailing-icon="i-heroicons-chevron-right-20-solid" variant="soft" label="Voir" size="xs" />
+                  </div>
                 </template>
               </UTable>
             </UCard>

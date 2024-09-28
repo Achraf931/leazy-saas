@@ -2,8 +2,8 @@
 const route = useRoute()
 const { isNotificationsSlideoverOpen, isHelpSlideoverOpen, isDrawerSlideoverMode, isDrawerSlideoverOpen } = useDashboard()
 const { toggleDashboardSearch } = useUIState()
-const isNewUserModalOpen = ref(false)
 const isNewFeedbackModalOpen = ref(false)
+const isNewSuggestionModalOpen = ref(false)
 const localePath = useLocalePath()
 const { t } = useI18n()
 
@@ -159,7 +159,12 @@ const groups = [
 
             <UDashboardSidebarLinks :links="otherLinks" />
 
-            <div class="flex-1"/>
+            <div class="flex-1">
+              <div class="bg-primary rounded-lg flex items-center justify-center">
+                <UIcon name="i-heroicons-light-bulb" class="w-10 h-10 text-white" />
+                <p class="text-white font-bold text-2xl">Suggérer une fonctionnalité</p>
+              </div>
+            </div>
 
             <UDivider class="sticky bottom-0"/>
 
@@ -205,7 +210,15 @@ const groups = [
 
         <UDashboardSidebarLinks :links="otherLinks" />
 
-        <div class="flex-1"/>
+        <div class="flex-1 flex items-end">
+          <div class="suggestion-block cursor-pointer text-white w-full p-3 bg-primary-500 hover:bg-primary-600 rounded-lg" @click="isNewSuggestionModalOpen = true">
+            <div class="flex items-center gap-2">
+              <UIcon name="i-heroicons-light-bulb" class="w-5 h-5" />
+              <h3 class="font-bold">Une idée ?</h3>
+            </div>
+            <p class="mt-2 text-left text-sm font-medium">Suggérer nous des fonctionnalités que vous aimeriez voir sur Leazy !</p>
+          </div>
+        </div>
 
         <UDivider class="sticky bottom-0"/>
 
@@ -217,14 +230,7 @@ const groups = [
 
     <slot/>
 
-    <UDashboardModal v-model="isNewUserModalOpen" title="New user" description="Add a new user to your database"
-                     :ui="{ width: 'sm:max-w-md' }">
-      <!-- ~/components/users/UsersForm.vue -->
-      <UsersForm @close="isNewUserModalOpen = false"/>
-    </UDashboardModal>
-
-    <UModal v-model="isNewFeedbackModalOpen" title="Nouveau feedback"
-                     description="Signalez-nous un problème rencontré" :ui="{ width: 'sm:max-w-md' }">
+    <UModal v-model="isNewFeedbackModalOpen" :ui="{ width: 'sm:max-w-md' }">
       <UCard>
         <div class="flex items-start justify-between gap-x-1.5 pb-4">
           <div class="flex items-start gap-4">
@@ -240,6 +246,26 @@ const groups = [
       </UCard>
     </UModal>
 
+    <UModal v-model="isNewSuggestionModalOpen" :ui="{ width: 'sm:max-w-md' }">
+      <UCard>
+        <div class="flex items-start justify-between gap-x-1.5 pb-4">
+          <div class="flex items-start gap-4">
+            <div>
+              <p class="text-gray-900 dark:text-white font-semibold">Suggérer une fonctionnalité</p>
+              <p class="mt-1 text-gray-500 dark:text-gray-400 text-sm">
+                Vous aimeriez voir certaines fonctionnalités sur Leazy ?
+                <br />
+                Dites-le nous !
+              </p>
+            </div>
+          </div>
+          <UButton icon="i-heroicons-x-mark" color="gray" variant="ghost" @click="isNewSuggestionModalOpen = false" />
+        </div>
+        <!-- ~/components/suggestions/SuggestionsForm.vue -->
+        <SuggestionsForm @close="isNewSuggestionModalOpen = false"/>
+      </UCard>
+    </UModal>
+
     <HelpSlideover/>
 
     <NotificationsSlideover/>
@@ -249,3 +275,23 @@ const groups = [
     </ClientOnly>
   </UDashboardLayout>
 </template>
+
+<style lang="scss" scoped>
+.suggestion-block {
+  background: linear-gradient(-45deg, #f97316, #ec4899, #6366f1, #10b981);
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+</style>

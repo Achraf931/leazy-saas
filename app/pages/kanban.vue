@@ -201,22 +201,28 @@ const onSubmit = async (id) => {
               </div>
           </div>
 
-        <UDashboardModal prevent-close v-model="modal.open" title="Nouvelle tâche" :ui="{ width: 'sm:max-w-md' }">
-          <UForm class="space-y-4" :state="fields" :validate="validate" @submit="onSubmit(modal.column)">
-            <UFormGroup label="Titre" name="title">
-              <UInput type="text" placeholder="Titre de la tâche" autofocus v-model="fields.title" />
-            </UFormGroup>
-
-            <UFormGroup label="Description (optionnelle)" name="description">
-              <UTextarea placeholder="Description de la tâche" v-model="fields.description" />
-            </UFormGroup>
-
-            <div class="flex justify-end gap-3">
-              <UButton label="Annuler" color="gray" variant="ghost" @click="modal.open = false" />
-              <UButton :loading="isLoading" type="submit" label="Créer" color="black" />
+        <UModal prevent-close v-model="modal.open" :ui="{ width: 'sm:max-w-md' }">
+          <UCard>
+            <div class="flex items-start justify-between gap-x-1.5 pb-5">
+              <p class="text-gray-900 dark:text-white font-semibold">Nouvelle tâche</p>
+              <UButton icon="i-heroicons-x-mark" color="gray" variant="ghost" @click="modal.open = false" />
             </div>
-          </UForm>
-        </UDashboardModal>
+            <UForm class="space-y-4" :state="fields" :validate="validate" @submit="onSubmit(modal.column)">
+              <UFormGroup label="Titre" name="title">
+                <UInput type="text" placeholder="Titre de la tâche" autofocus v-model="fields.title" />
+              </UFormGroup>
+
+              <UFormGroup label="Description (optionnelle)" name="description">
+                <UTextarea placeholder="Description de la tâche" v-model="fields.description" />
+              </UFormGroup>
+
+              <div class="flex justify-end gap-3">
+                <UButton label="Annuler" color="gray" variant="ghost" @click="modal.open = false" />
+                <UButton :loading="isLoading" type="submit" label="Créer" color="black" />
+              </div>
+            </UForm>
+          </UCard>
+        </UModal>
       </UDashboardPanelContent>
     </UDashboardPanel>
   </UDashboardPage>

@@ -88,14 +88,15 @@ onBeforeUnmount(() => {
 
       <UDashboardPanelContent>
         <div class="grid grid-cols-3 gap-4">
-          <div class="h-[400px] col-span-3 md:col-span-2 font-semibold bg-gray-100 dark:bg-gray-800 text-4xl flex items-center justify-center p-4 rounded-lg">
-            Coming soon...
+          <div class="h-[400px] col-span-3 md:col-span-2 font-semibold bg-gray-100 dark:bg-gray-800 text-4xl flex items-center justify-center gap-2 p-4 rounded-lg">
+            <UIcon name="i-heroicons-cog-6-tooth" class="w-10 h-10 spin duration-700" />
+            <p>Coming soon...</p>
           </div>
           <div class="flex flex-col col-span-3 md:col-span-1 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
             <h3 class="font-semibold">Cours du jour</h3>
             <div class="flex-1 flex flex-col gap-2 mt-4">
               <NuxtLink v-for="(event, index) in courses.events" :key="index" :to="localePath({ name: 'agenda_id', params: { id: 1 } })" class="overflow-hidden flex items-center justify-start cursor-pointer rounded-lg bg-gray-50 dark:bg-gray-700 hover:opacity-75">
-                <p class="h-full flex items-center justify-center px-2 bg-indigo-500 text-xs font-semibold opacity-75">
+                <p class="h-full flex items-center justify-center px-2 bg-indigo-500 text-xs font-semibold">
                   {{ event.time }}
                   <br />
                   {{ event.end }}
@@ -168,6 +169,19 @@ onBeforeUnmount(() => {
 </template>
 
 <style lang="scss">
+.spin {
+  animation: spin 4s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 .timeline {
   &:before {
     @apply content-[''] absolute top-0 left-[6.5px] w-px h-full bg-gray-200 dark:bg-gray-500;

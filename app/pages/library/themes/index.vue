@@ -87,11 +87,12 @@ const onSubmit = async (state) => {
       </UDashboardToolbar>
 
       <UDashboardPanelContent>
-        <UBlogList v-if="filteredThemes.length" orientation="horizontal" :ui="{ wrapper: 'p-px overflow-y-auto gap-4 sm:grid sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5' }">
+        <UBlogList v-if="filteredThemes.length" orientation="horizontal" :ui="{ wrapper: 'p-px overflow-y-auto gap-4 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }">
           <UBlogPost v-for="theme in filteredThemes" :key="theme.id" :to="localePath({ name: 'library-themes-id', params: { id: theme.id } })" :ui="{ wrapper: 'gap-y-0 hover:opacity-75', container: 'p-2 rounded-lg bg-gray-100 dark:bg-gray-800 border border-solid border-gray-200 dark:border-gray-700' }" class="text-xs">
             <div class="flex items-start justify-between w-full">
-              <div class="flex items-center justify-center rounded-lg bg-blue-100 p-2">
-                <UIcon name="i-heroicons-book-open" class="w-6 h-6 text-blue-400" />
+              <div class="flex items-center gap-2 mb-2">
+                <UIcon name="i-heroicons-book-open" class="w-6 h-6" />
+                <h2 class="text-gray-900 dark:text-white font-semibold line-clamp-1 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-200 text-base">{{ theme.name }}</h2>
               </div>
               <UDropdown :ui="{ item: { size: 'text-xs' }, width: 'w-auto' }" :items="[[{ label: 'Modifier', icon: 'i-heroicons-pencil-square', click: () => handleModal(theme, true) }, { label: 'Supprimer', icon: 'i-heroicons-trash', color: 'red', click: () => handleDelete(theme) }]]" :popper="{ placement: 'bottom-end' }">
                 <UButton icon="i-heroicons-ellipsis-vertical" variant="ghost" color="gray" :padded="false" />
@@ -103,7 +104,6 @@ const onSubmit = async (state) => {
                 </template>
               </UDropdown>
             </div>
-            <h2 class="text-gray-900 dark:text-white font-semibold line-clamp-1 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-200 text-base">{{ theme.name }}</h2>
             <div class="flex items-center justify-start gap-1">
               <UIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-gray-400" />
               <p class="text-gray-400 text-xs">{{ theme.updated_at === theme.created_at ? 'Créé' : 'Modifié' }} {{ formatDistanceToNow(new Date(theme.updated_at), { locale: frLocale, addSuffix: true }) }}</p>

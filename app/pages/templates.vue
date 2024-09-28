@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { BaseKit, type BaseKitOptions } from '@/extensions/index.js'
+import {formatDistanceToNow} from "date-fns";
+import frLocale from "date-fns/locale/fr";
 
 const extensions: BaseKitOptions = [BaseKit]
 const localePath = useLocalePath()
@@ -65,7 +67,7 @@ const addFromTemplate = async (template) => {
       <UDashboardNavbar>
         <template #title>
           <ToggleDrawer />
-          <h1 class="flex items-center gap-1.5 font-semibold text-gray-900 dark:text-white min-w-0">Templates</h1>
+          <h1 class="flex items-center gap-1.5 font-semibold min-w-0">Templates</h1>
         </template>
       </UDashboardNavbar>
 
@@ -87,6 +89,16 @@ const addFromTemplate = async (template) => {
                 <UBadge v-if="lesson.chapter.theme" variant="soft" color="yellow" size="xs">{{ lesson.chapter.theme.name }}</UBadge>
                 <UBadge variant="soft" color="blue" size="xs">{{ lesson.chapter.name }}</UBadge>
               </div>
+              <div class="mt-2">
+                <div class="flex items-center gap-1">
+                  <UIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-gray-400" />
+                  <p class="text-gray-400 text-xs">Créé {{ formatDistanceToNow(new Date(lesson.created_at), { locale: frLocale, addSuffix: true }) }}</p>
+                </div>
+                <div class="flex items-center gap-2 mt-2">
+                  <UAvatar size="3xs" title="John Doe" src="https://img.freepik.com/psd-gratuit/illustration-3d-avatar-profil-humain_23-2150671142.jpg" />
+                  <p class="font-medium">John Doe</p>
+                </div>
+              </div>
             </UBlogPost>
           </UBlogList>
         </UDashboardSection>
@@ -99,28 +111,37 @@ const addFromTemplate = async (template) => {
       </div>
       <template #footer>
         <div class="flex items-center justify-between w-full">
-          <span class="text-xs text-gray-600 dark:text-gray-400">By <b>John Doe</b></span>
+          <div class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+            Créé par : <UAvatar size="3xs" title="John Doe" src="https://img.freepik.com/psd-gratuit/illustration-3d-avatar-profil-humain_23-2150671142.jpg" />
+            <b class="font-medium">John Doe</b>
+          </div>
           <UButton :loading="pending" label="Utiliser ce modèle" @click="addFromTemplate(modal.template)" />
         </div>
       </template>
     </UDashboardModal>
 
-    <UDashboardModal prevent-close v-model="isOpen" title="Créer une leçon" :ui="{ width: 'sm:max-w-md' }">
-      <UForm class="space-y-4" :state="fields" :validate="validate" @submit="onSubmit">
-        <UFormGroup label="Titre" name="name">
-          <UInput type="text" placeholder="Titre de la leçon" autofocus v-model="fields.name" />
-        </UFormGroup>
-
-        <UFormGroup label="Description (optionnelle)" name="description">
-          <UTextarea placeholder="Description de la leçon" v-model="fields.description" />
-        </UFormGroup>
-
-        <div class="flex justify-end gap-3">
-          <UButton label="Annuler" color="gray" variant="ghost" @click="isOpen = false" />
-          <UButton :loading="pending" type="submit" label="Créer" color="black" />
+    <UModal prevent-close v-model="isOpen" :ui="{ width: 'sm:max-w-md' }">
+      <UCard>
+        <div class="flex items-start justify-between gap-x-1.5 pb-5">
+          <p class="font-semibold">Créer une leçon</p>
+          <UButton icon="i-heroicons-x-mark" color="gray" variant="ghost" @click="isOpen = false" />
         </div>
-      </UForm>
-    </UDashboardModal>
+        <UForm class="space-y-4" :state="fields" :validate="validate" @submit="onSubmit">
+          <UFormGroup label="Titre" name="name">
+            <UInput type="text" placeholder="Titre de la leçon" autofocus v-model="fields.name" />
+          </UFormGroup>
+
+          <UFormGroup label="Description (optionnelle)" name="description">
+            <UTextarea placeholder="Description de la leçon" v-model="fields.description" />
+          </UFormGroup>
+
+          <div class="flex justify-end gap-3">
+            <UButton label="Annuler" color="gray" variant="ghost" @click="isOpen = false" />
+            <UButton :loading="pending" type="submit" label="Créer" color="black" />
+          </div>
+        </UForm>
+      </UCard>
+    </UModal>
   </UDashboardPage>
 </template>
 
