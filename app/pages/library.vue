@@ -1,0 +1,43 @@
+<script setup lang="ts">
+const localePath = useLocalePath()
+const route = useRoute()
+
+const links = ref([{
+  label: 'Tout',
+  icon: 'i-heroicons-folder-open',
+  to: localePath({ name: 'library' }),
+  exact: true
+}, {
+  label: 'Leçons',
+  icon: 'i-heroicons-document-text',
+  to: localePath({ name: 'library-lessons' })
+}, {
+  label: 'Chapitres',
+  icon: 'i-lucide-notebook-text',
+  to: localePath({ name: 'library-chapters' }),
+  active: computed(() => route.path.startsWith(localePath({ name: 'library-chapters' })))
+}, {
+  label: 'Thèmes',
+  icon: 'i-heroicons-book-open',
+  to: localePath({ name: 'library-themes' }),
+  active: computed(() => route.path.startsWith(localePath({ name: 'library-themes' })))
+}])
+</script>
+
+<template>
+  <UDashboardPage>
+    <UDashboardPanel grow>
+      <UDashboardNavbar>
+        <template #title>
+          <ToggleDrawer title="Bibliothèque" />
+        </template>
+      </UDashboardNavbar>
+
+      <UDashboardToolbar class="py-0 px-1.5 overflow-x-auto">
+        <UHorizontalNavigation :links="links" />
+      </UDashboardToolbar>
+
+      <NuxtPage />
+    </UDashboardPanel>
+  </UDashboardPage>
+</template>

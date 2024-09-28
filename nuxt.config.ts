@@ -1,6 +1,11 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
 export default defineNuxtConfig({
+  future: {
+    compatibilityVersion: 4,
+  },
+  compatibilityDate: '2024-04-03',
+  ssr: false,
   app: {
     pageTransition: { name: 'page', mode: 'out-in' },
   },
@@ -16,9 +21,7 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n',
     '@nuxt/image',
     '@nuxtjs/tailwindcss',
-    'nuxt-auth-sanctum',
-    '@pinia/nuxt',
-    '@pinia-plugin-persistedstate/nuxt'
+    'nuxt-auth-sanctum'
   ],
   ui: {
     icons: ['simple-icons', 'lucide', 'fluent', 'mdi'],
@@ -172,5 +175,8 @@ export default defineNuxtConfig({
   },
   tailwindcss: {
     quiet: true
+  },
+  devServer: {
+    host: 'leazy.local'
   }
 })
