@@ -12,7 +12,7 @@ useSeoMeta({
 
 const { login } = useSanctumAuth()
 const loading = ref(false)
-
+const toast = useToast()
 const fields = [
   {
     name: 'email',
@@ -48,7 +48,18 @@ const validate = (state: any) => {
 
 const onSubmit = async (data: any) => {
   loading.value = true
-  await login(data)
+
+  try {
+    await login(data)
+  } catch (error) {
+    toast.add({
+      title: 'Une erreur est survenue',
+      description: 'Veuillez vérifier vos informations de connexion.',
+      color: 'red'
+    })
+    loading.value = false
+  }
+
   loading.value = false
 }
 </script>

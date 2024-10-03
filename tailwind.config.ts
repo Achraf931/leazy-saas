@@ -1,6 +1,14 @@
 import type { Config } from 'tailwindcss'
 
 export default <Partial<Config>>{
+  content: [
+    './app/extensions/**/*.{vue,js,ts,mjs}',
+    './app/components/**/*.{vue,js,ts,mjs}',
+    './app/layouts/**/*.{vue,js,ts,mjs}',
+    './app/pages/**/*.{vue,js,ts,mjs}',
+    './app/plugins/**/*.{js,ts,mjs}',
+    './app/nuxt.config.{js,ts,mjs}'
+  ],
   theme: {
     extend: {
       aspectRatio: {
