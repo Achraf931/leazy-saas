@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { formatDistanceToNow } from "date-fns";
 import frLocale from "date-fns/locale/fr";
+import { LessonsDeleteLessonModal, ChaptersDeleteChapterModal } from '#components'
 
+const modal = useModal()
 const localePath = useLocalePath()
 const { get, del } = useApi('chapters')
 const documentId = computed(() => useRoute().params.id)
 const { data: chapter, refresh, error } = await useAsyncData('chapter', () => get(documentId.value))
-
-const isDeleteChapterModalOpen = ref({ open: false, chapter: null, redirect: true })
-const isDeleteLessonModalOpen = ref({ open: false, lesson: null, refresh, redirect: false })
 
 const columns = [{
   key: 'id',
@@ -35,16 +34,6 @@ const columns = [{
   label: 'Actions',
   sortable: false
 }]
-
-const handleDelete = () => {
-  isDeleteChapterModalOpen.value.open = true
-  isDeleteChapterModalOpen.value.chapter = chapter
-}
-
-const handleDeleteLesson = lesson => {
-  isDeleteLessonModalOpen.value.open = true
-  isDeleteLessonModalOpen.value.lesson = lesson
-}
 
 const selectedColumns = ref(columns)
 const columnsTable = computed(() => columns.filter((column) => selectedColumns.value.includes(column)))
@@ -120,6 +109,23 @@ const deleteLesson = async (id) => {
 const deleteSelected = async () => {
   selectedRows.value.map(item => deleteLesson(item.id))
 }
+
+const handleDelete = () => {
+  modal.open(ChaptersDeleteChapterModal, {
+    chapter: chapter.value,
+    redirect: true,
+    refresh,
+    onClose: () => modal.close()
+  })
+}
+
+const handleDeleteLesson = (lesson) => {
+  modal.open(LessonsDeleteLessonModal, {
+    lesson,
+    refresh,
+    onClose: () => modal.close()
+  })
+}
 </script>
 
 <template>
@@ -142,11 +148,15 @@ const deleteSelected = async () => {
 
           <p v-if="chapter.description" class="text-sm">{{ chapter.description }}</p>
           <div class="flex items-center justify-start gap-1">
-            <UIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-gray-400" />
+            <Suspense>
+              <UIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-gray-400" />
+            </Suspense>
             <p class="text-gray-400 text-xs">Créé {{ formatDistanceToNow(new Date(chapter.created_at), { locale: frLocale, addSuffix: true }) }}</p>
           </div>
           <div class="flex items-center justify-start gap-1">
-            <UIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-gray-400" />
+            <Suspense>
+              <UIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-gray-400" />
+            </Suspense>
             <p class="text-gray-400 text-xs">Modifié {{ formatDistanceToNow(new Date(chapter.updated_at), { locale: frLocale, addSuffix: true }) }}</p>
           </div>
         </div>
@@ -248,8 +258,5 @@ const deleteSelected = async () => {
         </UCard>
       </section>
     </UDashboardPanelContent>
-
-    <ChaptersDeleteChapterModal v-model="isDeleteChapterModalOpen" />
-    <LessonsDeleteLessonModal v-model="isDeleteLessonModalOpen" />
   </UDashboardPage>
 </template>

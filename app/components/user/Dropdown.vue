@@ -72,7 +72,7 @@ const items = computed(() => [
       <UButton :ui="{ variant: { link: 'no-underline hover:no-underline' }, color: { gray: { link: 'no-underline hover:no-underline' } } }" :to="item.to" :padded="false" :label="item.label" variant="link" :color="item.color || 'gray'" :icon="item.icon" class="w-full">
         <template #trailing>
           <div v-if="item.shortcuts" class="flex items-center gap-1 ml-auto">
-            <UBadge v-for="(shortcut, index) in item.shortcuts" :key="index" :label="shortcut" size="xs" color="gray" />
+            <UKbd v-for="(shortcut, index) in item.shortcuts" :key="index" :value="shortcut" size="xs" color="gray" />
           </div>
         </template>
       </UButton>

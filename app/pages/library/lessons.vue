@@ -1,27 +1,18 @@
 <script setup lang="ts">
-import { formatDistanceToNow } from 'date-fns'
-import frLocale from 'date-fns/locale/fr'
+import { LessonsModal } from '#components'
 
+const modal = useModal()
 const localePath = useLocalePath()
 const toast = useToast()
 
-const { get, post } = useApi('lessons')
+const { get } = useApi('lessons')
 const page = ref(1)
 
 const { data: lessons, refresh, error } = await useAsyncData('lessons', () => get(null, { page: page.value }), { watch: [page] })
 
 if (error.value) toast.add({ icon: 'i-heroicons-exclamation-circle', title: 'Erreur', description: 'Une erreur est survenue lors du chargement des leçons', color: 'red', actions: [{ label: 'Réessayer', click: () => refresh() }] })
 
-const lessonToUpdate = ref(null)
-
 const q = ref('')
-
-const pending = ref(false)
-
-const isOpen = ref(false)
-
-const isDeleteLessonModalOpen = ref({ open: false, lesson: null, refresh, redirect: false })
-
 const selected = ref([])
 const selectedThemes = ref([])
 const chapters = [
@@ -43,51 +34,10 @@ const filteredLessons = computed(() => {
   })
 })
 
-const handleDelete = (e, lesson) => {
-  isDeleteLessonModalOpen.value.open = true
-  isDeleteLessonModalOpen.value.lesson = lesson
-}
-
-const fields = reactive({
-  name: undefined,
-  description: undefined
-})
-
-const handleModal = (lesson, opened) => {
-  if (lesson) {
-    lessonToUpdate.value = lesson
-    fields.name = lesson.name
-    fields.description = lesson.description
-    isOpen.value = opened
-  } else {
-    isOpen.value = opened
-    setTimeout(() => {
-      lessonToUpdate.value = null
-      fields.name = undefined
-      fields.description = undefined
-    }, 200)
-  }
-}
-
-const validate = (state) => {
-  const errors = []
-
-  if (!state.name) errors.push({ path: 'name', message: 'Le titre est requis' })
-
-  return errors
-}
-
-const onSubmit = async (state) => {
-  pending.value = true
-  const response = await post({ ...state.data })
-
-  if (response) {
-    toast.add({ icon: 'i-heroicons-check-circle', title: 'Nouvelle leçon crée', color: 'green' })
-
-    pending.value = false
-    handleModal(null, false)
-    return navigateTo(localePath({ name: 'lesson_id', params: { id: response.id } }))
-  } else pending.value = false
+const handleModal = () => {
+  modal.open(LessonsModal, {
+    onClose: () => modal.close()
+  })
 }
 </script>
 
@@ -127,42 +77,15 @@ const onSubmit = async (state) => {
             </USelectMenu>
           </template>
 
-          <UButton trailing-icon="i-heroicons-plus" @click="handleModal(null, true)" label="Créer une leçon" />
+          <Suspense>
+            <UButton trailing-icon="i-heroicons-plus" @click="handleModal" label="Créer une leçon" />
+          </Suspense>
         </template>
       </UDashboardToolbar>
 
       <UDashboardPanelContent>
         <UBlogList v-if="filteredLessons.length > 0" orientation="horizontal" :ui="{ wrapper: 'p-px overflow-y-auto gap-x-4 gap-y-6 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }">
-          <UBlogPost v-for="lesson in filteredLessons" :key="lesson.id" :to="localePath({ name: 'lesson_id', params: { id: lesson.id } })" :ui="{ wrapper: 'gap-y-0 hover:opacity-75', container: 'p-2 rounded-b-lg bg-gray-100 dark:bg-gray-800 border border-t-0 border-solid border-gray-200 dark:border-gray-700', image: { wrapper: 'ring-0 border-x border-t border-gray-200 dark:border-gray-700 rounded-none rounded-t-lg' } }" class="text-xs">
-            <template #image>
-              <LeazyEditor :model-value="JSON.parse(lesson.content)" content-class="preview-editor" :editable="false" :disabled="true" :hideToolbar="true" :hideBubble="true" max-width="100%" />
-            </template>
-            <div class="mb-2">
-              <div class="flex items-center justify-between">
-                <h2 class="text-gray-900 dark:text-white font-semibold line-clamp-1 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-200 text-base">{{ lesson.name }}</h2>
-                <div class="flex items-start justify-between">
-                  <UDropdown :ui="{ item: { size: 'text-xs' }, width: 'w-auto' }" :items="[[{ label: 'Modifier', icon: 'i-heroicons-pencil-square', click: () => handleModal(lesson, true) }, { label: 'Supprimer', icon: 'i-heroicons-trash', color: 'red', click: (e) => handleDelete(e, lesson) }]]" :popper="{ placement: 'bottom-end' }">
-                    <UButton icon="i-heroicons-ellipsis-vertical" variant="ghost" color="gray" :padded="false" />
-
-                    <template #item="{ item }">
-                      <UIcon :name="item.icon" class="flex-shrink-0 h-4 w-4" :class="item.label === 'Supprimer' ? 'text-red-500 dark:text-red-400' : ''" />
-
-                      <span class="truncate" :class="item.label === 'Supprimer' ? 'text-red-500 dark:text-red-400' : ''">{{ item.label }}</span>
-                    </template>
-                  </UDropdown>
-                </div>
-              </div>
-              <p class="line-clamp-2 text-gray-400 text-xs mt-0.5">{{ lesson.description }}</p>
-            </div>
-            <div v-if="lesson.chapter" class="flex items-start gap-2">
-              <UBadge v-if="lesson.chapter.theme" variant="soft" color="yellow" size="xs">{{ lesson.chapter.theme.name }}</UBadge>
-              <UBadge variant="soft" color="blue" size="xs">{{ lesson.chapter.name }}</UBadge>
-            </div>
-            <div class="flex items-center justify-start gap-1 mt-2">
-              <UIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-gray-400" />
-              <p class="text-gray-400 text-xs">{{ lesson.updated_at === lesson.created_at ? 'Créé' : 'Modifié' }} {{ formatDistanceToNow(new Date(lesson.updated_at), { locale: frLocale, addSuffix: true }) }}</p>
-            </div>
-          </UBlogPost>
+          <LessonsCard v-for="lesson in filteredLessons" :key="lesson.id" :lesson :refresh redirect />
         </UBlogList>
         <p v-else class="text-center text-gray-400 dark:text-white text-sm mt-4">Aucune leçon trouvée</p>
       </UDashboardPanelContent>
@@ -171,31 +94,6 @@ const onSubmit = async (state) => {
         <UPagination size="xs" show-first show-last :page-count="lessons.per_page" :total="lessons.total" v-model="page" :max="5" />
       </div>
     </UDashboardPanel>
-
-    <UModal prevent-close v-model="isOpen" :ui="{ width: 'sm:max-w-md' }">
-      <UCard>
-        <div class="flex items-start justify-between gap-x-1.5 pb-5">
-          <p class="text-gray-900 dark:text-white font-semibold">{{ `${lessonToUpdate ? 'Modifier' : 'Créer'} une leçon` }}</p>
-          <UButton icon="i-heroicons-x-mark" color="gray" variant="ghost" @click="handleModal(null, false)" />
-        </div>
-        <UForm class="space-y-4" :state="fields" :validate="validate" @submit="onSubmit">
-          <UFormGroup label="Titre" name="name">
-            <UInput type="text" placeholder="Titre de la leçon" autofocus v-model="fields.name" />
-          </UFormGroup>
-
-          <UFormGroup label="Description (optionnelle)" name="description">
-            <UTextarea placeholder="Description de la leçon" v-model="fields.description" />
-          </UFormGroup>
-
-          <div class="flex justify-end gap-3">
-            <UButton label="Annuler" color="gray" variant="ghost" @click="handleModal(null, false)" />
-            <UButton :loading="pending" type="submit" :label="lessonToUpdate ? 'Modifier' : 'Créer'" color="black" />
-          </div>
-        </UForm>
-      </UCard>
-    </UModal>
-
-    <LessonsDeleteLessonModal v-model="isDeleteLessonModalOpen" />
   </UDashboardPage>
 </template>
 

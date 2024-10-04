@@ -1,14 +1,13 @@
 <script setup lang="ts">
+import { ChaptersDeleteChapterModal, ThemesDeleteThemeModal } from '#components'
 import { formatDistanceToNow } from "date-fns";
 import frLocale from "date-fns/locale/fr";
 
+const modal = useModal()
 const localePath = useLocalePath()
 const { get, del } = useApi('themes')
 const documentId = computed(() => useRoute().params.id)
 const { data: theme, refresh, error } = await useAsyncData('theme', () => get(documentId.value))
-
-const isDeleteThemeModalOpen = ref({ open: false, theme: null, redirect: true })
-const isDeleteChapterModalOpen = ref({ open: false, chapter: null, refresh, redirect: false })
 
 const columns = [{
   key: 'id',
@@ -23,16 +22,6 @@ const columns = [{
   label: 'Actions',
   sortable: false
 }]
-
-const handleDelete = () => {
-  isDeleteThemeModalOpen.value.open = true
-  isDeleteThemeModalOpen.value.theme = theme.value
-}
-
-const handleDeleteChapter = chapter => {
-  isDeleteChapterModalOpen.value.open = true
-  isDeleteChapterModalOpen.value.chapter = chapter
-}
 
 const selectedColumns = ref(columns)
 const columnsTable = computed(() => columns.filter((column) => selectedColumns.value.includes(column)))
@@ -100,6 +89,23 @@ const deleteChapter = async (id) => {
 
 const deleteSelected = async () => {
   selectedRows.value.map(item => deleteChapter(item.id))
+}
+
+const handleDelete = () => {
+  modal.open(ThemesDeleteThemeModal, {
+    theme: theme.value,
+    redirect: true,
+    refresh,
+    onClose: () => modal.close()
+  })
+}
+
+const handleDeleteChapter = (chapter) => {
+  modal.open(ChaptersDeleteChapterModal, {
+    chapter,
+    refresh,
+    onClose: () => modal.close()
+  })
 }
 </script>
 
@@ -209,8 +215,5 @@ const deleteSelected = async () => {
         </UCard>
       </section>
     </UDashboardPanelContent>
-
-    <ThemesDeleteThemeModal v-model="isDeleteThemeModalOpen" />
-    <ChaptersDeleteChapterModal v-model="isDeleteChapterModalOpen" />
   </UDashboardPage>
 </template>

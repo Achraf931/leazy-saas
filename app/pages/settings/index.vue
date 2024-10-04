@@ -1,13 +1,10 @@
 <script setup lang="ts">
 import type { FormError, FormSubmitEvent } from '#ui/types'
 
-const { localeProperties } = useI18n()
 const fileRef = ref<{ input: HTMLInputElement }>()
 const client = useSanctumClient()
 const user = useSanctumUser()
 
-const locale = shallowRef(localeProperties.value)
-console.log(user.value)
 const state = reactive({
   lastname: user.value.lastname,
   firstname: user.value.firstname,
@@ -43,9 +40,7 @@ function onFileClick () {
 }
 
 async function onSubmit (event: FormSubmitEvent<any>) {
-  console.log(event.data)
   const { data } = await client('/api/me', { method: 'PATCH', body: event.data })
-  console.log(data)
   user.value = data
   toast.add({ title: 'Profil modifié !', icon: 'i-heroicons-check-circle' })
 }

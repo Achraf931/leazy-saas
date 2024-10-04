@@ -1,35 +1,41 @@
 <script setup lang="ts">
 const { del } = useApi('themes')
 const localePath = useLocalePath()
-
-const model = defineModel({
-  type: Object
+const emit = defineEmits(['close'])
+const toast = useToast()
+const loading = ref(false)
+const { theme, redirect, refresh } = defineProps({
+  theme: {
+    type: Object,
+    required: true
+  },
+  redirect: {
+    type: Boolean,
+    required: false
+  },
+  refresh: {
+    type: Function,
+    required: false
+  }
 })
 
-const toast = useToast()
-
-const loading = ref(false)
-
-async function onDelete () {
+const onDelete = async () => {
   loading.value = true
 
-  const response = await del(model.value.theme.id)
+  const response = await del(theme.id)
 
   if (response) {
-    'refresh' in model.value && model.value.refresh()
+    refresh && refresh()
     loading.value = false
-    model.value.redirect && await navigateTo(localePath({ name: 'library-themes' }))
+    redirect && await navigateTo(localePath({ name: 'library-themes' }))
     toast.add({ icon: 'i-heroicons-check-circle', title: 'Votre thème a été supprimé', color: 'green' })
-    model.value.open = false
-  } else {
-    loading.value = false
-    toast.add({ icon: 'i-heroicons-x-mark', title: 'Suppression impossible', description: 'Une erreur est survenue', color: 'red' })
-  }
+    emit('close')
+  } else loading.value = false
 }
 </script>
 
 <template>
-  <UModal v-model="model.open" prevent-close :close-button="null">
+  <UModal prevent-close :close-button="null">
     <UCard :ui="{ body: { base: 'flex items-start gap-4' } }">
       <UIcon name="i-heroicons-exclamation-circle" class="w-12 h-12 text-red-500 dark:text-red-400" />
       <div>
@@ -37,7 +43,7 @@ async function onDelete () {
         <p class="mt-1 text-gray-500 dark:text-gray-400 text-sm">Êtes-vous sûr de vouloir supprimer votre thème ?</p>
         <div class="flex items-center gap-x-1.5 pt-4">
           <UButton color="red" label="Supprimer" :loading="loading" @click="onDelete" />
-          <UButton color="white" label="Annuler" @click="model.open = false" />
+          <UButton color="white" label="Annuler" @click="emit('close')" />
         </div>
       </div>
     </UCard>
