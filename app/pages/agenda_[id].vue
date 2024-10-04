@@ -1,11 +1,6 @@
 <script lang="ts" setup>
-import content from '@/data/default.json'
-import { BaseKit, type BaseKitOptions } from '@/extensions'
-import { Editor as EditorType } from '@tiptap/core'
-
-const tiptap = ref(null)
+const tiptap = useTemplateRef('tiptap')
 const qrOpen = ref(false)
-const extensions: BaseKitOptions = [BaseKit]
 
 const editor = computed(() => tiptap.value?.editor as EditorType)
 
@@ -188,7 +183,7 @@ const lesson = ref({
           </div>
 
           <ClientOnly>
-            <Editor ref="tiptap" v-model="lesson.content" content-class="sidepanelLesson" :extensions="extensions" :editable="false" :disabled="true" :hideToolbar="true" :hideBubble="true" max-width="750" />
+            <LeazyEditor ref="tiptap" v-model="lesson.content" content-class="sidepanelLesson" :editable="false" :disabled="true" :hideToolbar="true" :hideBubble="true" max-width="750" />
           </ClientOnly>
         </UDashboardPanelContent>
       </template>

@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { formatDistanceToNow } from 'date-fns'
 import frLocale from 'date-fns/locale/fr'
-import { BaseKit, type BaseKitOptions } from '@/extensions/index.js'
-
-const extensions: BaseKitOptions = [BaseKit]
 
 defineProps({
   lessons: {
@@ -26,7 +23,7 @@ defineProps({
   <UBlogList v-if="lessons.length" orientation="horizontal" :ui="{ wrapper: 'p-px gap-4 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }">
     <UBlogPost v-for="lesson in lessons.slice(0, 8)" :key="lesson.id" :to="localePath({ name: 'lesson_id', params: { id: lesson.id } })" :ui="{ wrapper: 'gap-y-0 hover:opacity-75', container: 'p-2 rounded-b-lg bg-gray-100 dark:bg-gray-800 border border-t-0 border-solid border-gray-200 dark:border-gray-700', image: { wrapper: 'ring-0 border-x border-t border-gray-200 dark:border-gray-700 rounded-none rounded-t-lg' } }" class="text-xs">
       <template #image>
-        <Editor :model-value="JSON.parse(lesson.content)" content-class="preview-editor" :extensions="extensions" :editable="false" :disabled="true" :hideToolbar="true" :hideBubble="true" max-width="100%" />
+        <LeazyEditor :model-value="JSON.parse(lesson.content)" content-class="preview-editor" :editable="false" :disabled="true" :hideToolbar="true" :hideBubble="true" max-width="100%" />
       </template>
       <div class="mb-2">
         <div class="flex items-center justify-between">

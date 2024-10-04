@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { BaseKit, type BaseKitOptions } from '@/extensions/index.js'
-import {formatDistanceToNow} from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import frLocale from "date-fns/locale/fr";
 
-const extensions: BaseKitOptions = [BaseKit]
 const localePath = useLocalePath()
 const toast = useToast()
 
@@ -79,7 +77,7 @@ const addFromTemplate = async (template) => {
           <UBlogList orientation="horizontal" :ui="{ wrapper: 'p-px overflow-y-auto gap-x-4 gap-y-6 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }">
             <UBlogPost v-for="lesson in lessons.data" :key="lesson.id" @click="() => { modal.template = lesson; modal.open = true }" :ui="{ wrapper: 'gap-y-0 hover:opacity-75', container: 'p-2 rounded-b-lg bg-gray-100 dark:bg-gray-800 border border-t-0 border-solid border-gray-200 dark:border-gray-700', image: { wrapper: 'ring-0 border-x border-t border-gray-200 dark:border-gray-700 rounded-none rounded-t-lg' } }" class="cursor-pointer text-xs">
               <template #image>
-                <Editor :model-value="JSON.parse(lesson.content)" content-class="preview-editor" :extensions="extensions" :editable="false" :disabled="true" :hideToolbar="true" :hideBubble="true" max-width="100%" />
+                <LeazyEditor :model-value="JSON.parse(lesson.content)" content-class="preview-editor" :editable="false" :disabled="true" :hideToolbar="true" :hideBubble="true" max-width="100%" />
               </template>
               <div class="mb-2">
                 <h2 class="text-gray-900 dark:text-white font-semibold line-clamp-1 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-200 text-base">{{ lesson.name }}</h2>

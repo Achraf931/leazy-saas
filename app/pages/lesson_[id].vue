@@ -1,32 +1,19 @@
 <script setup lang="ts">
-import { Editor as EditorType } from '@tiptap/core'
-import { BaseKit, type BaseKitOptions } from '@/extensions'
-import { isMobile } from '@/utils/is-mobile'
-
 definePageMeta({
   pageTransition: false
 })
 
-const tiptap = ref(null)
+const tiptap = useTemplateRef('tiptap')
+const hideToolbar = ref(false)
 const mediaInput = ref('')
 const addMediaPending = ref(false)
 const editor = computed(() => tiptap.value?.editor as EditorType)
-const hideToolbar = ref(isMobile())
-const extensions: BaseKitOptions = [BaseKit.configure({
-  speechSynthesis: false,
-  speechRecognition: false
-})]
 
 const toast = useToast()
 const localePath = useLocalePath()
 const { get, post, patch, del } = useApi('lessons')
-const client = useSanctumClient()
 const { t } = useI18n()
 const savePending = ref(false)
-const searchOpened = ref(false)
-const searchTerm = ref('')
-const replaceTerm = ref('')
-const caseSensitive = ref(false)
 const pendingDraft = ref(false)
 const pendingVisibility = ref(false)
 
@@ -165,102 +152,6 @@ const save = async () => {
   }
 }
 
-const updateSearchReplace = (clearIndex = false) => {
-  if (!editor.value) return
-  if (clearIndex) editor.value?.commands.resetIndex()
-
-  editor.value?.commands.setSearchTerm(searchTerm.value)
-  editor.value?.commands.setReplaceTerm(replaceTerm.value)
-  editor.value?.commands.setCaseSensitive(caseSensitive.value)
-}
-
-
-const goToSelection = () => {
-  if (!editor.value) return;
-
-  const { results, resultIndex } = editor.value.storage.searchAndReplace;
-  const position: Range = results[resultIndex];
-
-  if (!position) return;
-
-  editor.value?.commands.setTextSelection(position);
-
-  const { node } = editor.value.view.domAtPos(
-      editor.value.state.selection.anchor
-  );
-  node instanceof HTMLElement &&
-  node.scrollIntoView({ behavior: "smooth", block: "center" });
-};
-
-watch(
-    () => searchTerm.value.trim(),
-    (val, oldVal) => {
-      if (!val) clear();
-      if (val !== oldVal) updateSearchReplace(true);
-    }
-);
-
-watch(
-    () => searchOpened.value,
-    (val) => {
-      if (!val) clear();
-    }
-)
-
-watch(
-    () => replaceTerm.value.trim(),
-    (val, oldVal) => (val === oldVal ? null : updateSearchReplace())
-);
-
-watch(
-    () => caseSensitive.value,
-    (val, oldVal) => (val === oldVal ? null : updateSearchReplace(true))
-);
-
-const replace = () => {
-  editor.value?.commands.replace();
-  goToSelection();
-};
-
-const next = () => {
-  editor.value?.commands.nextSearchResult();
-  goToSelection();
-};
-
-const previous = () => {
-  editor.value?.commands.previousSearchResult();
-  goToSelection();
-};
-
-const clear = () => {
-  searchTerm.value = replaceTerm.value = "";
-  editor.value.commands.resetIndex();
-};
-
-const replaceAll = () => editor.value?.commands.replaceAll();
-
-onMounted(() => {
-  setTimeout(updateSearchReplace)
-})
-
-const getText = async () => {
-  console.log('click on get plain text')
-  // console.log('JSON => ', editor.value?.getJSON())
-  // console.log('HTML => ', editor.value?.getHTML())
-  /*const plainText = editor.value?.getText({ blockSeparator: `\n\n` })
-  plainText.replace(/<pre[^>]*>([\s\S]*?)<\/pre[^>]*>/m, '')
-
-  const test = await $fetch('/api/enrich', {
-    method: 'POST',
-    body: {
-      prompt: plainText
-    }
-  })
-
-  console.log('test => ', test)*/
-  editor.value?.commands.setEnrich()
-}
-
 const handleDraft = async () => {
   pendingDraft.value = true
   const response = await patch({ id: documentId.value, draft: !lesson.value?.draft })
@@ -381,60 +272,16 @@ const deleteMedia = async (id) => {
         {{ title }}
       </div>
 
-      <TableOfContents :editor="editor" />
-
-      <!--      <LeazyEditor ref="editor" :default-value="content" :storage-key="`leazy-editor-${documentId}`" />-->
-      <ClientOnly>
-        <Editor ref="tiptap" v-model="content" :extensions="extensions" :hideToolbar="hideToolbar" class="flex-1" max-width="800" />
-      </ClientOnly>
+      <LeazyEditor ref="tiptap" v-model="content" :hide-toolbar="hideToolbar" class="flex-1" max-width="800" />
     </UDashboardPanelContent>
 
     <UDashboardToolbar :ui="{ wrapper: 'bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 z-10', left: 'items-center gap-2 relative' }">
       <template v-if="editor" #left>
         <UCheckbox v-model="hideToolbar" label="Cacher les options" class="cursor-pointer" name="hideToolbar" />
 
-        <UDivider orientation="vertical" class="h-4 -mr-2" />
+        <UDivider orientation="vertical" class="h-4" />
 
-        <UPopover :popper="{ placement: 'top-start' }" v-model:open="searchOpened">
-          <UButton size="sm" variant="soft" color="white">
-            <p class="hidden lg:block">Chercher et remplacer</p>
-            <template #leading>
-              <UIcon name="i-lucide-replace-all" class="w-4 h-4" />
-            </template>
-          </UButton>
-
-          <template #panel>
-            <div class="p-2">
-              <div class="flex gap-2">
-                <UFormGroup label="Chercher" size="2xs">
-                  <UInput v-model="searchTerm" @keydown.enter.prevent="updateSearchReplace" placeholder="Chercher..." variant="outline" padded />
-                </UFormGroup>
-                <UFormGroup label="Remplacer par" size="2xs">
-                  <UInput v-model="replaceTerm" @keydown.enter.prevent="replace" placeholder="Remplacer par..." variant="outline" padded />
-                </UFormGroup>
-              </div>
-
-              <UCheckbox v-model="caseSensitive" class="my-2" :ui="{ base: 'w-3 h-3', inner: 'ms-2' }">
-                <template #label>
-                  <label class="text-xs font-medium text-gray-700 dark:text-gray-300">Sensible à la casse</label>
-                </template>
-              </UCheckbox>
-
-              <div class="flex items-center gap-1">
-                <UButton variant="soft" color="red" size="2xs" @click="clear" icon="i-heroicons-x-mark" />
-                <UButton variant="soft" color="gray" size="2xs" @click="previous" icon="i-heroicons-chevron-left-20-solid" />
-                <p class="text-[11px] font-medium text-gray-700">
-                  {{ editor?.storage?.searchAndReplace?.resultIndex + (editor?.storage?.searchAndReplace?.results.length ? 1 : 0) }} / {{ editor?.storage?.searchAndReplace?.results.length }}
-                </p>
-                <UButton variant="soft" color="gray" size="2xs" @click="next" icon="i-heroicons-chevron-right-20-solid" />
-                <UButton variant="soft" size="2xs" @click="replace" label="Remplacer" />
-                <UButton variant="soft" size="2xs" @click="replaceAll" label="Tout remplacer" />
-              </div>
-            </div>
-          </template>
-        </UPopover>
-
-<!--        <p class="text-xs">{{ new Intl.NumberFormat('fr-FR').format(editor.storage.characterCount.words()).replace(/\s/g, '&nbsp;') }} mots</p>-->
+        <p class="text-sm">{{ new Intl.NumberFormat('fr-FR').format(editor.storage.characterCount.words()).replace(/\s/g, '&nbsp;') }} mots</p>
       </template>
 
       <template #right>

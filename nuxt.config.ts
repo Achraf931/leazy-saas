@@ -14,7 +14,7 @@ export default defineNuxtConfig({
       openaiApiKey: process.env.NUXT_OPENAI_API_KEY
     }
   },
-  extends: [process.env.NUXT_UI_PRO_PATH || '@nuxt/ui-pro'],
+  extends: [process.env.NUXT_UI_PRO_PATH || '@nuxt/ui-pro', '@leazyhub/leazy-editor'],
   modules: [
     '@nuxt/ui',
     '@nuxt/fonts',
@@ -172,9 +172,6 @@ export default defineNuxtConfig({
   },
   devtools: {
     enabled: false
-  },
-  tailwindcss: {
-    quiet: true
   },
   devServer: {
     host: 'leazy.local'

@@ -41,6 +41,8 @@ useSeoMeta({
 </template>
 
 <style>
+@import "../../../leazy-editor/app/assets/css/index.scss";
+
 .page-enter-active,
 .page-leave-active {
   transition: all 0.2s;
