@@ -105,7 +105,7 @@ const addFromTemplate = async (template) => {
 
     <UDashboardModal v-model="modal.open" :title="modal.template?.name" :description="modal.template?.description" :ui="{ width: 'sm:max-w-4xl', height: 'sm:h-[95dvh]', margin: 'sm:my-0', body: { padding: 'px-0 py-4 pb-0 sm:p-4 sm:px-0 sm:pb-0', base: 'px-0 overflow-hidden' } }">
       <div class="flex-1 overflow-y-auto">
-        <Editor :model-value="JSON.parse(modal.template.content)" content-class="template-editor" :extensions="extensions" :editable="false" :disabled="true" :hideToolbar="true" :hideBubble="true" max-width="100%" />
+        <LeazyEditor :model-value="JSON.parse(modal.template.content)" content-class="template-editor" :editable="false" :disabled="true" :hideToolbar="true" :hideBubble="true" max-width="100%" />
       </div>
       <template #footer>
         <div class="flex items-center justify-between w-full">
