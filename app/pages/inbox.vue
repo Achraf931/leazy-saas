@@ -60,8 +60,7 @@ watch(filteredMails, () => {
 
       <UDashboardNavbar :badge="filteredMails.length">
         <template #title>
-          <ToggleDrawer />
-          <h1 class="flex items-center gap-1.5 font-semibold text-gray-900 dark:text-white min-w-0">Messages</h1>
+          <ToggleDrawer title="Messages" />
         </template>
 
         <template #right>
