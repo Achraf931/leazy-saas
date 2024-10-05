@@ -54,7 +54,7 @@ const handleDelete = () => {
     <div class="mb-2">
       <div class="flex items-center justify-between">
         <h2 class="text-gray-900 dark:text-white font-semibold line-clamp-1 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-200 text-base">{{ lesson.name }}</h2>
-        <div class="flex items-start justify-between">
+        <div v-if="!template" class="flex items-start justify-between">
           <UDropdown :ui="{ item: { size: 'text-xs' }, width: 'w-auto' }" :items="[[{ label: 'Modifier', icon: 'i-heroicons-pencil-square', click: () => handleModal() }, { label: 'Supprimer', icon: 'i-heroicons-trash', color: 'red', click: () => handleDelete() }]]" :popper="{ placement: 'bottom-end' }">
             <UButton icon="i-heroicons-ellipsis-vertical" variant="ghost" color="gray" :padded="false" />
 
