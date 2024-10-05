@@ -8,9 +8,9 @@ export default <Partial<Config>>{
         './app/pages/**/*.{vue,js,ts,mjs}',
         './app/plugins/**/*.{js,ts,mjs}',
         './app/nuxt.config.{js,ts,mjs}',
-        './node_modules/@leazyhub/leazy-editor/app/extensions/**/*.{vue,js,ts,jsx,tsx}',
-        './node_modules/@leazyhub/leazy-editor/app/components/**/*.{vue,js,ts,jsx,tsx}',
-        './node_modules/@leazyhub/leazy-editor/app/features/**/*.{vue,js,ts,jsx,tsx}'
+        './node_modules/@leazyhub/editor/app/extensions/**/*.{vue,js,ts,jsx,tsx}',
+        './node_modules/@leazyhub/editor/app/components/**/*.{vue,js,ts,jsx,tsx}',
+        './node_modules/@leazyhub/editor/app/features/**/*.{vue,js,ts,jsx,tsx}'
     ],
     theme: {
         extend: {
