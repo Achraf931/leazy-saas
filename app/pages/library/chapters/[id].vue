@@ -148,15 +148,11 @@ const handleDeleteLesson = (lesson) => {
 
           <p v-if="chapter.description" class="text-sm">{{ chapter.description }}</p>
           <div class="flex items-center justify-start gap-1">
-            <Suspense>
-              <UIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-gray-400" />
-            </Suspense>
+            <LazyUIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-gray-400" />
             <p class="text-gray-400 text-xs">Créé {{ formatDistanceToNow(new Date(chapter.created_at), { locale: frLocale, addSuffix: true }) }}</p>
           </div>
           <div class="flex items-center justify-start gap-1">
-            <Suspense>
-              <UIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-gray-400" />
-            </Suspense>
+            <LazyUIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-gray-400" />
             <p class="text-gray-400 text-xs">Modifié {{ formatDistanceToNow(new Date(chapter.updated_at), { locale: frLocale, addSuffix: true }) }}</p>
           </div>
         </div>

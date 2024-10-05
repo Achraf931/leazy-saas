@@ -31,7 +31,9 @@ const { data: library, refresh } = await useAsyncData('library', async () => {
         </ULink>
       </div>
       <UBlogList v-if="library.lessons.length" orientation="horizontal" :ui="{ wrapper: 'p-px gap-4 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }">
-        <LessonsCard v-for="lesson in library.lessons.slice(0, 8)" :key="lesson.id" :lesson :refresh />
+        <Suspense>
+          <LessonsCard v-for="lesson in library.lessons.slice(0, 8)" :key="lesson.id" :lesson :refresh />
+        </Suspense>
       </UBlogList>
       <UButton v-else label="Créer une leçon" color="gray" trailing-icon="i-heroicons-plus" />
     </template>

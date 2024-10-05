@@ -40,7 +40,9 @@ const handleModal = () => {
 
       <UDashboardPanelContent>
         <UBlogList v-if="filteredChapters.length" orientation="horizontal" :ui="{ wrapper: 'p-px overflow-y-auto gap-4 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }">
-          <ChaptersCard v-for="chapter in filteredChapters" :key="chapter.id" :chapter :refresh />
+          <Suspense>
+            <ChaptersCard v-for="chapter in filteredChapters" :key="chapter.id" :chapter :refresh />
+          </Suspense>
         </UBlogList>
         <p v-else class="text-center text-gray-400 dark:text-white text-sm mt-4">Aucun chapitre trouvé</p>
       </UDashboardPanelContent>

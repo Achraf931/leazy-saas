@@ -39,7 +39,9 @@ const handleModal = () => {
 
       <UDashboardPanelContent>
         <UBlogList v-if="filteredThemes.length" orientation="horizontal" :ui="{ wrapper: 'p-px overflow-y-auto gap-4 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }">
-          <ThemesCard v-for="theme in filteredThemes" :key="theme.id" :theme :refresh />
+          <Suspense>
+            <ThemesCard v-for="theme in filteredThemes" :key="theme.id" :theme :refresh />
+          </Suspense>
         </UBlogList>
         <p v-else class="text-center text-gray-400 dark:text-white text-sm mt-4">Aucun thème trouvé</p>
       </UDashboardPanelContent>

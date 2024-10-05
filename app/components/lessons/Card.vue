@@ -59,9 +59,7 @@ const handleDelete = () => {
             <UButton icon="i-heroicons-ellipsis-vertical" variant="ghost" color="gray" :padded="false" />
 
             <template #item="{ item }">
-              <Suspense>
-                <UIcon :name="item.icon" class="flex-shrink-0 h-4 w-4" :class="item.label === 'Supprimer' ? 'text-red-500 dark:text-red-400' : ''" />
-              </Suspense>
+              <LazyUIcon :name="item.icon" class="flex-shrink-0 h-4 w-4" :class="item.label === 'Supprimer' ? 'text-red-500 dark:text-red-400' : ''" />
 
               <span class="truncate" :class="item.label === 'Supprimer' ? 'text-red-500 dark:text-red-400' : ''">{{ item.label }}</span>
             </template>
@@ -76,9 +74,7 @@ const handleDelete = () => {
     </div>
     <div class="mt-2">
       <div class="flex items-center gap-1">
-        <Suspense>
-          <UIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-gray-400" />
-        </Suspense>
+        <LazyUIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-gray-400" />
         <p class="text-gray-400 text-xs">{{ lesson.updated_at === lesson.created_at ? 'Créé' : 'Modifié' }} {{ formatDistanceToNow(new Date(lesson.updated_at), { locale: frLocale, addSuffix: true }) }}</p>
       </div>
       <div v-if="template" class="flex items-center gap-2 mt-2">

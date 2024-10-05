@@ -77,15 +77,15 @@ const handleModal = () => {
             </USelectMenu>
           </template>
 
-          <Suspense>
-            <UButton trailing-icon="i-heroicons-plus" @click="handleModal" label="Créer une leçon" />
-          </Suspense>
+          <LazyUButton trailing-icon="i-heroicons-plus" @click="handleModal" label="Créer une leçon" />
         </template>
       </UDashboardToolbar>
 
       <UDashboardPanelContent>
         <UBlogList v-if="filteredLessons.length > 0" orientation="horizontal" :ui="{ wrapper: 'p-px overflow-y-auto gap-x-4 gap-y-6 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }">
-          <LessonsCard v-for="lesson in filteredLessons" :key="lesson.id" :lesson :refresh redirect />
+          <Suspense>
+            <LessonsCard v-for="lesson in filteredLessons" :key="lesson.id" :lesson :refresh redirect />
+          </Suspense>
         </UBlogList>
         <p v-else class="text-center text-gray-400 dark:text-white text-sm mt-4">Aucune leçon trouvée</p>
       </UDashboardPanelContent>

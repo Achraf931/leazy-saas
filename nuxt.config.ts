@@ -14,7 +14,7 @@ export default defineNuxtConfig({
       openaiApiKey: process.env.NUXT_OPENAI_API_KEY
     }
   },
-  extends: [process.env.NUXT_UI_PRO_PATH || '@nuxt/ui-pro', '@leazyhub/leazy-editor'],
+  extends: [process.env.NUXT_UI_PRO_PATH || '@nuxt/ui-pro', '@leazyhub/editor'],
   modules: [
     '@nuxt/ui',
     '@nuxt/fonts',

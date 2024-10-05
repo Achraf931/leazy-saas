@@ -51,7 +51,9 @@ const handleModal = () => {
             <UButton trailing-icon="i-heroicons-plus" @click="handleModal" label="Créer une leçon" />
           </template>
           <UBlogList v-if="lessons?.data?.length" orientation="horizontal" :ui="{ wrapper: 'p-px overflow-y-auto gap-x-4 gap-y-6 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }">
-            <LessonsCard v-for="lesson in lessons.data" :key="lesson.id" @click="() => { preview.template = lesson; preview.open = true }" :lesson template />
+            <Suspense>
+              <LessonsCard v-for="lesson in lessons.data" :key="lesson.id" @click="() => { preview.template = lesson; preview.open = true }" :lesson template />
+            </Suspense>
           </UBlogList>
           <p v-else class="text-center text-gray-400 dark:text-white text-sm mt-4">Aucune modèle de leçon trouvé</p>
         </UDashboardSection>
