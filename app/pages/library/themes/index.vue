@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ThemesModal } from '#components'
+import { sub } from 'date-fns'
 
 const modal = useModal()
 const toast = useToast()
 const { get, patch } = useApi('themes')
 const page = ref(1)
 const q = ref('')
+const range = ref<Range>({ start: sub(new Date(), { days: 14 }), end: new Date() })
 
 const { data: themes, refresh, error } = await useAsyncData('themes', () => get(null, { page: page.value }), { watch: [page] })
 
@@ -31,9 +33,12 @@ const handleModal = () => {
       <UDashboardToolbar>
         <template #left>
           <UInput v-model="q" icon="i-heroicons-magnifying-glass" placeholder="Rechercher un thème" />
+
+          <CommonsDateRangePicker v-model="range" class="ml-2.5" />
         </template>
+
         <template #right>
-          <UButton trailing-icon="i-heroicons-plus" @click="handleModal()" label="Créer un thème" />
+          <UButton trailing-icon="i-heroicons-plus" @click="handleModal" label="Créer un thème" />
         </template>
       </UDashboardToolbar>
 

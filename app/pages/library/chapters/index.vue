@@ -1,10 +1,13 @@
-<script setup>
+<script setup lang="ts">
 import { ChaptersModal } from '#components'
+import { sub } from 'date-fns'
 
 const toast = useToast()
 const modal = useModal()
 const { get, patch } = useApi('chapters')
 const page = ref(1)
+const range = ref<Range>({ start: sub(new Date(), { days: 14 }), end: new Date() })
+const themes = ref([])
 
 const { data: chapters, refresh, error } = await useAsyncData('chapters', () => get(null, { page: page.value }), { watch: [page] })
 
@@ -32,8 +35,13 @@ const handleModal = () => {
       <UDashboardToolbar>
         <template #left>
           <UInput v-model="q" icon="i-heroicons-magnifying-glass" placeholder="Rechercher un chapitre" />
+
+          <CommonsDateRangePicker v-model="range" class="ml-2.5" />
         </template>
+
         <template #right>
+          <CommonsSelectMenu v-model="themes" endpoint="themes" placeholder="Thèmes" />
+
           <UButton trailing-icon="i-heroicons-plus" @click="handleModal" label="Créer un chapitre" />
         </template>
       </UDashboardToolbar>

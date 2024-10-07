@@ -4035,22 +4035,6 @@ const lesson = ref({
           <UBadge size="xs" label="Mercredi 12 Juin 2024" variant="subtle" />
           <NuxtImg src="/qr.png" alt="QR Code" width="20" height="20" class="cursor-pointer w-6 h-6" @click="qrOpen = true" />
         </template>
-
-        <template #right>
-          <UInput
-              ref="input"
-              v-model="q"
-              icon="i-heroicons-funnel"
-              autocomplete="off"
-              placeholder="Filter users..."
-              class="hidden lg:block"
-              @keydown.esc="$event.target.blur()"
-          >
-            <template #trailing>
-              <UKbd value="/" />
-            </template>
-          </UInput>
-        </template>
       </UDashboardNavbar>
 
       <UDashboardToolbar>
@@ -4078,6 +4062,20 @@ const lesson = ref({
                 Affichage
               </template>
             </USelectMenu>
+
+            <UInput
+                ref="input"
+                v-model="q"
+                icon="i-heroicons-funnel"
+                autocomplete="off"
+                placeholder="Filter users..."
+                class="hidden lg:block"
+                @keydown.esc="$event.target.blur()"
+            >
+              <template #trailing>
+                <UKbd value="/" />
+              </template>
+            </UInput>
           </template>
         </UDashboardToolbar>
 
@@ -4124,16 +4122,12 @@ const lesson = ref({
       </template>
       <template v-else>
         <UDashboardPanelContent v-if="lesson" :ui="{ wrapper: 'p-0' }">
-          <div class="px-4 lg:px-[calc((100%_-_(750px))_/_2)] mt-[25px]">
+          <div class="px-4 lg:px-[calc((100%_-_(700px))_/_2)] mt-[25px]">
             <h3 class="empty:before:content-['Titre de la leçon'] empty:before:pointer-events-none empty:before:text-[#adb5bd] font-bold text-3xl tracking-tight text-gray-900 dark:text-white sm:text-4xl lg:text-5xl outline-none ring-none">{{ lesson.name }}</h3>
-            <p v-if="lesson.description">{{ lesson.description }}</p>
-
-            <TableOfContents :editor="editor" />
+            <p v-if="lesson.description" class="my-4">{{ lesson.description }}</p>
           </div>
 
-          <ClientOnly>
-            <LeazyEditor ref="tiptap" v-model="lesson.content" content-class="sidepanelLesson" :editable="false" :disabled="true" :hideToolbar="true" :hideBubble="true" max-width="750" />
-          </ClientOnly>
+          <LeazyEditor ref="tiptap" v-model="lesson.content" content-class="sidepanelLesson" :editable="false" :disabled="true" :hideToolbar="true" :hideBubble="true" max-width="750" />
         </UDashboardPanelContent>
       </template>
     </UDashboardPanel>

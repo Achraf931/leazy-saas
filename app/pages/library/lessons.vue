@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { LessonsModal } from '#components'
+import { sub } from 'date-fns'
 
 const modal = useModal()
 const localePath = useLocalePath()
@@ -7,6 +8,7 @@ const toast = useToast()
 
 const { get } = useApi('lessons')
 const page = ref(1)
+const range = ref<Range>({ start: sub(new Date(), { days: 14 }), end: new Date() })
 
 const { data: lessons, refresh, error } = await useAsyncData('lessons', () => get(null, { page: page.value }), { watch: [page] })
 
@@ -15,18 +17,6 @@ if (error.value) toast.add({ icon: 'i-heroicons-exclamation-circle', title: 'Err
 const q = ref('')
 const selected = ref([])
 const selectedThemes = ref([])
-const chapters = [
-  { label: 'Chapter 1', value: 'chapter-1' },
-  { label: 'Chapter 2', value: 'chapter-2' },
-  { label: 'Chapter 3', value: 'chapter-3' },
-  { label: 'Chapter 4', value: 'chapter-4' }
-]
-const themes = [
-  { label: 'Theme 1', value: 'theme-1' },
-  { label: 'Theme 2', value: 'theme-2' },
-  { label: 'Theme 3', value: 'theme-3' },
-  { label: 'Theme 4', value: 'theme-4' }
-]
 
 const filteredLessons = computed(() => {
   return lessons.value?.data?.filter(lesson => {
@@ -47,35 +37,13 @@ const handleModal = () => {
       <UDashboardToolbar>
         <template #left>
           <UInput v-model="q" icon="i-heroicons-magnifying-glass" placeholder="Rechercher une leçon" />
+
+          <CommonsDateRangePicker v-model="range" class="ml-2.5" />
         </template>
 
         <template #right>
-          <template v-if="false">
-            <UPopover :popper="{ placement: 'bottom-end' }">
-              <UButton size="xs" variant="ghost" color="gray" icon="i-heroicons-adjustments-horizontal" />
-
-              <template #panel>
-                <div class="p-2">
-                  <UButton variant="soft" size="2xs" label="Appliquer" />
-                </div>
-              </template>
-            </UPopover>
-            <USelectMenu v-slot="{ open }" v-model="selectedThemes" :options="themes" option-attribute="label" multiple placeholder="Select chapters">
-              <UButton color="gray" :label="'Themes: ' + selectedThemes.length">
-                <template #trailing>
-                  <UIcon name="i-heroicons-chevron-right-20-solid" :class="[open && 'transform rotate-90']" />
-                </template>
-              </UButton>
-            </USelectMenu>
-
-            <USelectMenu v-slot="{ open }" v-model="selected" :options="chapters" option-attribute="label" multiple placeholder="Select chapters">
-              <UButton color="gray" :label="'Chapters: ' + selected.length">
-                <template #trailing>
-                  <UIcon name="i-heroicons-chevron-right-20-solid" :class="[open && 'transform rotate-90']" />
-                </template>
-              </UButton>
-            </USelectMenu>
-          </template>
+          <CommonsSelectMenu v-model="selected" endpoint="chapters" placeholder="Chapitres" />
+          <CommonsSelectMenu v-model="selectedThemes" endpoint="themes" placeholder="Thèmes" />
 
           <LazyUButton trailing-icon="i-heroicons-plus" @click="handleModal" label="Créer une leçon" />
         </template>

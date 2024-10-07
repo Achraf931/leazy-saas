@@ -9,6 +9,7 @@ const state = reactive({
   lastname: user.value.lastname,
   firstname: user.value.firstname,
   email: user.value.email,
+  type: user.value.type,
   avatar: 'https://avatars.githubusercontent.com/u/45672435?v=4',
   password_current: '',
   password_new: ''
@@ -42,7 +43,7 @@ function onFileClick () {
 async function onSubmit (event: FormSubmitEvent<any>) {
   const { data } = await client('/api/me', { method: 'PATCH', body: event.data })
   user.value = data
-  toast.add({ title: 'Profil modifié !', icon: 'i-heroicons-check-circle' })
+  toast.add({ title: 'Profil modifié !', icon: 'i-heroicons-check-circle', color: 'green' })
 }
 </script>
 
