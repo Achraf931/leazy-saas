@@ -7,7 +7,25 @@ const modal = useModal()
 const localePath = useLocalePath()
 const { get, del } = useApi('themes')
 const documentId = computed(() => useRoute().params.id)
+const pending = ref(false)
+const loading = ref(false)
+const selected = ref([])
 const { data: theme, refresh, error } = await useAsyncData('theme', () => get(documentId.value))
+
+const fields = reactive({
+  id: documentId.value,
+  name: theme?.name || '',
+  discipline_id: theme?.discipline_id || ''
+})
+
+const validate = (state) => {
+  const errors = []
+
+  if (!state.name) errors.push({ path: 'name', message: 'Le titre est requis' })
+  if (!state.discipline_id) errors.push({ path: 'discipline_id', message: 'La discipline est requise' })
+
+  return errors
+}
 
 const columns = [{
   key: 'id',
@@ -36,6 +54,16 @@ function select (row) {
   } else {
     selectedRows.value.splice(index, 1)
   }
+}
+
+const searchable = async (q: string) => {
+  loading.value = true
+
+  const disciplines: any[] = await get(null, { q }, 'disciplines')
+
+  loading.value = false
+
+  return 'data' in disciplines ? disciplines.data : disciplines
 }
 
 // Actions
@@ -107,6 +135,20 @@ const handleDeleteChapter = (chapter) => {
     onClose: () => modal.close()
   })
 }
+
+const onSubmit = async (state) => {
+  pending.value = true
+  const response = await patch(state.data)
+
+  if (response) {
+    toast.add({ icon: 'i-heroicons-check-circle', title: 'Thème modifié', color: 'green' })
+
+    pending.value = false
+    return refresh()
+  }
+
+  pending.value = false
+}
 </script>
 
 <template>
@@ -139,15 +181,27 @@ const handleDeleteChapter = (chapter) => {
         </div>
 
         <UCard :ui="{ base: 'overflow-scroll flex-1' }">
-          <UForm class="space-y-3">
+          <UForm class="space-y-4" :state="fields" :validate="validate" @submit="onSubmit">
             <h3 class="font-semibold">Détails</h3>
-            <UFormGroup label="Titre">
-              <UInput placeholder="Titre du chapitre" v-model="theme.name" />
+            <UFormGroup label="Titre" name="title" required>
+              <UInput placeholder="Titre du chapitre" v-model="fields.name" />
             </UFormGroup>
-            <UFormGroup v-if="theme.description" label="Description">
-              <UTextarea placeholder="Description du chapitre" v-model="theme.description"/>
+            <UFormGroup v-if="fields.description" label="Description" name="description" hint="Optionnel">
+              <UTextarea placeholder="Description du chapitre" v-model="fields.description"/>
             </UFormGroup>
-            <UButton size="xs" label="Sauvegarder" />
+            <UFormGroup label="Discipline associé" name="discipline_id" required>
+              <USelectMenu
+                  v-model="selected"
+                  :loading="loading"
+                  :searchable="searchable"
+                  searchable-placeholder="Rechercher une discipline"
+                  class="w-full"
+                  placeholder="Sélectionner un discipline"
+                  option-attribute="name"
+                  by="id"
+              />
+            </UFormGroup>
+            <UButton :loading="pending" type="submit" size="xs" label="Sauvegarder" />
           </UForm>
 
           <UDivider orientation="horizontal" class="w-full my-5" />

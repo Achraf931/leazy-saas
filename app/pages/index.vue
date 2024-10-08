@@ -95,7 +95,7 @@ onBeforeUnmount(() => {
             <h3 class="font-semibold">Cours du jour</h3>
             <div class="flex-1 flex flex-col gap-2 mt-4">
               <NuxtLink v-for="(event, index) in courses.events" :key="index" :to="localePath({ name: 'agenda_id', params: { id: 1 } })" class="overflow-hidden flex items-center justify-start cursor-pointer rounded-lg bg-gray-50 dark:bg-gray-700 hover:opacity-75">
-                <p class="h-full flex items-center justify-center px-2 bg-indigo-500 text-xs font-semibold">
+                <p class="h-full flex items-center justify-center px-2 text-white bg-indigo-500 text-xs font-semibold">
                   {{ event.time }}
                   <br />
                   {{ event.end }}
@@ -125,7 +125,7 @@ onBeforeUnmount(() => {
                 <div class="flex items-center md:space-x-3 mb-1">
                   <div class="flex items-center space-x-3 md:space-x-1 md:space-x-reverse">
                     <!-- Icon -->
-                    <div class="flex items-center justify-center w-8 h-8 rounded-full shadow md:order-1" :class="item.type === 'help' ? 'bg-primary text-white' : item.type === 'info' ? 'bg-white dark:bg-gray-600 text-gray-400 dark:text-gray-200' : 'bg-yellow-500'">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full shadow md:order-1" :class="item.type === 'help' ? 'bg-primary text-white' : item.type === 'info' ? 'bg-gray-400 dark:bg-gray-600 text-white' : 'bg-yellow-500 text-white'">
                       <UIcon :name="item.type === 'help' ? 'i-heroicons-chat-bubble-bottom-center-text-solid' : item.type === 'info' ? 'i-heroicons-information-circle-solid' : 'i-heroicons-exclamation-triangle-solid'" class="w-5 h-5" dynamic />
                     </div>
                   </div>

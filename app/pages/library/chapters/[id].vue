@@ -3,11 +3,42 @@ import { formatDistanceToNow } from "date-fns";
 import frLocale from "date-fns/locale/fr";
 import { LessonsDeleteLessonModal, ChaptersDeleteChapterModal } from '#components'
 
+const toast = useToast()
 const modal = useModal()
 const localePath = useLocalePath()
-const { get, del } = useApi('chapters')
+const { get, patch, del } = useApi('chapters')
+const loading = ref(false)
+const selected = ref([])
+const pending = ref(false)
 const documentId = computed(() => useRoute().params.id)
 const { data: chapter, refresh, error } = await useAsyncData('chapter', () => get(documentId.value))
+
+const fields = reactive({
+  id: documentId.value,
+  name: chapter.value?.name || '',
+  description: chapter.value?.description || '',
+  image: chapter.value?.image || 'https://designshack.net/wp-content/uploads/placeholder-image-368x247.png',
+  theme_id: chapter.value?.theme_id || ''
+})
+
+const validate = (state) => {
+  const errors = []
+
+  if (!state.name) errors.push({ path: 'name', message: 'Le titre est requis' })
+  if (!state.theme_id) errors.push({ path: 'theme_id', message: 'Le thème est requis' })
+
+  return errors
+}
+
+const searchable = async (q: string) => {
+  loading.value = true
+
+  const themes: any[] = await get(null, { q }, 'themes')
+
+  loading.value = false
+
+  return 'data' in themes ? themes.data : themes
+}
 
 const columns = [{
   key: 'id',
@@ -126,6 +157,20 @@ const handleDeleteLesson = (lesson) => {
     onClose: () => modal.close()
   })
 }
+
+const onSubmit = async (state) => {
+  pending.value = true
+  const response = await patch(state.data)
+
+  if (response) {
+    toast.add({icon: 'i-heroicons-check-circle', title: 'Chapitre mis à jour', color: 'green'})
+
+    pending.value = false
+    return refresh()
+  }
+
+  pending.value = false
+}
 </script>
 
 <template>
@@ -140,8 +185,8 @@ const handleDeleteLesson = (lesson) => {
       <section class="flex-1 flex flex-col md:flex-row gap-5 p-px overflow-hidden w-full">
         <div class="flex flex-col gap-3">
           <NuxtImg
-              :src="chapter.image || 'https://imgproxy.services.pitch.com/_/resizing_type:fit/plain/pitch-publish-user-assets/templates/posters/moodboard.jpg'"
-              alt="Random image"
+              :src="chapter.image"
+              :alt="chapter.name"
               class="rounded-lg w-full aspect-video max-w-auto object-cover md:max-w-72"
               layout="responsive"
           />
@@ -158,18 +203,27 @@ const handleDeleteLesson = (lesson) => {
         </div>
 
         <UCard :ui="{ base: 'overflow-scroll flex-1' }">
-          <UForm class="space-y-3">
+          <UForm class="space-y-4" :state="fields" :validate="validate" @submit="onSubmit">
             <h3 class="font-semibold">Détails</h3>
-            <UFormGroup label="Titre">
-              <UInput placeholder="Titre du chapitre" v-model="chapter.name" />
+            <UFormGroup label="Titre" name="title" required>
+              <UInput placeholder="Titre du chapitre" v-model="fields.name" />
             </UFormGroup>
-            <UFormGroup label="Description">
-              <UTextarea placeholder="Description du chapitre" v-model="chapter.description"/>
+            <UFormGroup label="Description" name="description" hint="Optionnel">
+              <UTextarea placeholder="Description du chapitre" v-model="fields.description"/>
             </UFormGroup>
-            <UFormGroup label="Thème associé">
-              <USelect :options="['Option 1', 'Option 2', 'Option 3']" />
+            <UFormGroup label="Thème associé" name="theme_id" required>
+              <USelectMenu
+                v-model="selected"
+                :loading="loading"
+                :searchable="searchable"
+                searchable-placeholder="Rechercher un thème"
+                class="w-full"
+                placeholder="Sélectionner un thème"
+                option-attribute="name"
+                by="id"
+              />
             </UFormGroup>
-            <UButton size="xs" label="Sauvegarder" />
+            <UButton size="xs" type="submit" label="Sauvegarder" />
           </UForm>
 
           <UDivider orientation="horizontal" class="w-full my-5" />

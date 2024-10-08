@@ -51,11 +51,11 @@ const onSubmit = async (state) => {
         <UButton icon="i-heroicons-x-mark" color="gray" variant="ghost" @click="emit('close')" />
       </div>
       <UForm class="space-y-4" :state="fields" :validate="validate" @submit="onSubmit">
-        <UFormGroup label="Titre" name="name">
+        <UFormGroup label="Titre" name="name" required>
           <UInput type="text" placeholder="Titre de la leçon" autofocus v-model="fields.name" />
         </UFormGroup>
 
-        <UFormGroup label="Description (optionnelle)" name="description">
+        <UFormGroup label="Description" name="description" hint="Optionnel">
           <UTextarea placeholder="Description de la leçon" v-model="fields.description" />
         </UFormGroup>
 

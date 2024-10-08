@@ -51,6 +51,7 @@ const handleDelete = () => {
         <div>
           <h2 class="text-gray-900 dark:text-white font-semibold line-clamp-1 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-200 text-sm">{{ chapter.name }}</h2>
           <!-- <p class="line-clamp-2 text-gray-400 text-xs mt-0.5">{{ chapter.description || 'Description de test temporaire' }}</p> -->
+          <UBadge variant="subtle" color="pink" size="xs" class="my-1">Conflits mondiaux</UBadge>
           <div class="flex items-center justify-start gap-1 mt-1">
             <UIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-gray-400" />
             <p class="text-gray-400 text-xs">{{ chapter.updated_at === chapter.created_at ? 'Créé' : 'Modifié' }} {{ formatDistanceToNow(new Date(chapter.updated_at), { locale: frLocale, addSuffix: true }) }}</p>

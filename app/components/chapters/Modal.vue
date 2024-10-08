@@ -3,7 +3,9 @@ const { get, post, patch } = useApi('chapters')
 const emit = defineEmits(['close'])
 const localePath = useLocalePath()
 const toast = useToast()
+const loading = ref(false)
 const pending = ref(false)
+const selected = ref([])
 const { chapter, refresh } = defineProps({
   chapter: {
     type: Object,
@@ -17,16 +19,28 @@ const { chapter, refresh } = defineProps({
 
 const fields = reactive({
   name: chapter?.name || '',
+  description: chapter?.description || '',
   theme_id: 1,
-  image: 'https://imgproxy.services.pitch.com/_/resizing_type:fit/plain/pitch-publish-user-assets/templates/posters/moodboard.jpg'
+  image: chapter?.image || 'https://designshack.net/wp-content/uploads/placeholder-image-368x247.png'
 })
 
 const validate = (state) => {
   const errors = []
 
   if (!state.name) errors.push({ path: 'name', message: 'Le titre est requis' })
+  if (!state.theme_id) errors.push({ path: 'theme_id', message: 'Le thème est requis' })
 
   return errors
+}
+
+const searchable = async (q: string) => {
+  loading.value = true
+
+  const themes: any[] = await get(null, { q }, 'themes')
+
+  loading.value = false
+
+  return 'data' in themes ? themes.data : themes
 }
 
 const onSubmit = async (state) => {
@@ -42,6 +56,10 @@ const onSubmit = async (state) => {
     else return navigateTo(localePath({ name: 'library-chapters' }))
   } else pending.value = false
 }
+
+const onError = () => {
+  fields.image = 'https://designshack.net/wp-content/uploads/placeholder-image-368x247.png'
+}
 </script>
 
 <template>
@@ -52,12 +70,30 @@ const onSubmit = async (state) => {
         <UButton icon="i-heroicons-x-mark" color="gray" variant="ghost" @click="emit('close')" />
       </div>
       <UForm class="space-y-4" :state="fields" :validate="validate" @submit="onSubmit">
-        <UFormGroup label="Titre" name="name">
+        <UFormGroup label="Titre" name="name" required>
           <UInput type="text" placeholder="Titre du chapitre" autofocus v-model="fields.name" />
         </UFormGroup>
 
-        <UFormGroup label="Image" name="image">
+        <UFormGroup label="Description" name="description" hint="Optionnel">
+          <UTextarea placeholder="Description du chapitre" v-model="fields.description" />
+        </UFormGroup>
+
+        <UFormGroup label="Image" name="image" hint="Optionnel">
+          <NuxtImg :src="fields.image" fit="cover" class="w-full aspect-video rounded-lg mb-2" @error="onError" />
           <UInput type="text" placeholder="URL de l'image" v-model="fields.image" />
+        </UFormGroup>
+
+        <UFormGroup label="Thème associé" required>
+          <USelectMenu
+            v-model="selected"
+            :loading="loading"
+            :searchable="searchable"
+            searchable-placeholder="Rechercher un thème"
+            class="w-full"
+            placeholder="Sélectionner un thème"
+            option-attribute="name"
+            by="id"
+          />
         </UFormGroup>
 
         <div class="flex justify-end gap-3">

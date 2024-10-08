@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { LessonsModal } from '#components'
+import data from '@/data'
 
 const localePath = useLocalePath()
 const toast = useToast()

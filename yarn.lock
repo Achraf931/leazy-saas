@@ -1014,10 +1014,10 @@
   resolved "https://registry.npmjs.org/@kwsites/promise-deferred/-/promise-deferred-1.1.1.tgz"
   integrity sha512-GaHYm+c0O9MjZRu0ongGBRbinu8gVAMd2UZjji6jVmqKtZluZnptXGWhz1E8j8D2HJ3f/yMxKAUC0b+57wncIw==
 
-"@leazyhub/editor@^0.0.6":
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/@leazyhub/editor/-/editor-0.0.6.tgz#80d92a47603bfc158fad59ac05118d1ba705488e"
-  integrity sha512-WkYwy7HeA7N5DCZt8Gr0fV8k47MN/rEds5Hl88Pi/y350HTD0zkdCdIYOFApf4RAvYwcEcpE8P6WbrlCMQTCDQ==
+"@leazyhub/editor@^0.0.7":
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/@leazyhub/editor/-/editor-0.0.7.tgz#e3f07aeb2c1bda51950fcf04639c9ffd35095878"
+  integrity sha512-UKPdI0eehzNO4KOqCQc63Kj1M9yXdpLHtjSf3x/BjstioiQAUDhQq4WMc6VBzHNHJrQQ0FpUgTQ7EXkQKnHbSg==
   dependencies:
     "@headlessui/vue" "^1.7.23"
     "@nuxt/icon" "^1.5.2"

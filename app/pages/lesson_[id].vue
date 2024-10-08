@@ -20,11 +20,14 @@ const pendingVisibility = ref(false)
 const documentId = computed(() => useRoute().params.id)
 
 let { data: lesson, refresh } = await useAsyncData('lesson', () => get(documentId.value))
-let { data: chapters, refresh: refreshChapters } = await useAsyncData('chapters', () => get(null, null, 'chapters'))
+let { data: chapters, refresh: refreshChapters } = await useAsyncData('chapters', () => get(null, { page: 1 }, 'chapters'))
 
 let initialContent = JSON.stringify(lesson.value?.content)
 
-const content = computed(() => JSON.parse(lesson.value?.content) || {})
+const content = computed({
+  get: () => JSON.parse(lesson.value?.content || '{}'),
+  set: (value) => lesson.value.content = JSON.stringify(value)
+})
 
 const isContentUnsaved = computed(() => JSON.stringify(content.value) !== initialContent)
 
@@ -252,11 +255,11 @@ const deleteMedia = async (id) => {
       <template #right>
         <div class="flex items-center justify-end gap-1">
           <template v-if="lesson.chapter?.lessons_count">
-            <p class="pr-1.5 tracking-wider text-sm">{{ lesson.order }}/{{ lesson.chapter.lessons_count }}</p>
-            <UButton :disabled="lesson.order === 1" @click="goPrevLesson" size="2xs" variant="solid" :color="lesson.order === 1 ? 'white' : 'primary'" square>
+            <p class="pr-1.5 tracking-wider text-sm">{{ lesson.order + 1 }}/{{ lesson.chapter.lessons_count }}</p>
+            <UButton :disabled="(lesson.order + 1) === 1" @click="goPrevLesson" size="2xs" variant="solid" :color="(lesson.order + 1) === 1 ? 'white' : 'primary'" square>
               <UIcon name="i-heroicons-chevron-left" />
             </UButton>
-            <UButton :disabled="lesson.order === lesson.chapter.lessons_count" @click="goNextLesson" size="2xs" variant="solid" :color="lesson.order === lesson.chapter.lessons_count ? 'white' : 'primary'" square>
+            <UButton :disabled="(lesson.order + 1) === lesson.chapter.lessons_count" @click="goNextLesson" size="2xs" variant="solid" :color="(lesson.order + 1) === lesson.chapter.lessons_count ? 'white' : 'primary'" square>
               <UIcon name="i-heroicons-chevron-right" />
             </UButton>
           </template>
@@ -268,7 +271,7 @@ const deleteMedia = async (id) => {
     </UDashboardNavbar>
 
     <UDashboardPanelContent v-if="lesson" :ui="{ wrapper: 'p-0' }">
-      <div contenteditable @input="title = $event.target.innerText" data-placeholder="Titre de la leçon" class="empty:before:content-['Titre de la leçon'] empty:before:pointer-events-none empty:before:text-[#adb5bd] font-bold px-4 lg:px-[calc((100%_-_(750px))_/_2)] mt-[25px] text-3xl tracking-tight text-gray-900 dark:text-white sm:text-4xl lg:text-5xl outline-none ring-none" @keydown="handleTitleKeyDown">
+      <div contenteditable @input="title = $event.target.innerText" data-placeholder="Titre de la leçon" class="empty:before:content-['Titre de la leçon'] empty:before:pointer-events-none empty:before:text-[#adb5bd] font-bold px-4 lg:px-[calc((100%_-_(750px))_/_2)] mt-[25px] mb-5 text-3xl tracking-tight text-gray-900 dark:text-white sm:text-4xl lg:text-5xl outline-none ring-none" @keydown="handleTitleKeyDown">
         {{ title }}
       </div>
 
@@ -319,7 +322,7 @@ const deleteMedia = async (id) => {
             v-model="labels"
             by="id"
             name="labels"
-            :options="chapters.data"
+            :options="chapters"
             option-attribute="name"
             searchable-placeholder="Rechercher un chapitre"
             searchable

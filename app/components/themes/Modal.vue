@@ -4,6 +4,8 @@ const emit = defineEmits(['close'])
 const localePath = useLocalePath()
 const toast = useToast()
 const pending = ref(false)
+const loading = ref(false)
+const selected = ref([])
 const { theme, refresh } = defineProps({
   theme: {
     type: Object,
@@ -18,15 +20,26 @@ const { theme, refresh } = defineProps({
 
 const fields = reactive({
   name: theme?.name || '',
-  discipline_id: 1
+  discipline_id: theme?.discipline_id || ''
 })
 
 const validate = (state) => {
   const errors = []
 
   if (!state.name) errors.push({ path: 'name', message: 'Le titre est requis' })
+  if (!state.discipline_id) errors.push({ path: 'discipline_id', message: 'La discipline est requise' })
 
   return errors
+}
+
+const searchable = async (q: string) => {
+  loading.value = true
+
+  const disciplines: any[] = await get(null, { q }, 'disciplines')
+
+  loading.value = false
+
+  return 'data' in disciplines ? disciplines.data : disciplines
 }
 
 const onSubmit = async (state) => {
@@ -52,8 +65,21 @@ const onSubmit = async (state) => {
         <UButton icon="i-heroicons-x-mark" color="gray" variant="ghost" @click="emit('close')" />
       </div>
       <UForm class="space-y-4" :state="fields" :validate="validate" @submit="onSubmit">
-        <UFormGroup label="Titre" name="name">
+        <UFormGroup label="Titre" name="name" required>
           <UInput type="text" placeholder="Titre du thème" autofocus v-model="fields.name" />
+        </UFormGroup>
+
+        <UFormGroup label="Discipline associé" required>
+          <USelectMenu
+              v-model="selected"
+              :loading="loading"
+              :searchable="searchable"
+              searchable-placeholder="Rechercher une discipline"
+              class="w-full"
+              placeholder="Sélectionner un discipline"
+              option-attribute="name"
+              by="id"
+          />
         </UFormGroup>
 
         <div class="flex justify-end gap-3">
