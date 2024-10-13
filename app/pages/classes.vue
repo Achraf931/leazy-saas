@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const localePath = useLocalePath()
+const user = useSanctumUser()
 
 const links = [[{
   label: 'Mes classes',
@@ -7,15 +8,11 @@ const links = [[{
   to: localePath({ name: 'classes' }),
   exact: true,
   exactPath: true
-}, {
-    label: 'Terminale PI',
-    icon: 'i-heroicons-user-group',
-    to: localePath({ name: 'classes-id', params: { id: 1 } })
-  }, {
-    label: 'Seconde PG',
-    icon: 'i-heroicons-user-group',
-    to: localePath({ name: 'classes-id', params: { id: 2 } })
-  }]]
+}, ...user.value?.classes?.map?.(classe => ({
+  label: classe.name,
+  icon: 'i-heroicons-user-group',
+  to: localePath({ name: 'classes-id', params: { id: classe.id } })
+})) || []]]
 </script>
 
 <template>

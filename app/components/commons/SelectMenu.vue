@@ -8,11 +8,11 @@ const selected = ref([])
 const search = async (q: string) => {
   loading.value = true
 
-  const users: any[] = await get(null, { q })
+  const items: any[] = await get(null, { q })
 
   loading.value = false
 
-  return 'data' in users ? users.data : users
+  return 'data' in items ? items.data : items
 }
 </script>
 

@@ -2,7 +2,7 @@
 import { sub, format, isSameDay, type Duration } from 'date-fns'
 
 const ranges = [
-  {label: '7 derniers jours', duration: { days: 7 } },
+  { label: '7 derniers jours', duration: { days: 7 } },
   { label: '14 derniers jours', duration: { days: 14 } },
   { label: '30 derniers jours', duration: { days: 30 } },
   { label: '3 derniers mois', duration: { months: 3 } },

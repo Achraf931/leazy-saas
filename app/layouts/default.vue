@@ -1,11 +1,12 @@
 <script setup lang="ts">
+const user = useSanctumUser()
 const route = useRoute()
-const { isNotificationsSlideoverOpen, isHelpSlideoverOpen, isDrawerSlideoverMode, isDrawerSlideoverOpen } = useDashboard()
-const { toggleDashboardSearch } = useUIState()
+const {isNotificationsSlideoverOpen, isHelpSlideoverOpen, isDrawerSlideoverMode, isDrawerSlideoverOpen} = useDashboard()
+const {toggleDashboardSearch} = useUIState()
 const isNewFeedbackModalOpen = ref(false)
 const isNewSuggestionModalOpen = ref(false)
 const localePath = useLocalePath()
-const { t } = useI18n()
+const {t} = useI18n()
 
 const links = computed(() => [{
   id: 'home',
@@ -31,56 +32,50 @@ const links = computed(() => [{
   label: 'Mes classes',
   icon: 'i-heroicons-academic-cap',
   // to: localePath({ name: 'classes-id', params: { id: 1 } })
-  children: [
-    {
-      label: 'Terminale PI',
-      to: localePath({ name: 'classes-id', params: { id: 1 } })
-    },
-    {
-      label: 'Seconde PG',
-      to: localePath({ name: 'classes-id', params: { id: 2 } })
-    }
-  ]
+  children: user.value?.classes?.map(classe => ({
+    label: classe.name,
+    to: localePath({name: 'classes-id', params: {id: classe.id}})
+  })) || []
 }, {
-id: 'agenda',
+  id: 'agenda',
   label: 'Agenda',
   icon: 'i-heroicons-calendar-days',
-  to: localePath({ name: 'agenda' })
+  to: localePath({name: 'agenda'})
 }, {
-    id: 'kanban',
-    label: 'Mes tâches',
-    icon: 'i-heroicons-rectangle-stack',
-    to: localePath({ name: 'kanban' })
-  }])
+  id: 'kanban',
+  label: 'Mes tâches',
+  icon: 'i-heroicons-rectangle-stack',
+  to: localePath({name: 'kanban'})
+}])
 
 const subLinks = ref([{
   id: 'library',
   label: t('drawer.library.label'),
   icon: 'i-heroicons-folder-open',
-  to: localePath({ name: 'library' }),
+  to: localePath({name: 'library'}),
   collapsible: false,
   exact: true,
   children: [
     {
       label: t('drawer.library.lessons'),
       exact: true,
-      to: localePath({ name: 'library-lessons' })
+      to: localePath({name: 'library-lessons'})
     },
     {
       label: t('drawer.library.chapters'),
-      to: localePath({ name: 'library-chapters' }),
-      active: computed(() => route.path.startsWith(localePath({ name: 'library-chapters' })))
+      to: localePath({name: 'library-chapters'}),
+      active: computed(() => route.path.startsWith(localePath({name: 'library-chapters'})))
     },
     {
       label: t('drawer.library.themes'),
-      to: localePath({ name: 'library-themes' }),
-      active: computed(() => route.path.startsWith(localePath({ name: 'library-themes' })))
+      to: localePath({name: 'library-themes'}),
+      active: computed(() => route.path.startsWith(localePath({name: 'library-themes'})))
     }]
 }, {
   id: 'templates',
   label: 'Templates',
   icon: 'i-heroicons-document-text',
-  to: localePath({ name: 'templates' })
+  to: localePath({name: 'templates'})
 }])
 
 const otherLinks = computed(() => [{
@@ -114,7 +109,7 @@ const groups = [
   {
     key: 'links',
     label: 'Aller à',
-    commands: [...links.value.map(link => ({ ...link, shortcuts: link.tooltip?.shortcuts })), ...subLinks.value]
+    commands: [...links.value.map(link => ({...link, shortcuts: link.tooltip?.shortcuts})), ...subLinks.value]
   },
   {
     key: 'help',
@@ -126,7 +121,8 @@ const groups = [
 
 <template>
   <UDashboardLayout>
-    <USlideover v-if="isDrawerSlideoverMode" v-model="isDrawerSlideoverOpen" :overlay="false" side="left" :ui="{ wrapper: 'top-[--header-height] h-[calc(100vh-var(--header-height))]', width: 'max-w-max' }">
+    <USlideover v-if="isDrawerSlideoverMode" v-model="isDrawerSlideoverOpen" :overlay="false" side="left"
+                :ui="{ wrapper: 'top-[--header-height] h-[calc(100vh-var(--header-height))]', width: 'max-w-max' }">
       <template #default>
         <UDashboardPanel id="slideorder-drawer" :width="250" class="flex-1" collapsible>
           <UDashboardNavbar :ui="{ left: 'flex-1' }">
@@ -138,11 +134,12 @@ const groups = [
           <UDashboardSidebar>
             <template #header>
               <div class="flex items-center gap-2 w-full">
-                <UButton :label="$t('commons.search')" class="flex-1" icon="i-heroicons-magnifying-glass" color="gray" @click="toggleDashboardSearch"/>
+                <UButton :label="$t('commons.search')" class="flex-1" icon="i-heroicons-magnifying-glass" color="gray"
+                         @click="toggleDashboardSearch"/>
                 <UTooltip text="Notifications" :shortcuts="['N']">
                   <UButton color="white" variant="soft" square @click="isNotificationsSlideoverOpen = true">
                     <UChip color="red" inset>
-                      <UIcon name="i-heroicons-bell" class="w-5 h-5" />
+                      <UIcon name="i-heroicons-bell" class="w-5 h-5"/>
                     </UChip>
                   </UButton>
                 </UTooltip>
@@ -157,11 +154,11 @@ const groups = [
 
             <UDivider/>
 
-            <UDashboardSidebarLinks :links="otherLinks" />
+            <UDashboardSidebarLinks :links="otherLinks"/>
 
             <div class="flex-1">
               <div class="bg-primary rounded-lg flex items-center justify-center">
-                <UIcon name="i-heroicons-light-bulb" class="w-10 h-10 text-white" />
+                <UIcon name="i-heroicons-light-bulb" class="w-10 h-10 text-white"/>
                 <p class="text-white font-bold text-2xl">Suggérer une fonctionnalité</p>
               </div>
             </div>
@@ -177,7 +174,8 @@ const groups = [
     </USlideover>
     <UDashboardPanel v-else id="default-drawer" :width="250" :resizable="{ min: 200, max: 300 }" collapsible>
       <template #handle="{ onDrag }">
-        <UDashboardPanelHandle :ui="{ container: 'group-hover:bg-primary-500 dark:group-hover:bg-primary-400' }" @mousedown="onDrag" />
+        <UDashboardPanelHandle :ui="{ container: 'group-hover:bg-primary-500 dark:group-hover:bg-primary-400' }"
+                               @mousedown="onDrag"/>
       </template>
 
       <UDashboardNavbar :ui="{ left: 'flex-1' }">
@@ -189,11 +187,12 @@ const groups = [
       <UDashboardSidebar>
         <template #header>
           <div class="flex items-center gap-2 w-full">
-            <UButton :label="$t('commons.search')" class="flex-1" icon="i-heroicons-magnifying-glass" color="gray" @click="toggleDashboardSearch"/>
+            <UButton :label="$t('commons.search')" class="flex-1" icon="i-heroicons-magnifying-glass" color="gray"
+                     @click="toggleDashboardSearch"/>
             <UTooltip text="Notifications" :shortcuts="['N']">
               <UButton color="white" variant="soft" square @click="isNotificationsSlideoverOpen = true">
                 <UChip color="red" inset>
-                  <UIcon name="i-heroicons-bell" class="w-5 h-5" />
+                  <UIcon name="i-heroicons-bell" class="w-5 h-5"/>
                 </UChip>
               </UButton>
             </UTooltip>
@@ -208,15 +207,18 @@ const groups = [
 
         <UDivider/>
 
-        <UDashboardSidebarLinks :links="otherLinks" />
+        <UDashboardSidebarLinks :links="otherLinks"/>
 
         <div class="flex-1 flex items-end">
-          <div class="suggestion-block cursor-pointer text-white w-full p-3 bg-primary-500 hover:bg-primary-600 rounded-lg" @click="isNewSuggestionModalOpen = true">
+          <div
+              class="suggestion-block cursor-pointer text-white w-full p-3 bg-primary-500 hover:bg-primary-600 rounded-lg"
+              @click="isNewSuggestionModalOpen = true">
             <div class="flex items-center gap-2">
-              <UIcon name="i-heroicons-light-bulb" class="w-5 h-5" />
+              <UIcon name="i-heroicons-light-bulb" class="w-5 h-5"/>
               <h3 class="font-bold">Une idée ?</h3>
             </div>
-            <p class="mt-2 text-left text-sm font-medium">Suggérer nous des fonctionnalités que vous aimeriez voir sur Leazy !</p>
+            <p class="mt-2 text-left text-sm font-medium">Suggérer nous des fonctionnalités que vous aimeriez voir sur
+              Leazy !</p>
           </div>
         </div>
 
@@ -239,7 +241,7 @@ const groups = [
               <p class="mt-1 text-gray-500 dark:text-gray-400 text-sm">Signalez-nous un problème rencontré</p>
             </div>
           </div>
-          <UButton icon="i-heroicons-x-mark" color="gray" variant="ghost" @click="isNewFeedbackModalOpen = false" />
+          <UButton icon="i-heroicons-x-mark" color="gray" variant="ghost" @click="isNewFeedbackModalOpen = false"/>
         </div>
         <!-- ~/components/feedbacks/FeedbacksForm.vue -->
         <FeedbacksForm @close="isNewFeedbackModalOpen = false"/>
@@ -254,12 +256,12 @@ const groups = [
               <p class="text-gray-900 dark:text-white font-semibold">Suggérer une fonctionnalité</p>
               <p class="mt-1 text-gray-500 dark:text-gray-400 text-sm">
                 Vous aimeriez voir certaines fonctionnalités sur Leazy ?
-                <br />
+                <br/>
                 Dites-le nous !
               </p>
             </div>
           </div>
-          <UButton icon="i-heroicons-x-mark" color="gray" variant="ghost" @click="isNewSuggestionModalOpen = false" />
+          <UButton icon="i-heroicons-x-mark" color="gray" variant="ghost" @click="isNewSuggestionModalOpen = false"/>
         </div>
         <!-- ~/components/suggestions/SuggestionsForm.vue -->
         <SuggestionsForm @close="isNewSuggestionModalOpen = false"/>

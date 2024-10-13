@@ -25,7 +25,7 @@
     "@vueuse/core": "^10.11.1",
     "date-fns": "^3.6.0",
     "nuxt": "^3.13.2",
-    "nuxt-auth-sanctum": "^0.3.14",
+    "nuxt-auth-sanctum": "^0.5.0",
     "openai": "^4.65.0",
     "tippy.js": "^6.3.7",
     "v-calendar": "^3.1.2",
