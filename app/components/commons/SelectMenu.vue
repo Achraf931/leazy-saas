@@ -6,6 +6,7 @@ const loading = ref(false)
 const selected = ref([])
 
 const search = async (q: string) => {
+  if (loading.value) return
   loading.value = true
 
   const items: any[] = await get(null, { q })
