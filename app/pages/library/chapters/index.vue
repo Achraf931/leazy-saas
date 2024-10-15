@@ -40,7 +40,7 @@ const handleModal = () => {
         </template>
 
         <template #right>
-          <CommonsSelectMenu v-model="themes" endpoint="themes" placeholder="Thèmes" />
+          <CommonsSelectMenu @update:model-value="themes = $event" endpoint="themes" placeholder="Thèmes" />
 
           <UButton trailing-icon="i-heroicons-plus" @click="handleModal" label="Créer un chapitre" />
         </template>

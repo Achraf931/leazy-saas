@@ -212,16 +212,18 @@ const onSubmit = async (state) => {
               <UTextarea placeholder="Description du chapitre" v-model="fields.description"/>
             </UFormGroup>
             <UFormGroup label="Thème associé" name="theme_id" required>
-              <USelectMenu
-                v-model="selected"
-                :loading="loading"
-                :searchable="searchable"
-                searchable-placeholder="Rechercher un thème"
-                class="w-full"
-                placeholder="Sélectionner un thème"
-                option-attribute="name"
-                by="id"
-              />
+              <ClientOnly>
+                <USelectMenu
+                    v-model="selected"
+                    :loading="loading"
+                    :searchable="searchable"
+                    searchable-placeholder="Rechercher un thème"
+                    class="w-full"
+                    placeholder="Sélectionner un thème"
+                    option-attribute="name"
+                    by="id"
+                />
+              </ClientOnly>
             </UFormGroup>
             <UButton size="xs" type="submit" label="Sauvegarder" />
           </UForm>
@@ -253,15 +255,17 @@ const onSubmit = async (state) => {
                     </UButton>
                   </UDropdown>
 
-                  <USelectMenu v-model="selectedColumns" :options="columns" multiple>
-                    <UButton
-                        icon="i-heroicons-view-columns"
-                        color="gray"
-                        size="xs"
-                    >
-                      Columns
-                    </UButton>
-                  </USelectMenu>
+                  <ClientOnly>
+                    <USelectMenu v-model="selectedColumns" :options="columns" multiple>
+                      <UButton
+                          icon="i-heroicons-view-columns"
+                          color="gray"
+                          size="xs"
+                      >
+                        Columns
+                      </UButton>
+                    </USelectMenu>
+                  </ClientOnly>
 
                   <UButton
                       icon="i-heroicons-funnel"

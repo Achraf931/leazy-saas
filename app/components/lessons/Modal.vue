@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { get, post, patch } = useApi('lessons')
+const { post, patch } = useApi('lessons')
 const emit = defineEmits(['close'])
 const localePath = useLocalePath()
 const toast = useToast()

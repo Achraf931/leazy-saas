@@ -70,16 +70,18 @@ const onSubmit = async (state) => {
         </UFormGroup>
 
         <UFormGroup label="Discipline associé" required>
-          <USelectMenu
-              v-model="selected"
-              :loading="loading"
-              :searchable="searchable"
-              searchable-placeholder="Rechercher une discipline"
-              class="w-full"
-              placeholder="Sélectionner un discipline"
-              option-attribute="name"
-              by="id"
-          />
+          <ClientOnly>
+            <USelectMenu
+                v-model="selected"
+                :loading="loading"
+                :searchable="searchable"
+                searchable-placeholder="Rechercher une discipline"
+                class="w-full"
+                placeholder="Sélectionner un discipline"
+                option-attribute="name"
+                by="id"
+            />
+          </ClientOnly>
         </UFormGroup>
 
         <div class="flex justify-end gap-3">

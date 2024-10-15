@@ -5,7 +5,7 @@ export default defineNuxtConfig({
     compatibilityVersion: 4,
   },
   compatibilityDate: '2024-04-03',
-  ssr: false,
+  // ssr: false,
   app: {
     pageTransition: { name: 'page', mode: 'out-in' },
   },
@@ -26,9 +26,6 @@ export default defineNuxtConfig({
   ui: {
     icons: ['simple-icons', 'lucide', 'fluent', 'mdi'],
     safelistColors: ['primary', 'red', 'orange', 'green']
-  },
-  icon: {
-    provider: 'server'
   },
   sanctum: {
     baseUrl: process.env.NUXT_API_URL || 'http://leazy.local:8000',

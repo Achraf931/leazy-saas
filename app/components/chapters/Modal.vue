@@ -84,16 +84,18 @@ const onError = () => {
         </UFormGroup>
 
         <UFormGroup label="Thème associé" required>
-          <USelectMenu
-            v-model="selected"
-            :loading="loading"
-            :searchable="searchable"
-            searchable-placeholder="Rechercher un thème"
-            class="w-full"
-            placeholder="Sélectionner un thème"
-            option-attribute="name"
-            by="id"
-          />
+          <ClientOnly>
+            <USelectMenu
+                v-model="selected"
+                :loading="loading"
+                :searchable="searchable"
+                searchable-placeholder="Rechercher un thème"
+                class="w-full"
+                placeholder="Sélectionner un thème"
+                option-attribute="name"
+                by="id"
+            />
+          </ClientOnly>
         </UFormGroup>
 
         <div class="flex justify-end gap-3">

@@ -13,7 +13,7 @@ const { get } = useApi('lessons')
 const page = ref(1)
 const range = ref<Range>({ start: sub(new Date(), { days: 14 }), end: new Date() })
 
-const { data: lessons, status, refresh, error } = await useLazyAsyncData('lessons', () => get(null, { page: page.value, ...(chapters.value?.length && { chapter: chapters.value?.map?.(chapter => chapter.name)?.join?.(',') }), ...(themes.value?.length && { theme: themes.value?.map?.(theme => theme.name)?.join?.(',') }) }), { watch: [page, chapters, themes] })
+const { data: lessons, status, refresh, error } = await useLazyAsyncData('lessons', () => get(null, { page: page.value, ...(chapters.value?.length && { chapter: chapters.value?.map?.(chapter => chapter.name)?.join?.(',') }), ...(themes.value?.length && { theme: themes.value?.map?.(theme => theme.name)?.join?.(',') }) }), { watch: [() => page.value, () => chapters.value?.length, () => themes.value?.length] })
 
 if (error.value) toast.add({ icon: 'i-heroicons-exclamation-circle', title: 'Erreur', description: 'Une erreur est survenue lors du chargement des leçons', color: 'red', actions: [{ label: 'Réessayer', click: () => refresh() }] })
 
@@ -41,8 +41,8 @@ const handleModal = () => {
         </template>
 
         <template #right>
-          <CommonsSelectMenu v-model="chapters" endpoint="chapters" placeholder="Chapitres" />
-          <CommonsSelectMenu v-model="themes" endpoint="themes" placeholder="Thèmes" />
+          <CommonsSelectMenu @update:model-value="chapters = $event" endpoint="chapters" placeholder="Chapitres" />
+          <CommonsSelectMenu @update:model-value="themes = $event" endpoint="themes" placeholder="Thèmes" />
 
           <LazyUButton trailing-icon="i-heroicons-plus" @click="handleModal" label="Créer une leçon" />
         </template>

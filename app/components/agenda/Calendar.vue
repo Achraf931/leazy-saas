@@ -163,73 +163,75 @@ const newEvent = () => {
         </template>
 
         <template #event="{ event, view }">
-          <UPopover :popper="{ placement: 'left-start' }" class="z-10">
-            <div class="px-2 py-1 text-left">
-              <p class="text-sm font-semibold">{{ event.title }}</p>
-              <time class="text-xs">{{ event.start.formatTime('HH:mm') }} - {{ event.end.formatTime('HH:mm') }}</time>
-            </div>
-
-            <template #panel="{ close }">
-              <div class="text-left text-sm p-3 flex flex-col gap-2 bg-white text-gray-600 z-10">
-                <div class="flex items-center justify-end gap-2">
-                  <UButton icon="i-heroicons-pencil" size="2xs" color="gray" variant="ghost" />
-                  <UButton icon="i-heroicons-trash" size="2xs" color="gray" variant="ghost" />
-                  <UButton icon="i-heroicons-x-mark" size="2xs" class="ml-2" color="gray" variant="ghost" @click="close" />
-                </div>
-
-                <div>
-                  <p class="text-sm font-semibold">{{ event.title }}</p>
-                  <time class="text-xs">{{ event.start.formatTime('HH:mm') }} - {{ event.end.formatTime('HH:mm') }}</time>
-                  <p class="text-sm mt-2">{{ event.content }}</p>
-                </div>
-
-                <NuxtLink :to="localePath({ name: 'agenda_id', params: { id: 1 } })" class="flex items-center justify-start gap-3 w-full px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-700 border border-border border-gray-200 dark:border-gray-700 cursor-pointer rounded-lg transition-all">
-                  <UIcon name="i-lucide-file-spreadsheet" class="w-4 h-4" />
-                  <span class="text-sm">La seconde guerre mondiale</span>
-                  <UIcon name="i-heroicons-trash" class="text-red-500 ml-auto" />
-                </NuxtLink>
-
-<!--                <UButton class="ml-auto" icon="i-heroicons-x-mark" size="2xs" color="gray" variant="ghost" @click="close" />
-                <UFormGroup label="Titre">
-                  <UInput v-model="event.title" />
-                </UFormGroup>
-
-                <UFormGroup label="Date">
-                  <UInput :model-value="event.start.format()" type="date" />
-                </UFormGroup>
-
-                <div class="flex items-center gap-2">
-                  <UFormGroup label="Début">
-                    <UInput :value="event.start.formatTime()" type="time" />
-                  </UFormGroup>
-
-                  <UFormGroup label="Fin">
-                    <UInput :value="event.end.formatTime()" type="time" />
-                  </UFormGroup>
-                </div>
-
-                <UFormGroup label="Description">
-                  <UTextarea v-model="event.content" />
-                </UFormGroup>-->
-
-                <!--              <div class="flex items-start justify-end">
-                                <UButton icon="i-heroicons-pencil" size="2xs" color="gray" variant="ghost" />
-                                <UButton icon="i-heroicons-trash" size="2xs" color="gray" variant="ghost" />
-                                <UButton class="ml-2" icon="i-heroicons-x-mark" size="2xs" color="gray" variant="ghost" @click="close" />
-                              </div>
-                              <h3 class="font-semibold">{{ event.title }}</h3>
-                              <time class="text-xs">{{ event.start.formatTime('dddd HH:mm') }} - {{ event.end.formatTime('HH:mm') }}</time>
-                              <p class="mt-2">{{ event.content }}</p>
-
-                              <div class="flex items-center gap-1 mt-3">
-                                <div class="lesson bg-primary text-white rounded-md px-2 py-1 text-xs w-16 h-20">
-                                  <p class="text-xs">Cours</p>
-                                  <p class="text-xs">1</p>
-                                </div>
-                              </div>-->
+          <ClientOnly>
+            <UPopover :popper="{ placement: 'left-start' }" class="z-10">
+              <div class="px-2 py-1 text-left">
+                <p class="text-sm font-semibold">{{ event.title }}</p>
+                <time class="text-xs">{{ event.start.formatTime('HH:mm') }} - {{ event.end.formatTime('HH:mm') }}</time>
               </div>
-            </template>
-          </UPopover>
+
+              <template #panel="{ close }">
+                <div class="text-left text-sm p-3 flex flex-col gap-2 bg-white text-gray-600 z-10">
+                  <div class="flex items-center justify-end gap-2">
+                    <UButton icon="i-heroicons-pencil" size="2xs" color="gray" variant="ghost" />
+                    <UButton icon="i-heroicons-trash" size="2xs" color="gray" variant="ghost" />
+                    <UButton icon="i-heroicons-x-mark" size="2xs" class="ml-2" color="gray" variant="ghost" @click="close" />
+                  </div>
+
+                  <div>
+                    <p class="text-sm font-semibold">{{ event.title }}</p>
+                    <time class="text-xs">{{ event.start.formatTime('HH:mm') }} - {{ event.end.formatTime('HH:mm') }}</time>
+                    <p class="text-sm mt-2">{{ event.content }}</p>
+                  </div>
+
+                  <NuxtLink :to="localePath({ name: 'agenda_id', params: { id: 1 } })" class="flex items-center justify-start gap-3 w-full px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-700 border border-border border-gray-200 dark:border-gray-700 cursor-pointer rounded-lg transition-all">
+                    <UIcon name="i-lucide-file-spreadsheet" class="w-4 h-4" />
+                    <span class="text-sm">La seconde guerre mondiale</span>
+                    <UIcon name="i-heroicons-trash" class="text-red-500 ml-auto" />
+                  </NuxtLink>
+
+                  <!--                <UButton class="ml-auto" icon="i-heroicons-x-mark" size="2xs" color="gray" variant="ghost" @click="close" />
+                                  <UFormGroup label="Titre">
+                                    <UInput v-model="event.title" />
+                                  </UFormGroup>
+
+                                  <UFormGroup label="Date">
+                                    <UInput :model-value="event.start.format()" type="date" />
+                                  </UFormGroup>
+
+                                  <div class="flex items-center gap-2">
+                                    <UFormGroup label="Début">
+                                      <UInput :value="event.start.formatTime()" type="time" />
+                                    </UFormGroup>
+
+                                    <UFormGroup label="Fin">
+                                      <UInput :value="event.end.formatTime()" type="time" />
+                                    </UFormGroup>
+                                  </div>
+
+                                  <UFormGroup label="Description">
+                                    <UTextarea v-model="event.content" />
+                                  </UFormGroup>-->
+
+                  <!--              <div class="flex items-start justify-end">
+                                  <UButton icon="i-heroicons-pencil" size="2xs" color="gray" variant="ghost" />
+                                  <UButton icon="i-heroicons-trash" size="2xs" color="gray" variant="ghost" />
+                                  <UButton class="ml-2" icon="i-heroicons-x-mark" size="2xs" color="gray" variant="ghost" @click="close" />
+                                </div>
+                                <h3 class="font-semibold">{{ event.title }}</h3>
+                                <time class="text-xs">{{ event.start.formatTime('dddd HH:mm') }} - {{ event.end.formatTime('HH:mm') }}</time>
+                                <p class="mt-2">{{ event.content }}</p>
+
+                                <div class="flex items-center gap-1 mt-3">
+                                  <div class="lesson bg-primary text-white rounded-md px-2 py-1 text-xs w-16 h-20">
+                                    <p class="text-xs">Cours</p>
+                                    <p class="text-xs">1</p>
+                                  </div>
+                                </div>-->
+                </div>
+              </template>
+            </UPopover>
+          </ClientOnly>
         </template>
 
         <template #today-button>
@@ -237,15 +239,17 @@ const newEvent = () => {
             <UButton label="Aujourd'hui" size="2xs" color="white" />
           </UTooltip>
 
-          <UPopover :popper="{ placement: 'bottom' }" :ui="{ base: 'p-1 flex flex-col gap-1' }">
-            <UButton :label="activeView === 'day' ? 'Jour' : activeView === 'week' ? 'Semaine' : activeView === 'month' ? 'Mois' : activeView === 'year' ? 'Année' : 'Années'" size="2xs" class="mx-2" trailing-icon="i-heroicons-chevron-down-20-solid" color="white" />
+          <ClientOnly>
+            <UPopover :popper="{ placement: 'bottom' }" :ui="{ base: 'p-1 flex flex-col gap-1' }">
+              <UButton :label="activeView === 'day' ? 'Jour' : activeView === 'week' ? 'Semaine' : activeView === 'month' ? 'Mois' : activeView === 'year' ? 'Année' : 'Années'" size="2xs" class="mx-2" trailing-icon="i-heroicons-chevron-down-20-solid" color="white" />
 
-            <template #panel="{ close }">
-              <template v-for="view in [{ name: 'day', label: 'Jour' }, { name: 'week', label: 'Semaine' }, { name: 'month', label: 'Mois' }, { name: 'year', label: 'Année' }, { name: 'years', label: 'Années' }]">
-                <UButton @click="() => { activeView = view.name; close() }" :label="view.label" size="xs" :color="activeView === view.name ? 'primary' : 'gray'" :variant="activeView === view.name ? 'soft' : 'ghost'" />
+              <template #panel="{ close }">
+                <template v-for="view in [{ name: 'day', label: 'Jour' }, { name: 'week', label: 'Semaine' }, { name: 'month', label: 'Mois' }, { name: 'year', label: 'Année' }, { name: 'years', label: 'Années' }]">
+                  <UButton @click="() => { activeView = view.name; close() }" :label="view.label" size="xs" :color="activeView === view.name ? 'primary' : 'gray'" :variant="activeView === view.name ? 'soft' : 'ghost'" />
+                </template>
               </template>
-            </template>
-          </UPopover>
+            </UPopover>
+          </ClientOnly>
         </template>
       </VueCal>
     </div>

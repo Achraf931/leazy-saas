@@ -31,16 +31,17 @@ const links = computed(() => [{
   id: 'classes',
   label: 'Mes classes',
   icon: 'i-heroicons-academic-cap',
+  defaultOpen: false,
   // to: localePath({ name: 'classes-id', params: { id: 1 } })
   children: user.value?.classes?.map(classe => ({
     label: classe.name,
-    to: localePath({name: 'classes-id', params: {id: classe.id}})
+    to: localePath({ name: 'classes-id', params: { id: classe.id } })
   })) || []
 }, {
   id: 'agenda',
   label: 'Agenda',
   icon: 'i-heroicons-calendar-days',
-  to: localePath({name: 'agenda'})
+  to: localePath({ name: 'agenda' })
 }, {
   id: 'kanban',
   label: 'Mes tâches',

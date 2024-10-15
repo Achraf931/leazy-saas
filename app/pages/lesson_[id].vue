@@ -238,18 +238,20 @@ const deleteMedia = async (id) => {
       </template>
 
       <template #badge>
-        <UPopover :popper="{ placement: 'bottom-end' }">
-          <UBadge variant="subtle" size="xs" :color="lesson.draft ? 'orange' : 'green'">
-            {{ lesson.draft ? 'Brouillon' : 'Publié' }}
-            <UIcon name="i-heroicons-chevron-down-20-solid" class="w-4 h-4" />
-          </UBadge>
+        <ClientOnly>
+          <UPopover :popper="{ placement: 'bottom-end' }">
+            <UBadge variant="subtle" size="xs" :color="lesson.draft ? 'orange' : 'green'">
+              {{ lesson.draft ? 'Brouillon' : 'Publié' }}
+              <UIcon name="i-heroicons-chevron-down-20-solid" class="w-4 h-4" />
+            </UBadge>
 
-          <template #panel>
-            <div class="flex items-center justify-center">
-              <UButton icon="i-heroicons-pencil-square" :label="lesson.draft ? 'Publier' : 'Mettre en brouillon'" color="gray" size="2xs" variant="ghost" @click="handleDraft" />
-            </div>
-          </template>
-        </UPopover>
+            <template #panel>
+              <div class="flex items-center justify-center">
+                <UButton icon="i-heroicons-pencil-square" :label="lesson.draft ? 'Publier' : 'Mettre en brouillon'" color="gray" size="2xs" variant="ghost" @click="handleDraft" />
+              </div>
+            </template>
+          </UPopover>
+        </ClientOnly>
       </template>
 
       <template #right>
@@ -318,42 +320,46 @@ const deleteMedia = async (id) => {
         </UFormGroup>
 
         <UFormGroup label="Chapitre associé">
-          <USelectMenu
-            v-model="labels"
-            by="id"
-            name="labels"
-            :options="chapters"
-            option-attribute="name"
-            searchable-placeholder="Rechercher un chapitre"
-            searchable
-            creatable
-            clear-search-on-close
-          >
-            <template #option="{ option }">
-              <span class="truncate">{{ option.name }}</span>
-            </template>
+          <ClientOnly>
+            <USelectMenu
+                v-model="labels"
+                by="id"
+                name="labels"
+                :options="chapters"
+                option-attribute="name"
+                searchable-placeholder="Rechercher un chapitre"
+                searchable
+                creatable
+                clear-search-on-close
+            >
+              <template #option="{ option }">
+                <span class="truncate">{{ option.name }}</span>
+              </template>
 
-            <template #option-create="{ option }">
-              <UIcon name="i-heroicons-plus" class="w-4 h-4" />
-              <span class="block truncate">{{ option.name }}</span>
-            </template>
-          </USelectMenu>
+              <template #option-create="{ option }">
+                <UIcon name="i-heroicons-plus" class="w-4 h-4" />
+                <span class="block truncate">{{ option.name }}</span>
+              </template>
+            </USelectMenu>
+          </ClientOnly>
         </UFormGroup>
 
         <UAccordion :items="[{ label: `Médias associés (${lesson?.medias?.length ?? 0})` }]" :ui="{ wrapper: 'mt-2 flex-1 overflow-hidden max-w-[287px] w-full', container: 'overflow-y-auto', item: { padding: 'pt-2.5' } }">
           <template #item>
             <UBlogList orientation="horizontal" :ui="{ wrapper: 'overflow-y-auto gap-2 sm:grid sm:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-2' }">
-              <UPopover :ui="{ trigger: 'h-full', base: 'flex gap-1 p-1' }">
-                <div class="rounded-lg border border-solid dark:border-gray-700 flex flex-col items-center justify-center p-2 text-xs">
-                  <UIcon name="i-heroicons-plus" class="w-6 h-6" />
-                  <p>Ajouter un média</p>
-                </div>
+              <ClientOnly>
+                <UPopover :ui="{ trigger: 'h-full', base: 'flex gap-1 p-1' }">
+                  <div class="rounded-lg border border-solid dark:border-gray-700 flex flex-col items-center justify-center p-2 text-xs">
+                    <UIcon name="i-heroicons-plus" class="w-6 h-6" />
+                    <p>Ajouter un média</p>
+                  </div>
 
-                <template #panel>
-                  <UInput placeholder="Insérer une URL" v-model="mediaInput" size="xs" @keyup.enter="addMedia" />
-                  <UButton @click="addMedia" size="xs" :loading="addMediaPending" trailing-icon="i-heroicons-chevron-right-20-solid" square />
-                </template>
-              </UPopover>
+                  <template #panel>
+                    <UInput placeholder="Insérer une URL" v-model="mediaInput" size="xs" @keyup.enter="addMedia" />
+                    <UButton @click="addMedia" size="xs" :loading="addMediaPending" trailing-icon="i-heroicons-chevron-right-20-solid" square />
+                  </template>
+                </UPopover>
+              </ClientOnly>
               <UBlogPost v-for="(item, index) in lesson.medias" :key="index" :ui="{ wrapper: 'gap-y-0.5', title: 'text-sm', date: 'text-xs', authors: { wrapper: 'mt-0' }, image: { wrapper: 'pointer-events-auto' } }">
                 <template #image>
                   <img @click="imgOpened = true; currentMedia = { src: item.image, label: item.title }" class="cursor-pointer block object-cover object-top w-full h-full transform transition-transform duration-200 hover:scale-105" :src="item.image" :alt="item.title">
