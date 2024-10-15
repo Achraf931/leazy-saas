@@ -27,6 +27,9 @@ export default defineNuxtConfig({
     icons: ['simple-icons', 'lucide', 'fluent', 'mdi'],
     safelistColors: ['primary', 'red', 'orange', 'green']
   },
+  icon: {
+    provider: 'server'
+  },
   sanctum: {
     baseUrl: process.env.NUXT_API_URL || 'http://leazy.local:8000',
     redirectIfAuthenticated: false,
