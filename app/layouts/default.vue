@@ -47,6 +47,11 @@ const links = computed(() => [{
   label: 'Mes tâches',
   icon: 'i-heroicons-rectangle-stack',
   to: localePath({name: 'kanban'})
+}, {
+  id: 'formations',
+  label: 'Mes formations',
+  icon: 'i-heroicons-book-open',
+  to: localePath({name: 'formations'})
 }])
 
 const subLinks = ref([{

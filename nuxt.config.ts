@@ -160,6 +160,22 @@ export default defineNuxtConfig({
         en: '/classes/[id]',
         fr: '/classes/[id]'
       },
+      formations: {
+        en: '/formations',
+        fr: '/formations'
+      },
+      'formations/new': {
+        en: '/formations/new',
+        fr: '/formations/nouveau'
+      },
+      'formations/[id]': {
+        en: '/formations/[id]',
+        fr: '/formations/[id]'
+      },
+      'formations/[id]/edit': {
+        en: '/formations/[id]/edit',
+        fr: '/formations/[id]/modifier'
+      },
       templates: {
         en: '/templates',
         fr: '/templates'
