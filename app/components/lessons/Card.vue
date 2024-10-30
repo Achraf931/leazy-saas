@@ -72,12 +72,16 @@ const handleDelete = () => {
       <UBadge v-if="lesson.chapter.theme" variant="subtle" color="yellow" size="xs">{{ lesson.chapter.theme.name }}</UBadge>
       <UBadge variant="subtle" color="blue" size="xs">{{ lesson.chapter.name }}</UBadge>
     </div>
-    <div class="mt-2">
+    <div class="mt-2 space-y-2">
+      <div v-if="lesson.level" class="flex items-center gap-1">
+        <UIcon name="i-heroicons-academic-cap" class="w-3.5 h-3.5 text-gray-400" />
+        <p class="text-gray-400 text-xs">{{ lesson.level.name }}</p>
+      </div>
       <div class="flex items-center gap-1">
-        <LazyUIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-gray-400" />
+        <UIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-gray-400" />
         <p class="text-gray-400 text-xs">{{ lesson.updated_at === lesson.created_at ? 'Créé' : 'Modifié' }} {{ formatDistanceToNow(new Date(lesson.updated_at), { locale: frLocale, addSuffix: true }) }}</p>
       </div>
-      <div v-if="template" class="flex items-center gap-2 mt-2">
+      <div v-if="template" class="flex items-center gap-2">
         <UAvatar size="3xs" title="John Doe" src="https://img.freepik.com/psd-gratuit/illustration-3d-avatar-profil-humain_23-2150671142.jpg" />
         <p class="font-medium">John Doe</p>
       </div>

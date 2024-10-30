@@ -1,6 +1,9 @@
 <script setup lang="ts">
 const localePath = useLocalePath()
 
+const subjects = ref([])
+const classes = ref([])
+
 const items = [{
   slot: 'all',
   label: 'Tous les cours'
@@ -74,11 +77,20 @@ const formations = ref([
         <template #left>
           <ToggleDrawer title="Formations" />
         </template>
+      </UDashboardNavbar>
+
+      <UDashboardToolbar>
+        <template #left>
+          <UInput v-model="q" icon="i-heroicons-magnifying-glass" placeholder="Rechercher une formation" />
+        </template>
 
         <template #right>
+          <CommonsSelectMenu @update:model-value="subjects = $event" endpoint="subjects" placeholder="Matières" />
+          <CommonsSelectMenu @update:model-value="classes = $event" endpoint="classes" placeholder="Classes" />
+
           <UButton :to="localePath({ name: 'formations-new' })" label="Créer une formation" color="primary" icon="i-heroicons-plus" />
         </template>
-      </UDashboardNavbar>
+      </UDashboardToolbar>
 
       <UDashboardPanelContent class="text-sm">
         <UTabs :items :ui="{ list: { width: 'w-auto' } }">

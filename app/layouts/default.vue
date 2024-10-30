@@ -79,7 +79,7 @@ const subLinks = ref([{
     }]
 }, {
   id: 'templates',
-  label: 'Templates',
+  label: 'Modèles',
   icon: 'i-heroicons-document-text',
   to: localePath({name: 'templates'})
 }])
@@ -162,10 +162,16 @@ const groups = [
 
             <UDashboardSidebarLinks :links="otherLinks"/>
 
-            <div class="flex-1">
-              <div class="bg-primary rounded-lg flex items-center justify-center">
-                <UIcon name="i-heroicons-light-bulb" class="w-10 h-10 text-white"/>
-                <p class="text-white font-bold text-2xl">Suggérer une fonctionnalité</p>
+            <div class="flex-1 flex items-end">
+              <div
+                  class="suggestion-block cursor-pointer text-white w-full p-3 bg-primary-500 hover:bg-primary-600 rounded-lg"
+                  @click="isNewSuggestionModalOpen = true">
+                <div class="flex items-center gap-2">
+                  <UIcon name="i-heroicons-light-bulb" class="w-5 h-5"/>
+                  <h3 class="font-bold">Une idée ?</h3>
+                </div>
+                <p class="mt-2 text-left text-sm font-medium">Suggérer nous des fonctionnalités que vous aimeriez voir sur
+                  Leazy !</p>
               </div>
             </div>
 

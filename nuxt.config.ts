@@ -176,9 +176,17 @@ export default defineNuxtConfig({
         en: '/formations/[id]/edit',
         fr: '/formations/[id]/modifier'
       },
+        'formations/[id]/[lesson_id]': {
+          en: '/formations/[id]/[lesson_id]',
+          fr: '/formations/[id]/[lesson_id]'
+        },
+      'formations/[id]/[lesson_id]/edit': {
+        en: '/formations/[id]/[lesson_id]/edit',
+        fr: '/formations/[id]/[lesson_id]/modifier'
+      },
       templates: {
         en: '/templates',
-        fr: '/templates'
+        fr: '/modeles'
       },
       index: {
         en: '/',
