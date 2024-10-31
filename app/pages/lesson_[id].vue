@@ -359,8 +359,8 @@ onBeforeUnmount(() => {
     </UDashboardNavbar>
 
     <UDashboardPanelContent v-if="lesson" :ui="{ wrapper: 'p-0' }">
-      <div v-if="showBackground" class="p-4 pb-0 aspect-[16/2.5] opacity-50 overflow-hidden">
-        <NuxtImg src="https://www.notion.so/images/page-cover/gradients_5.png" alt="Discord" class="w-full h-full rounded-xl" />
+      <div v-if="showBackground" class="p-4 pb-0 aspect-[16/2.5] opacity-50">
+        <NuxtImg src="https://www.notion.so/images/page-cover/gradients_5.png" alt="Discord" class="aspect-[16/2.5] w-full h-full rounded-xl" />
       </div>
 
       <div class="pt-8 lg:px-[calc((100%_-_(750px))_/_2)]">
