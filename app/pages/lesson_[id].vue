@@ -1,8 +1,12 @@
 <script setup lang="ts">
+import { LessonsDeleteLessonModal } from '#components'
+import { isEqual } from 'lodash'
+
 definePageMeta({
   pageTransition: false
 })
 
+const modal = useModal()
 const tiptap = useTemplateRef('tiptap')
 const hideToolbar = ref(false)
 const mediaInput = ref('')
@@ -16,23 +20,24 @@ const { t } = useI18n()
 const savePending = ref(false)
 const pendingDraft = ref(false)
 const pendingVisibility = ref(false)
+const unsavedChanges = ref(false)
+const showBackground = ref(false)
+const titleError = ref(false)
 
 const documentId = computed(() => useRoute().params.id)
 
 let { data: lesson, refresh } = await useAsyncData('lesson', () => get(documentId.value))
 let { data: chapters, refresh: refreshChapters } = await useAsyncData('chapters', () => get(null, { page: 1 }, 'chapters'))
 
-let initialContent = JSON.stringify(lesson.value?.content)
+const initialName = lesson.value?.name
+const initialDescription = lesson.value?.description
+let initialContent = JSON.parse(lesson.value?.content)
+const showDescription = ref(lesson.value?.description)
 
 const content = computed({
   get: () => JSON.parse(lesson.value?.content || '{}'),
   set: (value) => lesson.value.content = JSON.stringify(value)
 })
-
-const isContentUnsaved = computed(() => JSON.stringify(content.value) !== initialContent)
-
-const title = ref(lesson.value?.name),
-    description = ref(lesson.value?.description)
 
 const panelOpened = ref(false)
 const links = ref([
@@ -45,13 +50,9 @@ const links = ref([
     to: localePath({ name: 'library-lessons' })
   },
   {
-    label: title.value
+    label: lesson.value?.name
   }
 ])
-
-watchEffect(() => {
-  links.value[2].label = title.value || 'Sans titre'
-})
 
 const handleTitleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
   if (event.shiftKey) return
@@ -74,15 +75,24 @@ const handleTitleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
       }
     }
   }
-};
+}
 
 const options = ref([
   [{
-    label: lesson.value?.draft ? 'Publier' : 'Mettre en brouillon',
-    icon: 'i-heroicons-archive-box',
-    click: () => {
-      handleDraft()
-    }
+    id: 'hide-toolbar',
+    label: 'Cacher le menu',
+    icon: 'i-heroicons-eye-slash',
+    type: 'toggle'
+  }, {
+    id: 'draft',
+    label: 'Brouillon',
+    icon: 'i-fluent-drafts-20-regular',
+    type: 'toggle'
+  }, {
+    id: 'private',
+    label: 'Privée',
+    icon: 'i-heroicons-lock-closed',
+    type: 'toggle'
   }, {
     label: 'Dupliquer',
     icon: 'i-heroicons-document-duplicate-20-solid'
@@ -103,7 +113,16 @@ const options = ref([
     }
   }], [{
     label: 'Supprimer',
-    icon: 'i-heroicons-trash-20-solid'
+    icon: 'i-heroicons-trash-20-solid',
+    click: () => handleDelete()
+  }], [{
+    slot: 'words',
+    label: '',
+    disabled: true
+  }, {
+    slot: 'last-edited',
+    label: '',
+    disabled: true
   }]
 ])
 
@@ -131,8 +150,10 @@ const goNextLesson = async () => {
   await navigateTo(localePath({ name: 'lesson_id', params: { id: response.id } }))
 }
 
-const save = async () => {
-  if (!editor.value) return
+const save = async (auto: boolean = false) => {
+  if (!editor.value || !unsavedChanges.value) return
+  if (!lesson.value.name) return titleError.value = true
+  if (titleError.value) titleError.value = false
 
   savePending.value = true
 
@@ -141,17 +162,17 @@ const save = async () => {
   const response = await patch({
     ...lesson.value,
     id: documentId.value,
-    name: title.value,
-    description: description.value,
+    name: lesson.value?.name,
+    description: lesson.value?.description,
     content: JSON.stringify(json)
   })
 
   savePending.value = false
 
   if (response) {
-    lesson = response
-    initialContent = JSON.stringify(lesson.value?.content)
-    return toast.add({ icon: 'i-heroicons-check-circle', title: 'Leçon enregistrée avec succès', color: 'green' })
+    initialContent = JSON.parse(lesson.value?.content)
+    unsavedChanges.value = false
+    if (!auto) return toast.add({ icon: 'i-heroicons-check-circle', title: 'Leçon enregistrée avec succès', color: 'green' })
   }
 }
 
@@ -227,6 +248,44 @@ const deleteMedia = async (id) => {
 
   return toast.add({ icon: 'i-heroicons-x-circle', title: 'Erreur lors de la suppression du média', color: 'red' })
 }
+
+const onUpdate = (content) => {
+  unsavedChanges.value = !isEqual(content, initialContent)
+}
+
+const handleDelete = () => {
+  modal.open(LessonsDeleteLessonModal, {
+    lesson: lesson.value,
+    redirect: true,
+    onClose: () => modal.close()
+  })
+}
+
+const onUpdateTitle = (event: InputEvent) => {
+  lesson.value.name = (event.target as HTMLDivElement).innerText
+  unsavedChanges.value = lesson.value.name !== initialName
+}
+
+const onUpdateDescription = (event: InputEvent) => {
+  lesson.value.description = (event.target as HTMLDivElement).innerText
+  unsavedChanges.value = lesson.value.description !== initialDescription
+}
+
+onBeforeMount(() => {
+  window.addEventListener('beforeunload', handleBeforeUnload)
+})
+
+const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+  if (unsavedChanges.value) {
+    event.returnValue = 'Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter ?'
+    save()
+  }
+  else delete event.returnValue
+}
+
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeunload', handleBeforeUnload)
+})
 </script>
 
 <template>
@@ -255,142 +314,153 @@ const deleteMedia = async (id) => {
       </template>
 
       <template #right>
-        <div class="flex items-center justify-end gap-1">
+        <div class="flex items-center justify-end gap-3">
+          <UButton @click="save" size="xs" :disabled="!unsavedChanges" :loading="savePending" variant="soft" :label="unsavedChanges ? 'Enregistrer' : 'Enregistré'" :icon="unsavedChanges ? 'i-lucide-save' : 'i-heroicons-check'" :color="unsavedChanges ? 'primary' : 'white'" />
           <template v-if="lesson.chapter?.lessons_count">
-            <p class="pr-1.5 tracking-wider text-sm">{{ lesson.order + 1 }}/{{ lesson.chapter.lessons_count }}</p>
-            <UButton :disabled="(lesson.order + 1) === 1" @click="goPrevLesson" size="2xs" variant="solid" :color="(lesson.order + 1) === 1 ? 'white' : 'primary'" square>
-              <UIcon name="i-heroicons-chevron-left" />
-            </UButton>
-            <UButton :disabled="(lesson.order + 1) === lesson.chapter.lessons_count" @click="goNextLesson" size="2xs" variant="solid" :color="(lesson.order + 1) === lesson.chapter.lessons_count ? 'white' : 'primary'" square>
-              <UIcon name="i-heroicons-chevron-right" />
-            </UButton>
+            <div class="flex items-center gap-1">
+              <p class="pr-1.5 tracking-wider text-sm">{{ lesson.order + 1 }}/{{ lesson.chapter.lessons_count }}</p>
+              <UButton :disabled="(lesson.order + 1) === 1" @click="goPrevLesson" size="2xs" variant="solid" :color="(lesson.order + 1) === 1 ? 'white' : 'primary'" square>
+                <UIcon name="i-heroicons-chevron-left" />
+              </UButton>
+              <UButton :disabled="(lesson.order + 1) === lesson.chapter.lessons_count" @click="goNextLesson" size="2xs" variant="solid" :color="(lesson.order + 1) === lesson.chapter.lessons_count ? 'white' : 'primary'" square>
+                <UIcon name="i-heroicons-chevron-right" />
+              </UButton>
+            </div>
           </template>
-          <div class="border-l border-gray-200 dark:border-gray-500 pl-2.5 ml-2 flex items-center h-full cursor-pointer">
-            <UIcon @click="panelOpened = !panelOpened" dynamic :name="`i-fluent-panel-right-32-${panelOpened ? 'filled' : 'regular'}`" class="w-4 h-4 text-gray-500 dark:text-gray-200" />
-          </div>
+
+          <UDivider orientation="vertical" class="h-5" />
+
+          <UTooltip text="Médias associés" :popper="{ placement: 'bottom' }">
+            <UIcon @click="panelOpened = !panelOpened" name="i-heroicons-arrow-top-right-on-square" class="w-5 h-5 text-gray-500 dark:text-gray-200 cursor-pointer" />
+          </UTooltip>
+          <ClientOnly>
+            <UDropdown :items="options" :popper="{ placement: 'bottom-start' }" :ui="{ item: { disabled: 'cursor-text select-text' } }">
+              <UButton color="gray" variant="ghost" size="xs" trailing-icon="i-heroicons-ellipsis-horizontal-20-solid" />
+
+              <template #item="{ item }">
+                <UIcon :name="item.icon" class="flex-shrink-0 h-5 w-5 text-gray-400 dark:text-gray-500" />
+                <span class="truncate">{{ item.label }}</span>
+                <template v-if="item.type === 'toggle'">
+                  <UToggle v-if="item.id === 'hide-toolbar'" v-model="hideToolbar" class="ms-auto" size="sm" />
+                  <UToggle v-else-if="item.id === 'draft'" @change="handleDraft" :model-value="lesson.draft" class="ms-auto" size="sm" :loading="pendingDraft" />
+                  <UToggle v-else-if="item.id === 'private'" @change="handleVisibility" :model-value="lesson.private" class="ms-auto" size="sm" :loading="pendingVisibility" />
+                </template>
+              </template>
+              <template #words>
+                <p class="text-xs">Nombre de mots :{{ new Intl.NumberFormat('fr-FR').format(editor.storage.characterCount.words()).replace(/\s/g, '&nbsp;') }}</p>
+              </template>
+              <template #last-edited>
+                <p class="text-xs text-left">Dernière modification : {{ new Date(lesson.updated_at).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric' }) }}</p>
+              </template>
+            </UDropdown>
+          </ClientOnly>
         </div>
       </template>
     </UDashboardNavbar>
 
     <UDashboardPanelContent v-if="lesson" :ui="{ wrapper: 'p-0' }">
-      <div contenteditable @input="title = $event.target.innerText" data-placeholder="Titre de la leçon" class="empty:before:content-['Titre de la leçon'] empty:before:pointer-events-none empty:before:text-[#adb5bd] font-bold px-4 lg:px-[calc((100%_-_(750px))_/_2)] mt-[25px] mb-5 text-3xl tracking-tight text-gray-900 dark:text-white sm:text-4xl lg:text-5xl outline-none ring-none" @keydown="handleTitleKeyDown">
-        {{ title }}
+      <div v-if="showBackground" class="p-4 pb-0 aspect-[16/2.5] opacity-50 overflow-hidden">
+        <NuxtImg src="https://www.notion.so/images/page-cover/gradients_5.png" alt="Discord" class="w-full h-full rounded-xl" />
       </div>
 
-      <LeazyEditor ref="tiptap" v-model="content" :hide-toolbar="hideToolbar" class="flex-1" max-width="800" />
+      <div class="pt-8 lg:px-[calc((100%_-_(750px))_/_2)]">
+        <div v-if="!showBackground || !showDescription" class="flex items-center gap-2 mb-4">
+          <UButton v-if="!showDescription" @click="showDescription = true" label="Ajouter une description" size="xs" leading-icon="i-lucide-text" color="gray" variant="ghost" />
+          <UButton v-if="!showBackground" label="Ajouter une couverture" @click="showBackground = true" size="xs" leading-icon="i-lucide-image" color="gray" variant="ghost" />
+        </div>
+        <div
+          contenteditable
+          @input="onUpdateTitle"
+          data-placeholder="Titre de la leçon"
+          class="inline-block w-full placeholder font-bold mb-5 text-3xl whitespace-pre-wrap tracking-tight text-gray-900 dark:text-white sm:text-4xl lg:text-5xl outline-none ring-none"
+          :class="{ 'empty:before:!text-red-400': titleError }"
+          @keydown="handleTitleKeyDown"
+          @blur="save(true)"
+        >
+          {{ lesson.name }}
+        </div>
+        <UTextarea v-if="showDescription" v-model="lesson.description" placeholder="Description de la leçon" variant="outline" @input="onUpdateDescription" @blur="save(true)" padded />
+      </div>
+
+      <LeazyEditor ref="tiptap" v-model="content" output="json" :hide-toolbar="hideToolbar" class="flex-1" max-width="800" @update:model-value="onUpdate" @blur="save(true)" />
     </UDashboardPanelContent>
-
-    <UDashboardToolbar :ui="{ wrapper: 'bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 z-10', left: 'items-center gap-2 relative' }">
-      <template v-if="editor" #left>
-        <UCheckbox v-model="hideToolbar" label="Cacher les options" class="cursor-pointer" name="hideToolbar" />
-
-        <UDivider orientation="vertical" class="h-4" />
-
-        <p class="text-sm">{{ new Intl.NumberFormat('fr-FR').format(editor.storage.characterCount.words()).replace(/\s/g, '&nbsp;') }} mots</p>
-      </template>
-
-      <template #right>
-        <UButton :disabled="!isContentUnsaved" @click="save" :loading="savePending" icon="i-heroicons-check" :label="isContentUnsaved ? 'Enregistrer' : 'Enregistré'" />
-      </template>
-    </UDashboardToolbar>
   </UDashboardPanel>
 
-  <USlideover v-model="panelOpened" side="right" :overlay="false" :ui="{ wrapper: 'top-[--header-height] h-[calc(100vh-var(--header-height))]', width: 'max-w-max' }">
-    <UDashboardSidebar class="max-w-72 border-l border-gray-200 dark:border-gray-800" :ui="{ container: 'text-sm', body: 'gap-4', footer: 'grid grid-cols-2 gap-2' }">
-      <template #header>
-        <UIcon @click="panelOpened = false" name="i-heroicons-x-mark" class="w-4 h-4 text-gray-600 ml-auto cursor-pointer" />
-      </template>
-      <template #default>
-        <div class="grid grid-cols-2 gap-2">
-          <UFormGroup label="Publier/Brouillon">
-            <UButton block icon="i-heroicons-pencil-square" :loading="pendingDraft" :label="lesson.draft ? 'Publier' : 'Brouillon'" :color="lesson.draft ? 'green' : 'orange'" size="xs" variant="soft" @click="handleDraft" />
-          </UFormGroup>
-
-          <UFormGroup label="Publique/Privée">
-            <UButton block :icon="lesson.private ? 'i-heroicons-eye' : 'i-heroicons-eye-slash'" :loading="pendingVisibility" :label="lesson.private ? 'Publique' : 'Privée'" :color="lesson.private ? 'green' : 'orange'" size="xs" variant="soft" @click="handleVisibility" />
-          </UFormGroup>
-        </div>
-
-        <UFormGroup label="Titre">
-          <UInput v-model="title" placeholder="Titre de la leçon" variant="outline" padded />
-        </UFormGroup>
-
-        <UFormGroup label="Description">
-          <UTextarea v-model="description" placeholder="Description de la leçon" variant="outline" padded />
-        </UFormGroup>
-
-        <UFormGroup label="Chapitre associé">
-          <ClientOnly>
-            <USelectMenu
-                v-model="labels"
-                by="id"
-                name="labels"
-                :options="chapters"
-                option-attribute="name"
-                searchable-placeholder="Rechercher un chapitre"
-                searchable
-                creatable
-                clear-search-on-close
-            >
-              <template #option="{ option }">
-                <span class="truncate">{{ option.name }}</span>
-              </template>
-
-              <template #option-create="{ option }">
-                <UIcon name="i-heroicons-plus" class="w-4 h-4" />
-                <span class="block truncate">{{ option.name }}</span>
-              </template>
-            </USelectMenu>
-          </ClientOnly>
-        </UFormGroup>
-
-        <UAccordion :items="[{ label: `Médias associés (${lesson?.medias?.length ?? 0})` }]" :ui="{ wrapper: 'mt-2 flex-1 overflow-hidden max-w-[287px] w-full', container: 'overflow-y-auto', item: { padding: 'pt-2.5' } }">
-          <template #item>
-            <UBlogList orientation="horizontal" :ui="{ wrapper: 'overflow-y-auto gap-2 sm:grid sm:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-2' }">
-              <ClientOnly>
-                <UPopover :ui="{ trigger: 'h-full', base: 'flex gap-1 p-1' }">
-                  <div class="rounded-lg border border-solid dark:border-gray-700 flex flex-col items-center justify-center p-2 text-xs">
-                    <UIcon name="i-heroicons-plus" class="w-6 h-6" />
-                    <p>Ajouter un média</p>
-                  </div>
-
-                  <template #panel>
-                    <UInput placeholder="Insérer une URL" v-model="mediaInput" size="xs" @keyup.enter="addMedia" />
-                    <UButton @click="addMedia" size="xs" :loading="addMediaPending" trailing-icon="i-heroicons-chevron-right-20-solid" square />
-                  </template>
-                </UPopover>
-              </ClientOnly>
-              <UBlogPost v-for="(item, index) in lesson.medias" :key="index" :ui="{ wrapper: 'gap-y-0.5', title: 'text-sm', date: 'text-xs', authors: { wrapper: 'mt-0' }, image: { wrapper: 'pointer-events-auto' } }">
-                <template #image>
-                  <img @click="imgOpened = true; currentMedia = { src: item.image, label: item.title }" class="cursor-pointer block object-cover object-top w-full h-full transform transition-transform duration-200 hover:scale-105" :src="item.image" :alt="item.title">
-                </template>
-                <template #default>
-                  <div class="flex items-center justify-between">
-                    <div>
-                      <h2 class="text-gray-900 dark:text-white font-semibold group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-200 text-xs line-clamp-1">
-                        {{ item.title }}
-                      </h2>
-                      <p class="text-gray-400 text-[10px] line-clamp-1">
-                        {{ item.description }}
-                      </p>
-                    </div>
-                    <UDropdown :ui="{ item: { size: 'text-xs' }, width: 'w-auto' }" :items="[[{ label: 'Renommer', icon: 'i-heroicons-pencil-square' }, { label: 'Supprimer', icon: 'i-heroicons-trash', color: 'red', click: () => deleteMedia(item.id) }]]" :popper="{ placement: 'bottom-end' }">
-                      <UButton icon="i-heroicons-ellipsis-vertical" variant="link" size="xs" :padded="false" />
-                    </UDropdown>
-                  </div>
-                </template>
-              </UBlogPost>
-            </UBlogList>
+  <UDashboardSlideover v-model="panelOpened" :overlay="false" :ui="{ wrapper: 'top-[--header-height] h-[calc(100vh-var(--header-height))]' }">
+    <template #title>
+      <p class="text-gray-900 dark:text-white font-semibold flex items-center gap-x-1.5 min-w-0">
+        Médias associés
+      </p>
+    </template>
+    <UFormGroup label="Chapitre associé" class="mb-4">
+      <ClientOnly>
+        <USelectMenu
+          v-model="labels"
+          by="id"
+          name="labels"
+          :options="chapters"
+          option-attribute="name"
+          searchable-placeholder="Rechercher un chapitre"
+          searchable
+          creatable
+          clear-search-on-close
+        >
+          <template #option="{ option }">
+            <span class="truncate">{{ option.name }}</span>
           </template>
-        </UAccordion>
-      </template>
 
-      <template #footer>
-        <UButton :disabled="!isContentUnsaved" @click="save" :loading="savePending" icon="i-heroicons-check" :label="isContentUnsaved ? 'Enregistrer' : 'Enregistré'" />
-        <UDropdown :items="options" :ui="{ item: { size: 'text-xs' }, width: 'w-auto' }" :popper="{ placement: 'top-end' }">
-          <UButton block icon="i-heroicons-bolt" trailing-icon="i-heroicons-ellipsis-vertical" color="gray" label="Actions" />
-        </UDropdown>
-      </template>
-    </UDashboardSidebar>
-  </USlideover>
+          <template #option-create="{ option }">
+            <UIcon name="i-heroicons-plus" class="w-4 h-4" />
+            <span class="block truncate">{{ option.name }}</span>
+          </template>
+        </USelectMenu>
+      </ClientOnly>
+    </UFormGroup>
+
+    <UBlogList orientation="horizontal" :ui="{ wrapper: 'overflow-y-auto gap-2 sm:grid sm:grid-cols-3 lg:grid-cols-3 2xl:grid-cols-3' }">
+      <ClientOnly>
+        <UPopover :ui="{ trigger: 'h-full', base: 'flex gap-1 p-1' }">
+          <div class="w-full rounded-lg border border-solid dark:border-gray-700 flex flex-col items-center justify-center p-2 text-xs">
+            <UIcon name="i-heroicons-plus" class="w-6 h-6" />
+            <p>Ajouter un média</p>
+          </div>
+
+          <template #panel>
+            <UInput placeholder="Insérer une URL" v-model="mediaInput" size="xs" @keyup.enter="addMedia" />
+            <UButton @click="addMedia" size="xs" :loading="addMediaPending" trailing-icon="i-heroicons-chevron-right-20-solid" square />
+          </template>
+        </UPopover>
+      </ClientOnly>
+      <UBlogPost v-for="(item, index) in lesson.medias" :key="index" :ui="{ wrapper: 'gap-y-0.5', title: 'text-sm', date: 'text-xs', authors: { wrapper: 'mt-0' }, image: { wrapper: 'pointer-events-auto' } }">
+        <template #image>
+          <img @click="imgOpened = true; currentMedia = { src: item.image, label: item.title }" class="cursor-pointer block object-cover object-top w-full h-full transform transition-transform duration-200 hover:scale-105" :src="item.image" :alt="item.title">
+        </template>
+        <template #default>
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-gray-900 dark:text-white font-semibold group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-200 text-xs line-clamp-1">
+                {{ item.title }}
+              </h2>
+              <p class="text-gray-400 text-[10px] line-clamp-1">
+                {{ item.description }}
+              </p>
+            </div>
+            <ClientOnly>
+              <UDropdown :ui="{ item: { size: 'text-xs' }, width: 'w-auto' }" :items="[[{ label: 'Renommer', icon: 'i-heroicons-pencil-square' }, { label: 'Supprimer', icon: 'i-heroicons-trash', color: 'red', click: () => deleteMedia(item.id) }]]" :popper="{ placement: 'bottom-end' }">
+                <UButton icon="i-heroicons-ellipsis-vertical" variant="link" size="xs" :padded="false" />
+              </UDropdown>
+            </ClientOnly>
+          </div>
+        </template>
+      </UBlogPost>
+    </UBlogList>
+  </UDashboardSlideover>
 </template>
+
+<style scoped>
+.placeholder:empty:before {
+  content: attr(data-placeholder);
+  pointer-events: none;
+  color: #adb5bd;
+}
+</style>

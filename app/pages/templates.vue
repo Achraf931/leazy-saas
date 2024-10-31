@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { LessonsModal } from '#components'
-import data from '@/data'
 
 const localePath = useLocalePath()
 const toast = useToast()
 const modal = useModal()
 const { get, post } = useApi('lessons')
 const pending = ref(false)
+const levels = ref([])
+const sort = ref('Plus récent')
+const showLessons = ref(true)
+const showChapters = ref(true)
+const showFormations = ref(true)
 
 const preview = reactive({
   template: null,
@@ -42,22 +46,54 @@ const handleModal = () => {
     <UDashboardPanel grow>
       <UDashboardNavbar>
         <template #title>
-          <ToggleDrawer title="Templates" />
+          <ToggleDrawer title="Modèles" />
         </template>
       </UDashboardNavbar>
 
       <UDashboardPanelContent>
-        <UDashboardSection title="Créer une nouvelle leçon" description="Ou choisissez un modèle de leçon pour commencer.">
-          <template #links>
-            <UButton trailing-icon="i-heroicons-plus" @click="handleModal" label="Créer une leçon" />
+        <section class="mb-5 grid">
+          <NuxtImg src="https://www.notion.so/images/page-cover/gradients_5.png" alt="Discord" class="aspect-[16/3.5] col-start-1 col-end-13 row-start-1 row-end-4 h-full w-full opacity-50 rounded-xl" />
+          <div class="col-start-2 col-end-12 row-start-2 row-end-3 flex flex-col justify-center text-center gap-3 p-4 z-10">
+            <h1 class="font-bold text-xl">Bienvenue sur la communauté de <span class="text-primary">Leazy</span></h1>
+            <p>
+              Explorez les ressources partagées par les autres enseignants pour vous inspirer.
+              <br />
+              Personnalisez ces modèles pour vos propres cours.
+            </p>
+          </div>
+          <div class="col-start-1 col-end-13 row-start-3 row-end-4 flex items-end gap-4 p-4 z-10">
+            <UInput icon="i-heroicons-magnifying-glass" placeholder="Rechercher un modèle" />
+            <UFormGroup label="Niveaux" :ui="{ label: { base: 'font-semibold' } }">
+              <CommonsSelectMenu v-model="levels" endpoint="levels" placeholder="Niveaux" />
+            </UFormGroup>
+            <UFormGroup label="Matières" :ui="{ label: { base: 'font-semibold' } }">
+              <CommonsSelectMenu v-model="levels" endpoint="levels" placeholder="Matières" />
+            </UFormGroup>
+            <UButton trailing-icon="i-heroicons-plus" @click="handleModal" label="Créer sans modèle" class="ml-auto" />
+          </div>
+        </section>
+
+        <UDashboardSection class="sticky -top-4 left-0 bg-white dark:bg-gray-800 z-10">
+          <template #title>
+            <div class="flex items-center gap-4">
+              <p class="font-normal text-sm">Filtrer par :</p>
+              <UCheckbox v-model="showLessons" name="lessons" label="Leçons" :ui="{ base: 'w-3.5 h-3.5', inner: 'ms-1.5' }" />
+              <UCheckbox v-model="showChapters" name="chapters" label="Chapitres" :ui="{ base: 'w-3.5 h-3.5', inner: 'ms-1.5' }" />
+              <UCheckbox v-model="showFormations" name="formations" label="Formations" :ui="{ base: 'w-3.5 h-3.5', inner: 'ms-1.5' }" />
+            </div>
           </template>
-          <UBlogList v-if="lessons?.data?.length" orientation="horizontal" :ui="{ wrapper: 'p-px overflow-y-auto gap-x-4 gap-y-6 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }">
-            <Suspense>
-              <LessonsCard v-for="lesson in lessons.data" :key="lesson.id" @click="() => { preview.template = lesson; preview.open = true }" :lesson template />
-            </Suspense>
-          </UBlogList>
-          <p v-else class="text-center text-gray-400 dark:text-white text-sm mt-4">Aucune modèle de leçon trouvé</p>
+          <template #links>
+            <p class="text-sm">{{ lessons.data?.length }} résultats</p>
+            <USelectMenu v-model="sort" :options="['Plus récent', 'Plus ancien', 'Nom A-Z', 'Nom Z-A']" class="ml-2" />
+          </template>
         </UDashboardSection>
+
+        <UBlogList v-if="lessons?.data?.length" orientation="horizontal" :ui="{ wrapper: 'p-px gap-x-4 gap-y-6 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }">
+          <Suspense>
+            <LessonsCard v-for="lesson in lessons.data" :key="lesson.id" @click="() => { preview.template = lesson; preview.open = true }" :lesson template />
+          </Suspense>
+        </UBlogList>
+        <p v-else class="text-center text-gray-400 dark:text-white text-sm mt-4">Aucune modèle de leçon trouvé</p>
       </UDashboardPanelContent>
     </UDashboardPanel>
 
