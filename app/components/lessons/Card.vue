@@ -44,9 +44,9 @@ const handleDelete = () => {
 
 <template>
   <UBlogPost
-      v-bind="template ? {} : { to: localePath({ name: 'lesson_id', params: { id: lesson.id } }) }"
-      :ui="{ wrapper: 'cursor-pointer gap-y-0 hover:opacity-75', container: 'p-2 rounded-b-lg bg-gray-100 dark:bg-gray-800 border border-t-0 border-solid border-gray-200 dark:border-gray-700', image: { wrapper: 'ring-0 border-x border-t border-gray-200 dark:border-gray-700 rounded-none rounded-t-lg' } }"
-      class="text-xs"
+    v-bind="template ? {} : { to: localePath({ name: 'lesson_id', params: { id: lesson.id } }) }"
+    :ui="{ wrapper: 'cursor-pointer gap-y-0', inner: 'flex flex-col justify-between', container: 'p-2 group-hover:bg-gray-50 group-hover:dark:bg-gray-700 rounded-b-lg bg-gray-100 dark:bg-gray-800 border border-t-0 border-solid border-gray-200 dark:border-gray-700', image: { wrapper: 'ring-0 border-x border-t border-gray-200 dark:border-gray-700 rounded-none rounded-t-lg' } }"
+    class="text-xs"
   >
     <template #image>
       <LeazyEditor :model-value="JSON.parse(lesson.content)" content-class="preview-editor" :editable="false" :disabled="true" :hideToolbar="true" :hideBubble="true" max-width="100%" />
@@ -68,11 +68,12 @@ const handleDelete = () => {
       </div>
       <p class="line-clamp-2 text-gray-400 text-xs mt-0.5">{{ lesson.description }}</p>
     </div>
-    <div v-if="lesson.chapter" class="flex items-start gap-2">
-      <UBadge v-if="lesson.chapter.theme" variant="subtle" color="yellow" size="xs">{{ lesson.chapter.theme.name }}</UBadge>
-      <UBadge variant="subtle" color="blue" size="xs">{{ lesson.chapter.name }}</UBadge>
-    </div>
     <div class="mt-2 space-y-2">
+      <div v-if="lesson.chapter" class="flex items-start gap-2">
+        <UBadge v-if="lesson.chapter.theme" variant="subtle" color="yellow" size="xs">{{ lesson.chapter.theme.name }}</UBadge>
+        <UBadge variant="subtle" color="blue" size="xs">{{ lesson.chapter.name }}</UBadge>
+      </div>
+
       <div v-if="lesson.level" class="flex items-center gap-1">
         <UIcon name="i-heroicons-academic-cap" class="w-3.5 h-3.5 text-gray-400" />
         <p class="text-gray-400 text-xs">{{ lesson.level.name }}</p>
@@ -81,10 +82,7 @@ const handleDelete = () => {
         <UIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-gray-400" />
         <p class="text-gray-400 text-xs">{{ lesson.updated_at === lesson.created_at ? 'Créé' : 'Modifié' }} {{ formatDistanceToNow(new Date(lesson.updated_at), { locale: frLocale, addSuffix: true }) }}</p>
       </div>
-      <div v-if="template" class="flex items-center gap-2">
-        <UAvatar size="3xs" title="John Doe" src="https://img.freepik.com/psd-gratuit/illustration-3d-avatar-profil-humain_23-2150671142.jpg" />
-        <p class="font-medium">John Doe</p>
-      </div>
+      <UserInfoPopover v-if="template" :user="{ name: 'John Doe', created_at: '05/12/2022', avatar: 'https://img.freepik.com/psd-gratuit/illustration-3d-avatar-profil-humain_23-2150671142.jpg' }" />
     </div>
   </UBlogPost>
 </template>

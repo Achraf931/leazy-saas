@@ -86,14 +86,14 @@ const onError = () => {
         <UFormGroup label="Thème associé" required>
           <ClientOnly>
             <USelectMenu
-                v-model="selected"
-                :loading="loading"
-                :searchable="searchable"
-                searchable-placeholder="Rechercher un thème"
-                class="w-full"
-                placeholder="Sélectionner un thème"
-                option-attribute="name"
-                by="id"
+              v-model="selected"
+              :loading="loading"
+              :searchable="searchable"
+              searchable-placeholder="Rechercher un thème"
+              class="w-full"
+              placeholder="Sélectionner un thème"
+              option-attribute="name"
+              by="id"
             />
           </ClientOnly>
         </UFormGroup>

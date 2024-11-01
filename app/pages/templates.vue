@@ -50,7 +50,7 @@ const handleModal = () => {
         </template>
       </UDashboardNavbar>
 
-      <UDashboardPanelContent>
+      <UDashboardPanelContent class="space-y-6">
         <section class="mb-5 grid">
           <NuxtImg src="https://www.notion.so/images/page-cover/gradients_5.png" alt="Discord" class="aspect-[16/3.5] col-start-1 col-end-13 row-start-1 row-end-4 h-full w-full opacity-50 rounded-xl" />
           <div class="col-start-2 col-end-12 row-start-2 row-end-3 flex flex-col justify-center text-center gap-3 p-4 z-10">
@@ -73,7 +73,7 @@ const handleModal = () => {
           </div>
         </section>
 
-        <UDashboardSection class="sticky -top-4 left-0 bg-white dark:bg-gray-800 z-10">
+        <UDashboardSection class="!mt-0 sticky -top-4 left-0 bg-white dark:bg-gray-800 z-10">
           <template #title>
             <div class="flex items-center gap-4">
               <p class="font-normal text-sm">Filtrer par :</p>
@@ -88,12 +88,38 @@ const handleModal = () => {
           </template>
         </UDashboardSection>
 
-        <UBlogList v-if="lessons?.data?.length" orientation="horizontal" :ui="{ wrapper: 'p-px gap-x-4 gap-y-6 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }">
-          <Suspense>
-            <LessonsCard v-for="lesson in lessons.data" :key="lesson.id" @click="() => { preview.template = lesson; preview.open = true }" :lesson template />
-          </Suspense>
-        </UBlogList>
-        <p v-else class="text-center text-gray-400 dark:text-white text-sm mt-4">Aucune modèle de leçon trouvé</p>
+        <p v-if="!showLessons && !showChapters && !showFormations" class="text-center text-gray-400 dark:text-white text-sm mt-4">Aucun modèle trouvé</p>
+        <template v-else>
+          <section v-if="showLessons">
+            <h2 class="font-bold text-lg mb-1">Modèles de leçons</h2>
+            <UBlogList v-if="lessons?.data?.length" orientation="horizontal" :ui="{ wrapper: 'p-px gap-x-4 gap-y-6 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }">
+              <Suspense>
+                <LessonsCard v-for="lesson in lessons.data" :key="lesson.id" @click="() => { preview.template = lesson; preview.open = true }" :lesson template />
+              </Suspense>
+            </UBlogList>
+            <p v-else class="text-center text-gray-400 dark:text-white text-sm mt-4">Aucun modèle de leçon trouvé</p>
+          </section>
+
+          <section v-if="showChapters">
+            <h2 class="font-bold text-lg mb-1">Modèles de chapitres</h2>
+            <UBlogList v-if="lessons?.data?.length" orientation="horizontal" :ui="{ wrapper: 'p-px gap-x-4 gap-y-6 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }">
+              <Suspense>
+                <LessonsCard v-for="lesson in lessons.data" :key="lesson.id" @click="() => { preview.template = lesson; preview.open = true }" :lesson template />
+              </Suspense>
+            </UBlogList>
+            <p v-else class="text-center text-gray-400 dark:text-white text-sm mt-4">Aucun modèle de chapitre trouvé</p>
+          </section>
+
+          <section v-if="showFormations">
+            <h2 class="font-bold text-lg mb-1">Modèles de formations</h2>
+            <UBlogList v-if="lessons?.data?.length" orientation="horizontal" :ui="{ wrapper: 'p-px gap-x-4 gap-y-6 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }">
+              <Suspense>
+                <LessonsCard v-for="lesson in lessons.data" :key="lesson.id" @click="() => { preview.template = lesson; preview.open = true }" :lesson template />
+              </Suspense>
+            </UBlogList>
+            <p v-else class="text-center text-gray-400 dark:text-white text-sm mt-4">Aucun modèle de formation trouvé</p>
+          </section>
+        </template>
       </UDashboardPanelContent>
     </UDashboardPanel>
 
@@ -104,8 +130,7 @@ const handleModal = () => {
       <template #footer>
         <div class="flex items-center justify-between w-full">
           <div class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-            Créé par : <UAvatar size="3xs" title="John Doe" src="https://img.freepik.com/psd-gratuit/illustration-3d-avatar-profil-humain_23-2150671142.jpg" />
-            <b class="font-medium">John Doe</b>
+            Créé par : <UserInfoPopover :user="{ name: 'John Doe', created_at: '05/12/2022', avatar: 'https://img.freepik.com/psd-gratuit/illustration-3d-avatar-profil-humain_23-2150671142.jpg' }" />
           </div>
           <UButton :loading="pending" label="Utiliser ce modèle" @click="addFromTemplate(preview.template)" />
         </div>
