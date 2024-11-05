@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import type { DashboardSidebarLink } from '#ui-pro/types';
-const props = defineProps<{
-  links: DashboardSidebarLink[][];
-}>();
-const open = ref(false);
-console.log(props.links);
-const userDropdownOpen = ref(false);
+import type { DashboardSidebarLink } from '#ui-pro/types'
+defineProps<{
+  links: DashboardSidebarLink[][]
+}>()
+const open = ref(false)
+const userDropdownOpen = ref(false)
 </script>
 
 <template>

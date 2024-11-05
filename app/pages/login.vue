@@ -78,14 +78,14 @@ const onSubmit = async (data: any) => {
       @submit="onSubmit"
     >
       <template #password-hint>
-        <NuxtLink to="/" class="text-primary font-medium">Mot de passe oublié ?</NuxtLink>
+        <NuxtLinkLocale to="/" class="text-primary font-medium">Mot de passe oublié ?</NuxtLinkLocale>
       </template>
 
       <template #footer>
         En vous connectant, vous acceptez nos
-        <NuxtLink to="/" class="text-primary font-medium">Conditions d'utilisation</NuxtLink>
+        <NuxtLinkLocale to="/" class="text-primary font-medium">Conditions d'utilisation</NuxtLinkLocale>
         et notre
-        <NuxtLink to="/" class="text-primary font-medium">Politique de confidentialité</NuxtLink>
+        <NuxtLinkLocale to="/" class="text-primary font-medium">Politique de confidentialité</NuxtLinkLocale>
       </template>
     </UAuthForm>
   </UCard>

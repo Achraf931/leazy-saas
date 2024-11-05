@@ -14,7 +14,7 @@ const { data: notifications } = await useFetch<Notification[]>('/api/notificatio
         Notifications <UKbd class="ml-2">17</UKbd>
       </p>
     </template>
-    <NuxtLink v-for="notification in notifications" :key="notification.id" :to="localePath({ name: 'inbox', query: { id: notification.id } })" class="p-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer flex items-center gap-3 relative">
+    <NuxtLinkLocale v-for="notification in notifications" :key="notification.id" :to="{ name: 'inbox', query: { id: notification.id } }" class="p-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer flex items-center gap-3 relative">
       <UChip color="red" :show="!!notification.unread" inset>
         <UAvatar v-bind="notification.sender.avatar" :alt="notification.sender.name" size="md" />
       </UChip>
@@ -29,6 +29,6 @@ const { data: notifications } = await useFetch<Notification[]>('/api/notificatio
           {{ notification.body }}
         </p>
       </div>
-    </NuxtLink>
+    </NuxtLinkLocale>
   </UDashboardSlideover>
 </template>

@@ -3,9 +3,14 @@ import { LessonsModal } from '#components'
 import { sub } from 'date-fns'
 import { useDebounce } from '@vueuse/core'
 
+definePageMeta({
+  title: 'Leçons'
+})
+
+const localePath = useLocalePath()
 const modal = useModal()
 const toast = useToast()
-
+const { setBreadcrumbs } = useDashboard()
 const q = ref('')
 const chapters = ref([])
 const themes = ref([])
@@ -53,6 +58,16 @@ if (error.value) {
     actions: [{ label: 'Réessayer', click: () => refresh() }]
   })
 }
+
+setBreadcrumbs([
+  {
+    label: 'Bibliothèque',
+    to: localePath({ name: 'library' })
+  },
+  {
+    label: 'Leçons'
+  }
+])
 
 const handleModal = () => {
   modal.open(LessonsModal, {

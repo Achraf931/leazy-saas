@@ -4,6 +4,7 @@ import { formatDistanceToNow } from 'date-fns'
 import frLocale from 'date-fns/locale/fr'
 
 const modal = useModal()
+const localePath = useLocalePath()
 
 const { lesson, template, redirect, refresh } = defineProps({
   lesson: {
@@ -49,8 +50,12 @@ const handleDelete = () => {
     class="text-xs"
   >
     <template #image>
-      <LeazyEditor :model-value="JSON.parse(lesson.content)" content-class="preview-editor" :editable="false" :disabled="true" :hideToolbar="true" :hideBubble="true" max-width="100%" />
+      <img v-if="lesson.image" class="cursor-pointer block object-cover w-full h-full transform transition-transform duration-200 hover:scale-105" :src="lesson.image" :alt="lesson.name">
+      <div v-else class="flex items-center justify-center bg-gray-200 dark:bg-gray-800 w-full h-full">
+        <UIcon name="i-heroicons-photo" class="w-24 h-24 text-white" />
+      </div>
     </template>
+
     <div class="mb-2">
       <div class="flex items-center justify-between">
         <h2 class="text-gray-900 dark:text-white font-semibold line-clamp-1 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-200 text-base">{{ lesson.name }}</h2>
@@ -68,7 +73,7 @@ const handleDelete = () => {
       </div>
       <p class="line-clamp-2 text-gray-400 text-xs mt-0.5">{{ lesson.description }}</p>
     </div>
-    <div class="mt-2 space-y-2">
+    <div class="mt-auto space-y-2">
       <div v-if="lesson.chapter" class="flex items-start gap-2">
         <UBadge v-if="lesson.chapter.theme" variant="subtle" color="yellow" size="xs">{{ lesson.chapter.theme.name }}</UBadge>
         <UBadge variant="subtle" color="blue" size="xs">{{ lesson.chapter.name }}</UBadge>

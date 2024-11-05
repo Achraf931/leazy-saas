@@ -3,16 +3,16 @@ const route = useRoute()
 const router = useRouter()
 const q = ref('')
 const tabItems = [{
-  label: 'Calendrier',
+  icon: 'i-heroicons-calendar-days',
   file: 'Calendar'
 }, {
-  label: 'Liste',
+  icon: 'i-heroicons-queue-list',
   file: 'Timeline'
 }]
 
 const selectedTab = computed({
   get () {
-    const index = tabItems.findIndex((item) => item.label === route.query.tab)
+    const index = tabItems.findIndex((item) => item.file === route.query.tab)
     if (index === -1) {
       return 0
     }
@@ -20,7 +20,7 @@ const selectedTab = computed({
     return index
   },
   set (value) {
-    router.replace({ query: { tab: tabItems[value].label } })
+    router.replace({ query: { tab: tabItems[value].file } })
   }
 })
 
@@ -41,18 +41,16 @@ const componentMap = {
 
       <UDashboardToolbar>
         <template #left>
-          <UTabs v-model="selectedTab" :items="tabItems" :ui="{ wrapper: '', list: { height: 'h-9', tab: { height: 'h-7', size: 'text-[13px]' } } }" />
-        </template>
-
-        <template #right>
           <UInput
-              v-model="q"
-              icon="i-heroicons-magnifying-glass-20-solid"
-              size="sm"
-              color="white"
-              :trailing="false"
-              placeholder="Rechercher"
+            v-model="q"
+            icon="i-heroicons-magnifying-glass-20-solid"
+            color="white"
+            :trailing="false"
+            placeholder="Rechercher"
           />
+        </template>
+        <template #right>
+          <UTabs v-model="selectedTab" :items="tabItems" :ui="{ wrapper: '', list: { height: 'h-8', tab: { height: 'h-6', size: 'text-[13px]', icon: 'm-0' } } }" />
         </template>
       </UDashboardToolbar>
 

@@ -87,14 +87,14 @@ onBeforeUnmount(() => {
 
       <UDashboardPanelContent>
         <div class="grid grid-cols-3 gap-4">
-          <div class="h-[380px] col-span-3 md:col-span-2 font-semibold bg-gray-100 dark:bg-gray-800 text-4xl flex items-center justify-center gap-2 p-4 rounded-lg">
-            <UIcon name="i-heroicons-cog-6-tooth" class="w-10 h-10 spin duration-700" />
-            <p>Coming soon...</p>
+          <div class="h-[380px] col-span-3 md:col-span-2 font-semibold bg-gray-100 dark:bg-gray-800 flex flex-col gap-4 p-4 rounded-lg">
+            <h3 class="font-semibold">Événements</h3>
+            <NuxtImg class="flex-1 aspect-[16/3.5] object-bottom object-cover rounded-lg" src="https://www.apeldurhone.fr/wp-content/uploads/2024/01/orientation.jpg" alt="Lycée français international" />
           </div>
           <div class="flex flex-col col-span-3 md:col-span-1 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
             <h3 class="font-semibold">Cours du jour</h3>
             <div class="flex-1 flex flex-col gap-2 mt-4">
-              <NuxtLink v-for="(event, index) in courses.events" :key="index" :to="localePath({ name: 'agenda_id', params: { id: 1 } })" class="overflow-hidden flex items-center justify-start cursor-pointer rounded-lg bg-gray-50 dark:bg-gray-700 hover:opacity-75">
+              <NuxtLinkLocale v-for="(event, index) in courses.events" :key="index" :to="{ name: 'agenda_id', params: { id: 1 } }" class="overflow-hidden flex items-center justify-start cursor-pointer rounded-lg bg-gray-50 dark:bg-gray-700 hover:opacity-75">
                 <p class="h-full flex items-center justify-center px-2 text-white bg-indigo-500 text-xs font-semibold">
                   {{ event.time }}
                   <br />
@@ -109,7 +109,7 @@ onBeforeUnmount(() => {
                     Amphi E - Terminale PG
                   </p>
                 </div>
-              </NuxtLink>
+              </NuxtLinkLocale>
             </div>
           </div>
           <div class="col-span-3 md:col-span-1 bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">

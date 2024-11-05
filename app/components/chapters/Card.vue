@@ -4,6 +4,7 @@ import { formatDistanceToNow } from 'date-fns'
 import frLocale from 'date-fns/locale/fr'
 
 const modal = useModal()
+const localePath = useLocalePath()
 
 const { chapter, refresh, redirect } = defineProps({
   chapter: {

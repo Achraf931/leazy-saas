@@ -4,45 +4,70 @@ const { formation } = defineProps<{
     id: number
     title: string
     description: string
+    image: string
     tags: string[]
     progress: number,
     to: string
   }
 }>()
-
-const label = computed(() => (formation.progress === 0 ? 'Non commencé' : formation.progress === 100 ? 'Terminé' : 'En cours'))
-const color = computed(() => (formation.progress === 0 ? 'gray' : formation.progress === 100 ? 'green' : 'blue'))
 </script>
 
 <template>
-  <ULink :to="formation.to" class="hover:opacity-75">
-    <UCard :ui="{ base: 'flex flex-col h-full', header: { base: 'flex items-center justify-between', padding: 'px-2 py-2 sm:px-2' }, body: { base: 'flex-1 flex flex-col', padding: 'px-2 py-2 sm:p-2' }, footer: { padding: 'px-2 py-2 sm:px-2' } }">
-      <template #header>
-        <UBadge :label :variant="formation.progress === 0 ? 'solid' : 'subtle'" :color />
-        <UProgress v-if="formation.progress > 0" :value="formation.progress" class="max-w-14" :max="100" size="sm" color="green" indicator />
-      </template>
-
-      <h3 class="font-semibold">{{ formation.title }}</h3>
-      <p class="text-xs text-gray-500 my-2">{{ formation.description }}</p>
-
-      <div class="flex gap-1 mt-auto">
-        <UBadge v-for="tag in formation.tags" :key="tag" :label="tag" color="gray" size="xs" />
+  <UBlogPost :to="formation.to" :ui="{ wrapper: 'gap-y-0', date: 'text-xs', authors: { wrapper: 'mt-0' }, container: 'p-2 group-hover:bg-gray-50 group-hover:dark:bg-gray-700 rounded-b-lg bg-gray-100 dark:bg-gray-800 border border-t-0 border-solid border-gray-200 dark:border-gray-700', image: { wrapper: 'ring-0 border-x border-t border-gray-200 dark:border-gray-700 rounded-none rounded-t-lg' }, badge: { wrapper: 'absolute top-2 left-2.5 mb-0 py-0' } }">
+    <template #image>
+      <img v-if="formation.image" class="cursor-pointer block object-cover w-full h-full transform transition-transform duration-200 hover:scale-105" :src="formation.image" :alt="formation.title">
+      <div v-else class="flex items-center justify-center bg-gray-200 dark:bg-gray-800 w-full h-full">
+        <UIcon name="i-heroicons-photo" class="w-24 h-24 text-white" />
       </div>
+    </template>
+    <template #default>
+      <div class="space-y-2">
+        <div class="flex gap-1 flex-wrap">
+          <UBadge v-for="tag in formation.tags" :key="tag" :label="tag" color="gray" size="xs" />
+        </div>
 
-      <template #footer>
-        <div class="flex items-center justify-between gap-4">
+        <div>
+          <h2 class="text-gray-900 dark:text-white font-semibold line-clamp-1 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-200 text-sm">{{ formation.title }}</h2>
+          <p class="line-clamp-2 text-gray-400 text-xs mt-0.5">{{ formation.description || 'Description de test temporaire' }}</p>
+        </div>
+
+        <div class="flex items-center justify-between flex-wrap gap-2">
           <div class="flex items-center gap-1">
-            <LazyUIcon name="i-heroicons-bars-3-bottom-right" class="w-3.5 h-3.5 text-gray-400" />
+            <LazyUIcon name="i-heroicons-bars-3-bottom-right" class="w-3.5 h-3.5 text-primary" />
             <p class="text-gray-400 text-xs">28 leçons</p>
           </div>
 
           <div class="flex items-center gap-1">
-            <LazyUIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-gray-400" />
+            <LazyUIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-primary" />
             <p class="text-gray-400 text-xs">16h</p>
           </div>
+
+          <div class="flex items-center gap-1">
+            <LazyUIcon name="i-heroicons-user-group" class="w-3.5 h-3.5 text-primary" />
+            <p class="text-gray-400 text-xs">342</p>
+          </div>
         </div>
-<!--        <UButton :to="formation.edit" label="Modifier" size="xs" color="orange" variant="soft" class="ml-2" />-->
-      </template>
-    </UCard>
-  </ULink>
+
+        <UAvatarGroup size="xs" max="2">
+          <UAvatar alt="Terminale Production Graphique" :ui="{ background: 'bg-white dark:bg-gray-900' }" />
+          <UAvatar alt="Seconde Développement Web" :ui="{ background: 'bg-white dark:bg-gray-900' }" />
+          <UAvatar alt="Première Design d'interface" :ui="{ background: 'bg-white dark:bg-gray-900' }" />
+        </UAvatarGroup>
+
+        <div class="flex items-center justify-start gap-1 mt-1">
+          <UIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-gray-400" />
+          <p class="text-gray-400 text-xs">Modifié il y a 3 jours</p>
+        </div>
+      </div>
+      <UDropdown :ui="{ wrapper: 'absolute top-2.5 right-2.5', item: { size: 'text-xs' }, width: 'w-auto' }" :items="[[{ label: 'Modifier', icon: 'i-heroicons-pencil-square', click: () => console.log('edit event click') }, { label: 'Supprimer', icon: 'i-heroicons-trash', color: 'red', click: () => console.log('delete event click') }]]" :popper="{ placement: 'bottom-end' }">
+        <UButton icon="i-heroicons-ellipsis-horizontal" variant="soft" color="gray" :padded="false" />
+
+        <template #item="{ item }">
+          <UIcon :name="item.icon" class="flex-shrink-0 h-4 w-4" :class="item.label === 'Supprimer' ? 'text-red-500 dark:text-red-400' : ''" />
+
+          <span class="truncate" :class="item.label === 'Supprimer' ? 'text-red-500 dark:text-red-400' : ''">{{ item.label }}</span>
+        </template>
+      </UDropdown>
+    </template>
+  </UBlogPost>
 </template>

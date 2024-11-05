@@ -1,3 +1,5 @@
+import 'dotenv/config'
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
 export default defineNuxtConfig({
@@ -5,13 +7,19 @@ export default defineNuxtConfig({
     compatibilityVersion: 4,
   },
   compatibilityDate: '2024-04-03',
+  nitro: {
+    experimental: {
+      websocket: true,
+    }
+  },
   // ssr: false,
   app: {
     pageTransition: { name: 'page', mode: 'out-in' },
   },
   runtimeConfig: {
     public: {
-      openaiApiKey: process.env.NUXT_OPENAI_API_KEY
+      WEBSOCKET_URL: process.env.NUXT_WEBSOCKET_URL,
+      OPENAI_API_KEY: process.env.NUXT_OPENAI_API_KEY
     }
   },
   extends: [process.env.NUXT_UI_PRO_PATH || '@nuxt/ui-pro', '@leazyhub/editor'],
@@ -56,6 +64,7 @@ export default defineNuxtConfig({
     },
   },
   i18n: {
+    legacy: false,
     detectBrowserLanguage: {
       useCookie: true,
       cookieKey: 'i18n_redirected',
@@ -80,7 +89,6 @@ export default defineNuxtConfig({
       }
     ],
     lazy: true,
-    langDir: 'locales/',
     defaultLocale: 'fr',
     customRoutes: 'config',
     pages: {
@@ -136,6 +144,18 @@ export default defineNuxtConfig({
         en: '/library/lessons/[id]',
         fr: '/bibliotheque/lecons/[id]'
       },
+      'library/formations': {
+        en: '/library/formations',
+        fr: '/bibliotheque/formations'
+      },
+      'library/formations/[id]': {
+        en: '/library/formations/[id]',
+        fr: '/bibliotheque/formations/[id]'
+      },
+      'library/formations/[id]/[lesson_id]': {
+        en: '/library/formations/[id]/[lesson_id]',
+        fr: '/bibliotheque/formations/[id]/[lesson_id]'
+      },
       inbox: {
         en: '/inbox',
         fr: '/messages'
@@ -160,30 +180,6 @@ export default defineNuxtConfig({
         en: '/classes/[id]',
         fr: '/classes/[id]'
       },
-      formations: {
-        en: '/formations',
-        fr: '/formations'
-      },
-      'formations/new': {
-        en: '/formations/new',
-        fr: '/formations/nouveau'
-      },
-      'formations/[id]': {
-        en: '/formations/[id]',
-        fr: '/formations/[id]'
-      },
-      'formations/[id]/edit': {
-        en: '/formations/[id]/edit',
-        fr: '/formations/[id]/modifier'
-      },
-        'formations/[id]/[lesson_id]': {
-          en: '/formations/[id]/[lesson_id]',
-          fr: '/formations/[id]/[lesson_id]'
-        },
-      'formations/[id]/[lesson_id]/edit': {
-        en: '/formations/[id]/[lesson_id]/edit',
-        fr: '/formations/[id]/[lesson_id]/modifier'
-      },
       templates: {
         en: '/templates',
         fr: '/modeles'
@@ -192,10 +188,34 @@ export default defineNuxtConfig({
         en: '/',
         fr: '/'
       }
+    },
+    experimental: {
+      localeDetector: './localeDetector.ts',
+      autoImportTranslationFunctions: true,
+      switchLocalePathLinkSSR: true,
+      typedOptionsAndMessages: 'default'
     }
   },
   devtools: {
     enabled: false
+  },
+  optimizeDeps: {
+    include: ['highlight.js']
+  },
+  vite: {
+    resolve: {
+      alias: {
+        'highlight.js': 'highlight.js',
+        'evaluatex': 'evaluatex'
+      }
+    },
+    css: {
+      preprocessorOptions: {
+        scss: {
+          silenceDeprecations: ['legacy-js-api']
+        }
+      }
+    }
   },
   devServer: {
     host: 'leazy.local'

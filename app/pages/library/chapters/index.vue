@@ -2,9 +2,15 @@
 import { ChaptersModal } from '#components'
 import { sub } from 'date-fns'
 
+definePageMeta({
+  title: 'Chapitres'
+})
+
+const localePath = useLocalePath()
 const toast = useToast()
 const modal = useModal()
-const { get, patch } = useApi('chapters')
+const { setBreadcrumbs } = useDashboard()
+const { get } = useApi('chapters')
 const page = ref(1)
 const range = ref<Range>({ start: sub(new Date(), { days: 14 }), end: new Date() })
 const themes = ref([])
@@ -12,6 +18,16 @@ const themes = ref([])
 const { data: chapters, status, refresh, error } = await useLazyAsyncData('chapters', () => get(null, { page: page.value }), { watch: [page] })
 
 if (error.value) toast.add({ icon: 'i-heroicons-exclamation-circle', title: 'Erreur', description: 'Une erreur est survenue lors du chargement des chapitres', color: 'red', actions: [{ label: 'Réessayer', click: () => refresh() }] })
+
+setBreadcrumbs([
+  {
+    label: 'Bibliothèque',
+    to: localePath({ name: 'library' })
+  },
+  {
+    label: 'Chapitres'
+  }
+])
 
 const q = ref('')
 

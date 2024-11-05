@@ -184,11 +184,11 @@ const newEvent = () => {
                     <p class="text-sm mt-2">{{ event.content }}</p>
                   </div>
 
-                  <NuxtLink :to="localePath({ name: 'agenda_id', params: { id: 1 } })" class="flex items-center justify-start gap-3 w-full px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-700 border border-border border-gray-200 dark:border-gray-700 cursor-pointer rounded-lg transition-all">
+                  <NuxtLinkLocale :to="{ name: 'agenda_id', params: { id: 1 } }" class="flex items-center justify-start gap-3 w-full px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-700 border border-border border-gray-200 dark:border-gray-700 cursor-pointer rounded-lg transition-all">
                     <UIcon name="i-lucide-file-spreadsheet" class="w-4 h-4" />
                     <span class="text-sm">La seconde guerre mondiale</span>
                     <UIcon name="i-heroicons-trash" class="text-red-500 ml-auto" />
-                  </NuxtLink>
+                  </NuxtLinkLocale>
 
                   <!--                <UButton class="ml-auto" icon="i-heroicons-x-mark" size="2xs" color="gray" variant="ghost" @click="close" />
                                   <UFormGroup label="Titre">

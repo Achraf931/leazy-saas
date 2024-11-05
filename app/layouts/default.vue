@@ -47,11 +47,6 @@ const links = computed(() => [{
   label: 'Mes tâches',
   icon: 'i-heroicons-rectangle-stack',
   to: localePath({name: 'kanban'})
-}, {
-  id: 'formations',
-  label: 'Mes formations',
-  icon: 'i-heroicons-book-open',
-  to: localePath({name: 'formations'})
 }])
 
 const subLinks = ref([{
@@ -76,15 +71,20 @@ const subLinks = ref([{
       label: t('drawer.library.themes'),
       to: localePath({name: 'library-themes'}),
       active: computed(() => route.path.startsWith(localePath({name: 'library-themes'})))
+    },
+    {
+      label:'Formations',
+      to: localePath({name: 'library-formations'}),
+      active: computed(() => route.path.startsWith(localePath({name: 'library-formations'})))
     }]
-}, {
+}])
+
+const otherLinks = computed(() => [{
   id: 'templates',
   label: 'Modèles',
   icon: 'i-heroicons-document-text',
   to: localePath({name: 'templates'})
-}])
-
-const otherLinks = computed(() => [{
+}, {
   id: 'blog',
   label: t('drawer.community'),
   icon: 'i-heroicons-arrow-top-right-on-square',
@@ -94,14 +94,18 @@ const otherLinks = computed(() => [{
     text: 'Blog',
     shortcuts: ['G', 'B']
   }
-}, {
-  id: 'feedbacks',
-  label: t('drawer.feedbacks'),
-  icon: 'i-heroicons-exclamation-triangle',
-  click: () => {
-    isNewFeedbackModalOpen.value = true
-  }
 }])
+
+const reportLinks = [
+  {
+    id: 'feedbacks',
+    label: t('drawer.feedbacks'),
+    icon: 'i-heroicons-exclamation-triangle',
+    click: () => {
+      isNewFeedbackModalOpen.value = true
+    }
+  }
+]
 
 const footerLinks = [
   {
@@ -120,7 +124,7 @@ const groups = [
   {
     key: 'help',
     label: 'Aide',
-    commands: [...otherLinks.value, ...footerLinks]
+    commands: [...otherLinks.value, ...reportLinks, ...footerLinks]
   }
 ]
 </script>
@@ -220,6 +224,10 @@ const groups = [
         <UDivider/>
 
         <UDashboardSidebarLinks :links="otherLinks"/>
+
+        <UDivider/>
+
+        <UDashboardSidebarLinks :links="reportLinks"/>
 
         <div class="flex-1 flex items-end">
           <div

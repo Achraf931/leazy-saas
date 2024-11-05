@@ -1,19 +1,18 @@
 <script setup lang="ts">
-import type { DashboardSidebarLink } from '#ui-pro/types';
+import type { DashboardSidebarLink } from '#ui-pro/types'
 const props = defineProps<{
-  item: DashboardSidebarLink;
-  open: boolean;
-}>();
+  item: DashboardSidebarLink
+  open: boolean
+}>()
 defineEmits<{
-  navigate: [];
-}>();
-console.log(props.item);
-const route = useRoute();
-const isActive = computed(() => props.item.exact ? route.path === props.item.to : route.path.startsWith(props.item.to as string));
+  navigate: []
+}>()
+const route = useRoute()
+const isActive = computed(() => props.item.exact ? route.path === props.item.to : route.path.startsWith(props.item.to as string))
 </script>
 
 <template>
-  <NuxtLink
+  <NuxtLinkLocale
       :to="item.to"
       :exact="item.exact"
       :class="[
@@ -49,5 +48,5 @@ const isActive = computed(() => props.item.exact ? route.path === props.item.to 
     >
       {{ item.label }}
     </span>
-  </NuxtLink>
+  </NuxtLinkLocale>
 </template>

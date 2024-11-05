@@ -1,21 +1,43 @@
 <script setup lang="ts">
 import { ChaptersDeleteChapterModal, ThemesDeleteThemeModal } from '#components'
-import { formatDistanceToNow } from "date-fns";
-import frLocale from "date-fns/locale/fr";
+import { formatDistanceToNow } from 'date-fns'
+import frLocale from 'date-fns/locale/fr'
 
+definePageMeta({
+  title: 'Thèmes'
+})
+
+const toast = useToast()
 const modal = useModal()
 const localePath = useLocalePath()
-const { get, del } = useApi('themes')
+const { setBreadcrumbs } = useDashboard()
+const { get, patch, del } = useApi('themes')
 const documentId = computed(() => useRoute().params.id)
 const pending = ref(false)
 const loading = ref(false)
 const selected = ref([])
 const { data: theme, refresh, error } = await useAsyncData('theme', () => get(documentId.value))
 
+if (error.value) toast.add({ icon: 'i-heroicons-exclamation-circle', title: 'Erreur', description: 'Une erreur est survenue lors du chargement du thème', color: 'red', actions: [{ label: 'Réessayer', click: () => refresh() }] })
+
+setBreadcrumbs([
+  {
+    label: 'Bibliothèque',
+    to: localePath({ name: 'library' })
+  },
+  {
+    label: 'Thèmes',
+    to: localePath({ name: 'library-themes' })
+  },
+  {
+    label: theme.value?.name
+  }
+])
+
 const fields = reactive({
   id: documentId.value,
-  name: theme?.name || '',
-  discipline_id: theme?.discipline_id || ''
+  name: theme.value?.name || '',
+  discipline_id: theme.value?.discipline_id || ''
 })
 
 const validate = (state) => {
@@ -192,14 +214,16 @@ const onSubmit = async (state) => {
             <UFormGroup label="Discipline associé" name="discipline_id" required>
               <ClientOnly>
                 <USelectMenu
-                    v-model="selected"
-                    :loading="loading"
-                    :searchable="searchable"
-                    searchable-placeholder="Rechercher une discipline"
-                    class="w-full"
-                    placeholder="Sélectionner un discipline"
-                    option-attribute="name"
-                    by="id"
+                  v-model="selected"
+                  :loading="loading"
+                  :searchable
+                  searchable-placeholder="Rechercher une discipline"
+                  class="w-full"
+                  placeholder="Sélectionner un discipline"
+                  option-attribute="name"
+                  trailing
+                  by="id"
+                  :searchable-lazy="true"
                 />
               </ClientOnly>
             </UFormGroup>

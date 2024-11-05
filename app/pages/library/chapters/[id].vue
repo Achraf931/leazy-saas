@@ -1,17 +1,38 @@
 <script setup lang="ts">
-import { formatDistanceToNow } from "date-fns";
-import frLocale from "date-fns/locale/fr";
+import { formatDistanceToNow } from 'date-fns'
+import frLocale from 'date-fns/locale/fr'
 import { LessonsDeleteLessonModal, ChaptersDeleteChapterModal } from '#components'
+
+definePageMeta({
+  title: 'Chapitres'
+})
 
 const toast = useToast()
 const modal = useModal()
 const localePath = useLocalePath()
+const { setBreadcrumbs } = useDashboard()
 const { get, patch, del } = useApi('chapters')
 const loading = ref(false)
 const selected = ref([])
 const pending = ref(false)
 const documentId = computed(() => useRoute().params.id)
 const { data: chapter, refresh, error } = await useAsyncData('chapter', () => get(documentId.value))
+
+if (error.value) toast.add({ icon: 'i-heroicons-exclamation-circle', title: 'Erreur', description: 'Une erreur est survenue lors du chargement du chapitre', color: 'red', actions: [{ label: 'Réessayer', click: () => refresh() }] })
+
+setBreadcrumbs([
+  {
+    label: 'Bibliothèque',
+    to: localePath({ name: 'library' })
+  },
+  {
+    label: 'Chapitres',
+    to: localePath({ name: 'library-chapters' })
+  },
+  {
+    label: chapter.value?.name
+  }
+])
 
 const fields = reactive({
   id: documentId.value,
@@ -214,14 +235,15 @@ const onSubmit = async (state) => {
             <UFormGroup label="Thème associé" name="theme_id" required>
               <ClientOnly>
                 <USelectMenu
-                    v-model="selected"
-                    :loading="loading"
-                    :searchable="searchable"
-                    searchable-placeholder="Rechercher un thème"
-                    class="w-full"
-                    placeholder="Sélectionner un thème"
-                    option-attribute="name"
-                    by="id"
+                  v-model="selected"
+                  :loading="loading"
+                  :searchable
+                  searchable-placeholder="Rechercher un thème"
+                  class="w-full"
+                  placeholder="Sélectionner un thème"
+                  option-attribute="name"
+                  by="id"
+                  :searchable-lazy="true"
                 />
               </ClientOnly>
             </UFormGroup>

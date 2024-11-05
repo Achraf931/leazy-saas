@@ -7,6 +7,7 @@ const _useDashboard = () => {
     const isNotificationsSlideoverOpen = ref(false)
     const isDrawerSlideoverMode = ref(false)
     const isDrawerSlideoverOpen = ref(false)
+    const breadcrumbs = ref([])
 
     defineShortcuts({
         'g-h': () => router.push('/'),
@@ -19,6 +20,10 @@ const _useDashboard = () => {
         '?': () => isHelpSlideoverOpen.value = true,
         n: () => isNotificationsSlideoverOpen.value = true
     })
+
+    const setBreadcrumbs = (newBreadcrumbs) => {
+        breadcrumbs.value = newBreadcrumbs
+    }
 
     const handleDrawerMode = () => {
         isDrawerSlideoverMode.value = !isDrawerSlideoverMode.value
@@ -33,13 +38,17 @@ const _useDashboard = () => {
         isNotificationsSlideoverOpen.value = false
     })
 
+
+
     return {
+        breadcrumbs,
         isHelpSlideoverOpen,
         isNotificationsSlideoverOpen,
         isDrawerSlideoverMode,
         isDrawerSlideoverOpen,
         handleDrawerMode,
-        handleDrawer
+        handleDrawer,
+        setBreadcrumbs
     }
 }
 

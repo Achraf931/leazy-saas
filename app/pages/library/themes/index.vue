@@ -2,9 +2,15 @@
 import { ThemesModal } from '#components'
 import { sub } from 'date-fns'
 
+definePageMeta({
+  title: 'Thèmes'
+})
+
 const modal = useModal()
 const toast = useToast()
-const { get, patch } = useApi('themes')
+const localePath = useLocalePath()
+const { setBreadcrumbs } = useDashboard()
+const { get } = useApi('themes')
 const page = ref(1)
 const q = ref('')
 const range = ref<Range>({ start: sub(new Date(), { days: 14 }), end: new Date() })
@@ -12,6 +18,16 @@ const range = ref<Range>({ start: sub(new Date(), { days: 14 }), end: new Date()
 const { data: themes, status, refresh, error } = await useLazyAsyncData('themes', () => get(null, { page: page.value }), { watch: [page] })
 
 if (error.value) toast.add({ icon: 'i-heroicons-exclamation-circle', title: 'Erreur', description: 'Une erreur est survenue lors du chargement des thèmes', color: 'red', actions: [{ label: 'Réessayer', click: () => refresh() }] })
+
+setBreadcrumbs([
+  {
+    label: 'Bibliothèque',
+    to: localePath({ name: 'library' })
+  },
+  {
+    label: 'Thèmes'
+  }
+])
 
 const filteredThemes = computed(() => {
   return themes.value?.data.filter(theme => {

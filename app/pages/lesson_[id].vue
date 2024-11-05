@@ -14,7 +14,7 @@ const { get, post, patch } = useApi('lessons')
 const slideover = useSlideover()
 const tiptap = useTemplateRef('tiptap')
 const hideToolbar = ref(false)
-const editor: EditorType = computed(() => tiptap.value?.editor)
+const editor = computed(() => tiptap.value?.editor)
 
 const pending = ref(false)
 const loading = ref(false)
@@ -105,7 +105,10 @@ const options = ref([
     type: 'toggle'
   }, {
     label: 'Dupliquer',
-    icon: 'i-heroicons-document-duplicate-20-solid'
+    icon: 'i-heroicons-document-duplicate-20-solid',
+    click: () => {
+      toast.add({ icon: 'i-heroicons-check-circle', title: 'Leçon dupliquée', description: 'Votre leçon a bien été dupliquée', color: 'green', actions: [{ label: 'Voir la leçon', click: () => localePath({ name: 'lesson_id', params: { id: documentId.value } }) }] })
+    }
   }], [{
     label: 'Importer',
     icon: 'i-heroicons-arrow-down-tray'
@@ -400,7 +403,9 @@ onBeforeUnmount(() => {
         <UTextarea v-if="showDescription" v-model="lesson.description" placeholder="Description de la leçon" variant="outline" @input="onUpdateDescription" @blur="save(true)" padded />
       </div>
 
-      <LeazyEditor ref="tiptap" v-model="content" output="json" :hide-toolbar="hideToolbar" class="flex-1" max-width="800" @update:model-value="onUpdate" @blur="save(true)" />
+      <ClientOnly>
+        <LeazyEditor ref="tiptap" v-model="content" output="json" :hide-toolbar="hideToolbar" class="flex-1" max-width="800" @update:model-value="onUpdate" @blur="save(true)" />
+      </ClientOnly>
     </UDashboardPanelContent>
   </UDashboardPanel>
 </template>

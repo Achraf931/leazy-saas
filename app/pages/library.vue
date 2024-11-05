@@ -1,6 +1,11 @@
 <script setup lang="ts">
+definePageMeta({
+  title: 'Bibliothèque'
+})
+
 const localePath = useLocalePath()
 const route = useRoute()
+const { breadcrumbs } = useDashboard()
 
 const links = ref([{
   label: 'Tout',
@@ -21,6 +26,11 @@ const links = ref([{
   icon: 'i-heroicons-book-open',
   to: localePath({ name: 'library-themes' }),
   active: computed(() => route.path.startsWith(localePath({ name: 'library-themes' })))
+}, {
+  label: 'Formations',
+  icon: 'i-heroicons-rectangle-stack',
+  to: localePath({ name: 'library-formations' }),
+  active: computed(() => route.path.startsWith(localePath({ name: 'library-formations' })))
 }])
 </script>
 
@@ -29,7 +39,9 @@ const links = ref([{
     <UDashboardPanel grow>
       <UDashboardNavbar>
         <template #title>
-          <ToggleDrawer title="Bibliothèque" />
+          <ToggleDrawer />
+
+          <UBreadcrumb divider="/" :links="breadcrumbs" />
         </template>
       </UDashboardNavbar>
 
