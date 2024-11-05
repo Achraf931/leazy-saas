@@ -50,7 +50,7 @@ const componentMap = {
           />
         </template>
         <template #right>
-          <UTabs v-model="selectedTab" :items="tabItems" :ui="{ wrapper: '', list: { height: 'h-8', tab: { height: 'h-6', size: 'text-[13px]', icon: 'm-0' } } }" />
+          <UTabs v-model="selectedTab" :items="tabItems" :ui="{ list: { height: 'h-9', base: 'border border-gray-200 dark:border-gray-700', tab: { height: 'h-6', size: 'text-[13px]', icon: 'm-0' } } }" />
         </template>
       </UDashboardToolbar>
 

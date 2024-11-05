@@ -106,7 +106,7 @@ const search = async (q: string) => {
 </script>
 
 <template>
-  <UDashboardPanelContent class="text-sm" :ui="{ wrapper: 'bg-gray-50 flex-row gap-4 overflow-y-hidden' }">
+  <UDashboardPanelContent class="text-sm" :ui="{ wrapper: 'flex-row gap-4 overflow-y-hidden' }">
     <template v-if="isOwner" #right>
       <UButton :to="localePath({ name: 'library-formations-id', params: { id: documentId } })" target="_blank" size="sm" leading-icon="i-heroicons-eye" label="Prévisualiser" />
     </template>
@@ -115,25 +115,16 @@ const search = async (q: string) => {
       <NuxtPage />
     </div>
 
-    <div class="w-3/12 rounded-lg border border-gray-200 dark:border-gray-800 flex flex-col bg-white">
-      <UFormGroup v-if="isOwner" label="Ajouter depuis la bibliothèque" class="p-4">
+    <div class="w-3/12 rounded-lg border bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 flex flex-col">
+      <UFormGroup label="Ajouter depuis la bibliothèque" class="p-4">
         <UButton @click="open = true" label="Importer / Créer" color="primary" leading-icon="i-heroicons-arrow-down-tray" />
       </UFormGroup>
-      <UFormGroup v-else label="Progression" class="p-4">
-        <div class="flex items-end gap-2 justify-between">
-          <div class="flex items-center gap-1">
-            <LazyUIcon name="i-heroicons-bars-3-bottom-right" class="w-3.5 h-3.5 text-gray-400" />
-            <p class="text-gray-400 text-xs">3/28</p>
-          </div>
-          <UProgress :value="10" class="max-w-36" :max="100" size="sm" color="green" indicator />
-        </div>
-      </UFormGroup>
 
-      <UDivider />
+      <UDivider :ui="{ border: { base: 'dark:border-gray-700' } }" />
 
-      <UButton :to="localePath({ name: 'library-formations-id', params: { id: '4' }, query: { tab: 'overview' } })" label="Introduction" size="sm" class="border-b border-gray-200 dark:border-gray-700 opacity-75 flex items-center justify-between gap-2 font-semibold hover:opacity-100 p-3 w-full text-left" :ui="{ rounded: 'rounded-none' }" :padded="false" trailing-icon="i-heroicons-arrow-right-20-solid" variant="ghost" color="white" />
+      <UButton :to="localePath({ name: 'library-formations-id', params: { id: '4' }, query: { tab: 'overview' } })" label="Introduction" size="sm" class="border-b border-gray-200 dark:border-gray-700 opacity-75 flex items-center justify-between gap-2 font-semibold hover:opacity-100 p-3 w-full text-left" :ui="{ rounded: 'rounded-none' }" :padded="false" trailing-icon="i-heroicons-arrow-right-20-solid" variant="ghost" color="gray" />
 
-      <UAccordion :items="items" :ui="{ wrapper: 'flex flex-col w-full divide-y divide-gray-200 dark:divide-gray-700', item: { base: 'flex flex-col gap-1.5 bg-gray-50', padding: 'px-1.5 pb-1.5' } }">
+      <UAccordion :items="items" :ui="{ wrapper: 'flex flex-col w-full divide-y divide-gray-200 dark:divide-gray-700', item: { base: 'flex flex-col gap-1.5 bg-white dark:bg-gray-700', padding: 'px-1.5 pb-1.5' } }">
         <template #default="{ item, index, open }">
           <UButton color="gray" variant="ghost" :class="[open && 'border-b']" class="border-gray-200 dark:border-gray-700" :ui="{ rounded: 'rounded-none', padding: { sm: 'p-3' } }">
             <span class="truncate font-semibold">{{ index + 1 }}. {{ item.label }}</span>
@@ -149,21 +140,21 @@ const search = async (q: string) => {
         </template>
 
         <template #item="{ item }">
-          <UButton v-for="lesson in item.lessons" :key="lesson.id" :to="localePath({ name: isOwner ? 'library-formations-id-lesson_id-edit' : 'library-formations-id-lesson_id', params: { id: documentId, lesson_id: lesson.id } })" leading-icon="i-heroicons-document-text" size="xs" color="gray" variant="soft" :label="lesson.label"/>
-          <UButton v-if="isOwner" label="Ajouter une leçon" size="xs" leading-icon="i-heroicons-plus" variant="soft" />
+          <UButton v-for="lesson in item.lessons" :key="lesson.id" :to="localePath({ name: isOwner ? 'library-formations-id-lesson_id-edit' : 'library-formations-id-lesson_id', params: { id: documentId, lesson_id: lesson.id } })" leading-icon="i-heroicons-document-text" size="xs" color="gray" variant="ghost" :label="lesson.label"/>
+          <UButton label="Ajouter une leçon" size="xs" leading-icon="i-heroicons-plus" color="gray" variant="ghost" />
         </template>
       </UAccordion>
 
-      <UButton :to="localePath({ name: 'library-formations-id', params: { id: '4' }, query: { tab: 'resources' } })" label="Ressources" size="sm" class="border-t border-gray-200 dark:border-gray-700 opacity-75 flex items-center justify-between gap-2 font-semibold hover:opacity-100 p-3 w-full text-left" :ui="{ rounded: 'rounded-none' }" :padded="false" trailing-icon="i-heroicons-arrow-right-20-solid" variant="ghost" color="white" />
+      <UButton :to="localePath({ name: 'library-formations-id', params: { id: '4' }, query: { tab: 'resources' } })" label="Ressources" size="sm" class="border-t border-gray-200 dark:border-gray-700 opacity-75 flex items-center justify-between gap-2 font-semibold hover:opacity-100 p-3 w-full text-left" :ui="{ rounded: 'rounded-none' }" :padded="false" trailing-icon="i-heroicons-arrow-right-20-solid" variant="ghost" color="gray" />
 
-      <UDivider />
+      <UDivider :ui="{ border: { base: 'dark:border-gray-700' } }" />
 
       <div class="p-4 mt-auto">
         <UButton :to="localePath({ name: 'library-formations-id-edit', params: { id: documentId } })" color="orange" variant="soft" size="sm" class="w-full" leading-icon="i-heroicons-pencil" label="Modifier la formation" />
       </div>
     </div>
 
-    <UModal v-if="isOwner" v-model="open">
+    <UModal v-model="open">
       <UCard :ui="{ footer: { base: 'flex items-center gap-2 justify-end' } }">
         <template #header>
           <div class="flex items-center justify-between gap-x-1.5">

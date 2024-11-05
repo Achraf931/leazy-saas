@@ -34,7 +34,6 @@ const validate = (state: any): FormError[] => {
   const errors = []
   if (!state.title) errors.push({ path: 'title', message: 'Le titre est requis' })
   if (!state.description) errors.push({ path: 'description', message: 'La description est requise' })
-  if (!state.image) errors.push({ path: 'image', message: 'L\'image est requise' })
   if (!state.url) errors.push({ path: 'url', message: 'L\'URL est requise' })
   return errors
 }
@@ -110,7 +109,7 @@ const autoFill = async () => {
       </div>
 
       <div class="flex flex-col gap-2">
-        <UFormGroup name="image" label="Image">
+        <UFormGroup name="image" label="Image" hint="Optionnel">
           <NuxtImg v-if="!isEmpty(state.image)" class="rounded-lg w-full aspect-video object-cover" :src="state.image" :alt="state.title" />
           <UInput v-model="state.image" placeholder="URL de l'image" class="mt-1" />
         </UFormGroup>

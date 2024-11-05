@@ -67,7 +67,7 @@ const componentMap = {
 
 <template>
   <div class="space-y-4">
-    <div class="bg-white rounded-lg space-y-2 p-4 border border-gray-200 dark:border-gray-800">
+    <div class="rounded-lg space-y-2 p-4 border bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700">
       <div class="flex items-center gap-2">
         <h1 class="text-xl font-bold">Titre de la formation</h1>
         <UBadge label="Mathématique" variant="subtle" size="xs" />
@@ -108,9 +108,9 @@ const componentMap = {
 
     <NuxtImg src="https://support.discord.com/hc/theming_assets/01HZPN9XSQTZNQ61ZY6FH47BS1" alt="Test image" class="rounded-lg aspect-[16/5] object-cover" />
 
-    <UTabs v-model="selected" :items="tabs" :ui="{ wrapper: '', list: { height: 'h-9', tab: { height: 'h-7', size: 'text-[13px]' } } }" class="w-fit" />
+    <UTabs v-model="selected" :items="tabs" :ui="{ list: { height: 'h-10', base: 'border border-gray-200 dark:border-gray-700', tab: { height: 'h-7', size: 'text-[13px]' } } }" class="w-fit" />
 
-    <div class="bg-white rounded-lg space-y-4 p-4 border border-gray-200 dark:border-gray-800">
+    <div class="rounded-lg space-y-4 p-4 border bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700">
       <component :is="componentMap[tabs[selected].file]" />
     </div>
   </div>
