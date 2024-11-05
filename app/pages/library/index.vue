@@ -26,9 +26,7 @@ setBreadcrumbs([
         </NuxtLinkLocale>
       </div>
       <UBlogList v-if="library.lessons.length" orientation="horizontal" :ui="{ wrapper: 'p-px gap-4 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }">
-        <Suspense>
-          <LessonsCard v-for="lesson in library.lessons" :key="lesson.id" :lesson :refresh />
-        </Suspense>
+        <LessonsCard v-for="lesson in library.lessons" :key="lesson.id" :lesson :refresh />
       </UBlogList>
       <UButton v-else label="Créer une leçon" color="gray" trailing-icon="i-heroicons-plus" />
     </template>

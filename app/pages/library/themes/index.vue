@@ -63,9 +63,9 @@ const handleModal = () => {
           <template v-if="status === 'pending'">
             <USkeleton v-for="n in 5" :key="n" class="rounded-lg w-full h-40 sm:h-44 xl:h-48 2xl:h-52" />
           </template>
-          <Suspense v-else-if="status !== 'pending' && filteredThemes.length">
+          <template v-else-if="status !== 'pending' && filteredThemes.length">
             <ThemesCard v-for="theme in filteredThemes" :key="theme.id" :theme :refresh />
-          </Suspense>
+          </template>
           <p v-else class="text-center text-gray-400 dark:text-white text-sm mt-4">Aucun thème trouvé</p>
         </UBlogList>
       </UDashboardPanelContent>

@@ -133,7 +133,7 @@ const search = async (q: string) => {
 
       <UButton :to="localePath({ name: 'library-formations-id', params: { id: '4' }, query: { tab: 'overview' } })" label="Introduction" size="sm" class="border-b border-gray-200 dark:border-gray-700 opacity-75 flex items-center justify-between gap-2 font-semibold hover:opacity-100 p-3 w-full text-left" :ui="{ rounded: 'rounded-none' }" :padded="false" trailing-icon="i-heroicons-arrow-right-20-solid" variant="ghost" color="white" />
 
-      <UAccordion :items :ui="{ wrapper: 'flex flex-col w-full divide-y divide-gray-200 dark:divide-gray-700', item: { base: 'flex flex-col gap-1.5 bg-gray-50', padding: 'px-1.5 pb-1.5' } }">
+      <UAccordion :items="items" :ui="{ wrapper: 'flex flex-col w-full divide-y divide-gray-200 dark:divide-gray-700', item: { base: 'flex flex-col gap-1.5 bg-gray-50', padding: 'px-1.5 pb-1.5' } }">
         <template #default="{ item, index, open }">
           <UButton color="gray" variant="ghost" :class="[open && 'border-b']" class="border-gray-200 dark:border-gray-700" :ui="{ rounded: 'rounded-none', padding: { sm: 'p-3' } }">
             <span class="truncate font-semibold">{{ index + 1 }}. {{ item.label }}</span>
@@ -173,19 +173,17 @@ const search = async (q: string) => {
         </template>
 
         <UFormGroup label="Importer un chapitre">
-          <ClientOnly>
-            <UInputMenu
-                v-model="selected"
-                :search="search"
-                label="Chapitre"
-                :loading="loading"
-                placeholder="Sélectionner un chapitre"
-                :ui="{ wrapper: 'w-full' }"
-                option-attribute="name"
-                :search-lazy="true"
-                by="id"
-            />
-          </ClientOnly>
+          <UInputMenu
+              v-model="selected"
+              :search="search"
+              label="Chapitre"
+              :loading="loading"
+              placeholder="Sélectionner un chapitre"
+              :ui="{ wrapper: 'w-full' }"
+              option-attribute="name"
+              :search-lazy="true"
+              by="id"
+          />
         </UFormGroup>
 
         <UDivider label="Ou" class="mt-5 mb-4" />

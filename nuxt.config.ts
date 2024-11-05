@@ -1,69 +1,49 @@
-import 'dotenv/config'
-
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
 export default defineNuxtConfig({
-  future: {
-    compatibilityVersion: 4,
-  },
-  compatibilityDate: '2024-04-03',
-  nitro: {
-    experimental: {
-      websocket: true,
-    }
-  },
-  // ssr: false,
-  app: {
-    pageTransition: { name: 'page', mode: 'out-in' },
-  },
-  runtimeConfig: {
-    public: {
-      WEBSOCKET_URL: process.env.NUXT_WEBSOCKET_URL,
-      OPENAI_API_KEY: process.env.NUXT_OPENAI_API_KEY
-    }
-  },
-  extends: [process.env.NUXT_UI_PRO_PATH || '@nuxt/ui-pro', '@leazyhub/editor'],
+  extends: ['@nuxt/ui-pro', '@leazyhub/editor'],
   modules: [
+    '@nuxt/eslint',
     '@nuxt/ui',
     '@nuxt/fonts',
     '@nuxtjs/i18n',
     '@nuxt/image',
-    '@nuxtjs/tailwindcss',
     'nuxt-auth-sanctum'
   ],
+  devtools: {
+    enabled: false
+  },
+  app: {
+    pageTransition: { name: 'page', mode: 'out-in' }
+  },
   ui: {
-    icons: ['simple-icons', 'lucide', 'fluent', 'mdi'],
     safelistColors: ['primary', 'red', 'orange', 'green']
   },
-  sanctum: {
-    baseUrl: process.env.NUXT_API_URL || 'http://leazy.local:8000',
-    redirectIfAuthenticated: false,
-    endpoints: {
-      csrf: '/sanctum/csrf-cookie',
-      login: '/api/login',
-      logout: '/api/logout',
-      user: '/api/me',
-    },
-    csrf: {
-      cookie: 'XSRF-TOKEN',
-      header: 'X-XSRF-TOKEN',
-    },
-    client: {
-      retry: false,
-    },
-    redirect: {
-      keepRequestedRoute: false,
-      onLogin: '/',
-      onLogout: '/connexion',
-      onAuthOnly: '/connexion',
-      onGuestOnly: '/',
-    },
-    globalMiddleware: {
-      enabled: true,
-      allow404WithoutAuth: true,
-    },
+  routeRules: {
+    // Temporary workaround for prerender regression. see https://github.com/nuxt/nuxt/issues/27490
+    '/': { prerender: true }
+  },
+  devServer: {
+    host: 'leazy.local'
+  },
+  future: {
+    compatibilityVersion: 4
+  },
+  compatibilityDate: '2024-07-11',
+  typescript: {
+    strict: false
+  },
+  eslint: {
+    config: {
+      stylistic: {
+        commaDangle: 'never',
+        braceStyle: '1tbs'
+      }
+    }
   },
   i18n: {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     legacy: false,
     detectBrowserLanguage: {
       useCookie: true,
@@ -92,11 +72,11 @@ export default defineNuxtConfig({
     defaultLocale: 'fr',
     customRoutes: 'config',
     pages: {
-      users: {
+      'users': {
         en: '/users',
         fr: '/utilisateurs'
       },
-      course: {
+      'course': {
         en: '/course',
         fr: '/cours'
       },
@@ -112,11 +92,11 @@ export default defineNuxtConfig({
         en: '/settings/notifications',
         fr: '/parametres/notifications'
       },
-      login: {
+      'login': {
         en: '/login',
         fr: '/connexion'
       },
-      library: {
+      'library': {
         en: '/library',
         fr: '/bibliotheque'
       },
@@ -156,15 +136,15 @@ export default defineNuxtConfig({
         en: '/library/formations/[id]/[lesson_id]',
         fr: '/bibliotheque/formations/[id]/[lesson_id]'
       },
-      inbox: {
+      'inbox': {
         en: '/inbox',
         fr: '/messages'
       },
-      kanban: {
+      'kanban': {
         en: '/kanban',
         fr: '/kanban'
       },
-      agenda: {
+      'agenda': {
         en: '/agenda',
         fr: '/agenda'
       },
@@ -172,7 +152,7 @@ export default defineNuxtConfig({
         en: '/agenda/[id]',
         fr: '/agenda/[id]'
       },
-      classes: {
+      'classes': {
         en: '/classes',
         fr: '/classes'
       },
@@ -180,11 +160,11 @@ export default defineNuxtConfig({
         en: '/classes/[id]',
         fr: '/classes/[id]'
       },
-      templates: {
+      'templates': {
         en: '/templates',
         fr: '/modeles'
       },
-      index: {
+      'index': {
         en: '/',
         fr: '/'
       }
@@ -196,28 +176,32 @@ export default defineNuxtConfig({
       typedOptionsAndMessages: 'default'
     }
   },
-  devtools: {
-    enabled: false
-  },
-  optimizeDeps: {
-    include: ['highlight.js']
-  },
-  vite: {
-    resolve: {
-      alias: {
-        'highlight.js': 'highlight.js',
-        'evaluatex': 'evaluatex'
-      }
+  sanctum: {
+    baseUrl: process.env.NUXT_API_URL || 'http://leazy.local:8000',
+    redirectIfAuthenticated: false,
+    endpoints: {
+      csrf: '/sanctum/csrf-cookie',
+      login: '/api/login',
+      logout: '/api/logout',
+      user: '/api/me'
     },
-    css: {
-      preprocessorOptions: {
-        scss: {
-          silenceDeprecations: ['legacy-js-api']
-        }
-      }
+    csrf: {
+      cookie: 'XSRF-TOKEN',
+      header: 'X-XSRF-TOKEN'
+    },
+    client: {
+      retry: false
+    },
+    redirect: {
+      keepRequestedRoute: false,
+      onLogin: '/',
+      onLogout: '/connexion',
+      onAuthOnly: '/connexion',
+      onGuestOnly: '/'
+    },
+    globalMiddleware: {
+      enabled: true,
+      allow404WithoutAuth: true
     }
-  },
-  devServer: {
-    host: 'leazy.local'
   }
 })

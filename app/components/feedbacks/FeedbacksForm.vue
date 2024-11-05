@@ -26,9 +26,7 @@ async function onSubmit (event: FormSubmitEvent<any>) {
 <template>
   <UForm :validate="validate" :validate-on="['submit']" :state="state" class="space-y-4" @submit="onSubmit">
     <UFormGroup label="Le problème se situe :" name="page">
-      <ClientOnly>
-        <USelectMenu label="Page" :options="['Accueil', 'Librairie', 'Leçon (éditeur)', 'Leçons', 'Chapitres', 'Thèmes', 'Mon compte']" v-model="pageSelected" />
-      </ClientOnly>
+      <USelectMenu label="Page" :options="['Accueil', 'Librairie', 'Leçon (éditeur)', 'Leçons', 'Chapitres', 'Thèmes', 'Mon compte']" v-model="pageSelected" />
     </UFormGroup>
     <UFormGroup label="Objet" name="object">
       <UInput v-model="state.object" placeholder="Ex.: Ma leçon ne se met pas à jour" autofocus />

@@ -20,24 +20,22 @@ const search = async (q: string) => {
 </script>
 
 <template>
-  <ClientOnly>
-    <USelectMenu
-        v-model="selected"
-        class="w-32"
-        :loading
-        :searchable="search"
-        searchable-placeholder="Rechercher..."
-        :placeholder="placeholder ?? 'Sélectionner'"
-        :option-attribute="searchable_attributes"
-        multiple
-        trailing
-        by="id"
-        :searchable-lazy="true"
-        @change="emit('update:modelValue', selected)"
-    >
-      <template #label>
-        <span v-if="selected.length" class="truncate">{{ placeholder }}: {{ selected.length }}</span>
-      </template>
-    </USelectMenu>
-  </ClientOnly>
+  <USelectMenu
+      v-model="selected"
+      class="w-32"
+      :loading
+      :searchable="search"
+      searchable-placeholder="Rechercher..."
+      :placeholder="placeholder ?? 'Sélectionner'"
+      :option-attribute="searchable_attributes"
+      multiple
+      trailing
+      by="id"
+      :searchable-lazy="true"
+      @change="emit('update:modelValue', selected)"
+  >
+    <template #label>
+      <span v-if="selected.length" class="truncate">{{ placeholder }}: {{ selected.length }}</span>
+    </template>
+  </USelectMenu>
 </template>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { FormError, FormSubmitEvent } from '#ui/types'
-import { isEmpty } from 'lodash'
+import { isEmpty } from 'lodash-unified'
 
 const { post, patch } = useApi('media')
 const documentId = computed(() => useRoute().params.id)
@@ -58,12 +58,13 @@ const handleMedia = async (event: FormSubmitEvent<any>) => {
     description: media.description,
     image: media.image,
     url: media.url,
-    type: 'link'
+    type: 'link',
+    ...(media.id && { id: media.id })
   }, 'media')
 
   if (response) {
     emit('submited', response)
-    toast.add({ icon: 'i-heroicons-check-circle', title: 'Média ajouté avec succès', color: 'green' })
+    toast.add({ icon: 'i-heroicons-check-circle', title: `Média ${media.id ? 'modifié' : 'ajouté'} avec succès`, color: 'green' })
     loading.value = false
     return emit('close')
   }

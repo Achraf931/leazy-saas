@@ -104,9 +104,9 @@ watch(q, () => {
           <template v-if="status === 'pending'">
             <USkeleton v-for="n in 5" :key="n" class="rounded-lg w-full h-40 sm:h-44 xl:h-48 2xl:h-52" />
           </template>
-          <Suspense v-else-if="status !== 'pending' && lessons.data.length">
+          <template v-else-if="status !== 'pending' && lessons.data.length">
             <LessonsCard v-for="lesson in lessons.data" :key="lesson.id" :lesson :refresh redirect />
-          </Suspense>
+          </template>
           <p v-else class="text-center text-gray-400 dark:text-white text-sm mt-4">Aucune leçon trouvée</p>
         </UBlogList>
       </UDashboardPanelContent>

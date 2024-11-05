@@ -95,26 +95,22 @@ const lesson = data
       <template v-if="selectedTab === 0">
         <UDashboardToolbar>
           <template #left>
-            <ClientOnly>
-              <USelectMenu
-                  v-model="selectedStatuses"
-                  icon="i-heroicons-check-circle"
-                  placeholder="Statuts"
-                  multiple
-                  :options="defaultStatuses"
-                  :ui-menu="{ option: { base: 'capitalize' } }"
-              />
-            </ClientOnly>
+            <USelectMenu
+                v-model="selectedStatuses"
+                icon="i-heroicons-check-circle"
+                placeholder="Statuts"
+                multiple
+                :options="defaultStatuses"
+                :ui-menu="{ option: { base: 'capitalize' } }"
+            />
           </template>
 
           <template #right>
-            <ClientOnly>
-              <USelectMenu v-model="selectedColumns" icon="i-heroicons-adjustments-horizontal-solid" :options="defaultColumns" multiple class="hidden lg:block">
-                <template #label>
-                  Affichage
-                </template>
-              </USelectMenu>
-            </ClientOnly>
+            <USelectMenu v-model="selectedColumns" icon="i-heroicons-adjustments-horizontal-solid" :options="defaultColumns" multiple class="hidden lg:block">
+              <template #label>
+                Affichage
+              </template>
+            </USelectMenu>
 
             <UInput
                 ref="input"

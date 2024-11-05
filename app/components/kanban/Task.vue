@@ -75,45 +75,39 @@ const updateTask = (task) => {
     </p>
 
     <div v-if="!editMode" class="mt-2 flex items-center gap-1">
-      <ClientOnly>
-        <UPopover :popper="{ placement: 'bottom' }" :ui="{ base: 'flex flex-col gap-0.5 p-0.5' }">
-          <UButton size="2xs" color="white" :label="column.title">
+      <UPopover :popper="{ placement: 'bottom' }" :ui="{ base: 'flex flex-col gap-0.5 p-0.5' }">
+        <UButton size="2xs" color="white" :label="column.title">
+          <template #leading>
+            <UIcon :name="column.icon" class="w-3 h-3" :class="column.color" dynamic />
+          </template>
+        </UButton>
+
+        <template #panel>
+          <UButton v-for="target in columns" :key="target.id" size="2xs" color="white" :label="target.title" @click="switchTaskToColumn(task, column, target.id)">
             <template #leading>
-              <UIcon :name="column.icon" class="w-3 h-3" :class="column.color" dynamic />
+              <UIcon :name="target.icon" class="w-3 h-3" :class="target.color" dynamic />
             </template>
           </UButton>
+        </template>
+      </UPopover>
 
-          <template #panel>
-            <template v-for="target in columns">
-              <UButton size="2xs" color="white" :label="target.title" @click="switchTaskToColumn(task, column, target.id)">
-                <template #leading>
-                  <UIcon :name="target.icon" class="w-3 h-3" :class="target.color" dynamic />
-                </template>
-              </UButton>
-            </template>
+      <UPopover :popper="{ placement: 'bottom' }" :ui="{ base: 'flex flex-col gap-0.5 p-0.5' }">
+        <UButton size="2xs" color="white" :label="['Basse', 'Moyenne', 'Haute'][priority]">
+          <template #leading>
+            <UIcon name="i-heroicons-flag" class="w-3 h-3" :class="['bg-green-500', 'bg-yellow-500', 'bg-red-500'][priority]" />
           </template>
-        </UPopover>
-      </ClientOnly>
+        </UButton>
 
-      <ClientOnly>
-        <UPopover :popper="{ placement: 'bottom' }" :ui="{ base: 'flex flex-col gap-0.5 p-0.5' }">
-          <UButton size="2xs" color="white" :label="['Basse', 'Moyenne', 'Haute'][priority]">
-            <template #leading>
-              <UIcon name="i-heroicons-flag" class="w-3 h-3" :class="['bg-green-500', 'bg-yellow-500', 'bg-red-500'][priority]" />
-            </template>
-          </UButton>
-
-          <template #panel>
-            <template v-for="(priority, index) in ['Basse', 'Moyenne', 'Haute']">
-              <UButton size="2xs" color="white" :label="priority" @click="changePriority(index)">
-                <template #leading>
-                  <UIcon name="i-heroicons-flag" class="w-3 h-3" :class="['bg-green-500', 'bg-yellow-500', 'bg-red-500'][index]" />
-                </template>
-              </UButton>
-            </template>
+        <template #panel>
+          <template v-for="(priority, index) in ['Basse', 'Moyenne', 'Haute']">
+            <UButton size="2xs" color="white" :label="priority" @click="changePriority(index)">
+              <template #leading>
+                <UIcon name="i-heroicons-flag" class="w-3 h-3" :class="['bg-green-500', 'bg-yellow-500', 'bg-red-500'][index]" />
+              </template>
+            </UButton>
           </template>
-        </UPopover>
-      </ClientOnly>
+        </template>
+      </UPopover>
 
       <p class="text-xs ml-auto opacity-75">{{ task.createdAt.toLocaleDateString() }}</p>
     </div>

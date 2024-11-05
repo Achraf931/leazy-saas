@@ -56,12 +56,12 @@ const selected = computed({
 })
 
 const componentMap = {
-  Overview: defineAsyncComponent(() => import('@/components/formations/Tabs/Overview.vue')),
-  Classes: defineAsyncComponent(() => import('@/components/formations/Tabs/Classes.vue')),
-  Author: defineAsyncComponent(() => import('@/components/formations/Tabs/Author.vue')),
-  Comments: defineAsyncComponent(() => import('@/components/formations/Tabs/Comments.vue')),
-  Faq: defineAsyncComponent(() => import('@/components/formations/Tabs/Faq.vue')),
-  Resources: defineAsyncComponent(() => import('@/components/formations/Tabs/Resources.vue'))
+  Overview: defineAsyncComponent(() => import('@/components/formations/tabs/Overview.vue')),
+  Classes: defineAsyncComponent(() => import('@/components/formations/tabs/Classes.vue')),
+  Author: defineAsyncComponent(() => import('@/components/formations/tabs/Author.vue')),
+  Comments: defineAsyncComponent(() => import('@/components/formations/tabs/Comments.vue')),
+  Faq: defineAsyncComponent(() => import('@/components/formations/tabs/Faq.vue')),
+  Resources: defineAsyncComponent(() => import('@/components/formations/tabs/Resources.vue'))
 }
 </script>
 
@@ -111,9 +111,7 @@ const componentMap = {
     <UTabs v-model="selected" :items="tabs" :ui="{ wrapper: '', list: { height: 'h-9', tab: { height: 'h-7', size: 'text-[13px]' } } }" class="w-fit" />
 
     <div class="bg-white rounded-lg space-y-4 p-4 border border-gray-200 dark:border-gray-800">
-      <Suspense>
-        <component :is="componentMap[tabs[selected].file]" />
-      </Suspense>
+      <component :is="componentMap[tabs[selected].file]" />
     </div>
   </div>
 </template>

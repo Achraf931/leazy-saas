@@ -41,7 +41,7 @@ const links = ref([{
         <template #title>
           <ToggleDrawer />
 
-          <UBreadcrumb divider="/" :links="breadcrumbs" />
+          <UBreadcrumb :links="breadcrumbs" />
         </template>
       </UDashboardNavbar>
 

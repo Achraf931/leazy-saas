@@ -292,9 +292,7 @@ const groups = [
 
     <NotificationsSlideover/>
 
-    <ClientOnly>
-      <LazyUDashboardSearch :groups="groups"/>
-    </ClientOnly>
+    <LazyUDashboardSearch :groups="groups"/>
   </UDashboardLayout>
 </template>
 

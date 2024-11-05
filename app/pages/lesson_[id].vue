@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { LessonsDeleteLessonModal, LessonsMediaSlideover, LessonsCommentsSlideover } from '#components'
-import { isEqual } from 'lodash'
+import { isEqual } from 'lodash-unified'
 
 definePageMeta({
   pageTransition: false
@@ -283,24 +283,22 @@ onBeforeUnmount(() => {
     <UDashboardNavbar>
       <template #title>
         <ToggleDrawer />
-        <UBreadcrumb divider="/" :links="links" :ui="{ active: 'truncate w-full max-w-32' }" />
+        <UBreadcrumb :links="links" :ui="{ active: 'truncate w-full max-w-32' }" />
       </template>
 
       <template #badge>
-        <ClientOnly>
-          <UPopover :popper="{ placement: 'bottom-end' }">
-            <UBadge variant="subtle" size="xs" :color="lesson.draft ? 'orange' : 'green'">
-              {{ lesson.draft ? 'Brouillon' : 'Publié' }}
-              <UIcon name="i-heroicons-chevron-down-20-solid" class="w-4 h-4" />
-            </UBadge>
+        <UPopover :popper="{ placement: 'bottom-end' }">
+          <UBadge variant="subtle" size="xs" :color="lesson.draft ? 'orange' : 'green'">
+            {{ lesson.draft ? 'Brouillon' : 'Publié' }}
+            <UIcon name="i-heroicons-chevron-down-20-solid" class="w-4 h-4" />
+          </UBadge>
 
-            <template #panel>
-              <div class="flex items-center justify-center">
-                <UButton icon="i-heroicons-pencil-square" :label="lesson.draft ? 'Publier' : 'Mettre en brouillon'" color="gray" size="2xs" variant="ghost" @click="handleDraft" />
-              </div>
-            </template>
-          </UPopover>
-        </ClientOnly>
+          <template #panel>
+            <div class="flex items-center justify-center">
+              <UButton icon="i-heroicons-pencil-square" :label="lesson.draft ? 'Publier' : 'Mettre en brouillon'" color="gray" size="2xs" variant="ghost" @click="handleDraft" />
+            </div>
+          </template>
+        </UPopover>
       </template>
 
       <template #right>
@@ -309,7 +307,9 @@ onBeforeUnmount(() => {
 
           <template v-if="lesson.chapter?.lessons_count">
             <div class="flex items-center gap-1">
-              <p class="pr-1.5 tracking-wider text-sm">{{ lesson.order + 1 }}/{{ lesson.chapter.lessons_count }}</p>
+              <UKbd>
+                {{ lesson.order + 1 }} / {{ lesson.chapter.lessons_count }}
+              </UKbd>
               <UTooltip text="Leçon précédente" :popper="{ placement: 'bottom' }">
                 <UButton icon="i-heroicons-chevron-left-20-solid" :disabled="(lesson.order + 1) === 1" @click="goPrevLesson" size="sm" variant="solid" :color="(lesson.order + 1) === 1 ? 'white' : 'primary'" :padded="false" square />
               </UTooltip>
@@ -319,34 +319,34 @@ onBeforeUnmount(() => {
             </div>
           </template>
 
+          <UDivider orientation="vertical" class="h-[16px] ml-2" :ui="{ border: { base: 'dark:border-gray-500' } }" />
+
           <UTooltip text="Commentaires" :popper="{ placement: 'bottom' }">
-            <UButton @click="handleComments" icon="i-lucide-message-square-text" variant="ghost" color="gray" :square />
+            <UButton @click="handleComments" icon="i-heroicons-chat-bubble-bottom-center-text" variant="ghost" color="gray" square />
           </UTooltip>
 
           <UTooltip text="Médias associés" :popper="{ placement: 'bottom' }">
-            <UButton @click="handleSlideover" icon="i-lucide-image-play" variant="ghost" color="gray" :square />
+            <UButton @click="handleSlideover" icon="i-heroicons-rectangle-stack" variant="ghost" color="gray" square />
           </UTooltip>
-          <ClientOnly>
-            <UDropdown :items="options" :popper="{ placement: 'bottom-start' }" :ui="{ item: { disabled: 'cursor-text select-text' } }">
-              <UButton color="gray" variant="ghost" trailing-icon="i-heroicons-ellipsis-horizontal-20-solid" />
+          <UDropdown :items="options" :popper="{ placement: 'bottom-start' }" :ui="{ item: { disabled: 'cursor-text select-text' } }">
+            <UButton color="gray" variant="ghost" trailing-icon="i-heroicons-ellipsis-horizontal-20-solid" />
 
-              <template #item="{ item }">
-                <UIcon :name="item.icon" class="flex-shrink-0 h-5 w-5 text-gray-400 dark:text-gray-500" />
-                <span class="truncate">{{ item.label }}</span>
-                <template v-if="item.type === 'toggle'">
-                  <UToggle v-if="item.id === 'hide-toolbar'" v-model="hideToolbar" class="ms-auto" size="sm" />
-                  <UToggle v-else-if="item.id === 'draft'" @change="handleDraft" :model-value="lesson.draft" class="ms-auto" size="sm" :loading="pendingDraft" />
-                  <UToggle v-else-if="item.id === 'private'" @change="handleVisibility" :model-value="lesson.private" class="ms-auto" size="sm" :loading="pendingVisibility" />
-                </template>
+            <template #item="{ item }">
+              <UIcon :name="item.icon" class="flex-shrink-0 h-5 w-5 text-gray-400 dark:text-gray-500" />
+              <span class="truncate">{{ item.label }}</span>
+              <template v-if="item.type === 'toggle'">
+                <UToggle v-if="item.id === 'hide-toolbar'" v-model="hideToolbar" class="ms-auto" size="sm" />
+                <UToggle v-else-if="item.id === 'draft'" @change="handleDraft" :model-value="lesson.draft" class="ms-auto" size="sm" :loading="pendingDraft" />
+                <UToggle v-else-if="item.id === 'private'" @change="handleVisibility" :model-value="lesson.private" class="ms-auto" size="sm" :loading="pendingVisibility" />
               </template>
-              <template #words>
-                <p class="text-xs">Nombre de mots :{{ new Intl.NumberFormat('fr-FR').format(editor.storage.characterCount.words()).replace(/\s/g, '&nbsp;') }}</p>
-              </template>
-              <template #last-edited>
-                <p class="text-xs text-left">Dernière modification : {{ new Date(lesson.updated_at).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric' }) }}</p>
-              </template>
-            </UDropdown>
-          </ClientOnly>
+            </template>
+            <template #words>
+              <p class="text-xs">Nombre de mots :{{ new Intl.NumberFormat('fr-FR').format(editor.storage.characterCount.words()).replace(/\s/g, '&nbsp;') }}</p>
+            </template>
+            <template #last-edited>
+              <p class="text-xs text-left">Dernière modification : {{ new Date(lesson.updated_at).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric' }) }}</p>
+            </template>
+          </UDropdown>
         </div>
       </template>
     </UDashboardNavbar>
@@ -358,34 +358,32 @@ onBeforeUnmount(() => {
 
       <div class="pt-8 lg:px-[calc((100%_-_(750px))_/_2)]">
         <div class="flex items-center gap-2 mb-4">
-          <ClientOnly>
-            <USelectMenu
-              v-model="chapter"
-              by="id"
-              name="chapter"
-              :searchable="search"
-              option-attribute="name"
-              searchable-placeholder="Rechercher un chapitre"
-              placeholder="Sélectionner un chapitre"
-              searchable
-              creatable
-              trailing
-              clear-search-on-close
-              :searchable-lazy="true"
-              :loading
-            >
-              <UButton :label="selectedChapter.name" size="xs" leading-icon="i-lucide-notebook-text" trailing-icon="i-heroicons-chevron-down-20-solid" color="gray" variant="ghost" />
+          <USelectMenu
+            v-model="chapter"
+            by="id"
+            name="chapter"
+            :searchable="search"
+            option-attribute="name"
+            searchable-placeholder="Rechercher un chapitre"
+            placeholder="Sélectionner un chapitre"
+            searchable
+            creatable
+            trailing
+            clear-search-on-close
+            :searchable-lazy="true"
+            :loading
+          >
+            <UButton :label="selectedChapter.name" size="xs" leading-icon="i-lucide-notebook-text" trailing-icon="i-heroicons-chevron-down-20-solid" color="gray" variant="ghost" />
 
-              <template #option="{ option }">
-                <span class="truncate">{{ option.name }}</span>
-              </template>
+            <template #option="{ option }">
+              <span class="truncate">{{ option.name }}</span>
+            </template>
 
-              <template #option-create="{ option }">
-                <UIcon name="i-heroicons-plus" class="w-4 h-4" />
-                <span class="block truncate">{{ option.name }}</span>
-              </template>
-            </USelectMenu>
-          </ClientOnly>
+            <template #option-create="{ option }">
+              <UIcon name="i-heroicons-plus" class="w-4 h-4" />
+              <span class="block truncate">{{ option.name }}</span>
+            </template>
+          </USelectMenu>
           <UButton v-if="!showDescription" @click="showDescription = true" label="Ajouter une description" size="xs" leading-icon="i-lucide-text" color="gray" variant="ghost" />
           <UButton v-if="!showBackground" label="Ajouter une couverture" @click="showBackground = true" size="xs" leading-icon="i-lucide-image" color="gray" variant="ghost" />
         </div>
@@ -403,9 +401,7 @@ onBeforeUnmount(() => {
         <UTextarea v-if="showDescription" v-model="lesson.description" placeholder="Description de la leçon" variant="outline" @input="onUpdateDescription" @blur="save(true)" padded />
       </div>
 
-      <ClientOnly>
-        <LeazyEditor ref="tiptap" v-model="content" output="json" :hide-toolbar="hideToolbar" class="flex-1" max-width="800" @update:model-value="onUpdate" @blur="save(true)" />
-      </ClientOnly>
+      <LeazyEditor ref="tiptap" v-model="content" output="json" :hide-toolbar="hideToolbar" class="flex-1" max-width="800" @update:model-value="onUpdate" @blur="save(true)" />
     </UDashboardPanelContent>
   </UDashboardPanel>
 </template>

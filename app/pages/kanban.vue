@@ -172,17 +172,15 @@ const onSubmit = async (id) => {
 
                   <div class="flex items-center -my-1">
                     <UButton size="xs" variant="ghost" color="gray" icon="i-heroicons-plus" @click="() => { modal.column = column.id; modal.open = true }" />
-                    <ClientOnly>
-                      <UPopover :popper="{ placement: 'bottom-end' }">
-                        <UButton size="xs" variant="ghost" color="gray" icon="i-heroicons-ellipsis-horizontal" />
+                    <UPopover :popper="{ placement: 'bottom-end' }">
+                      <UButton size="xs" variant="ghost" color="gray" icon="i-heroicons-ellipsis-horizontal" />
 
-                        <template #panel>
-                          <div class="p-0.5 flex flex-col gap-0.5">
-                            <UButton size="xs" label="Cacher" icon="i-heroicons-eye-slash" color="gray" variant="ghost" />
-                          </div>
-                        </template>
-                      </UPopover>
-                    </ClientOnly>
+                      <template #panel>
+                        <div class="p-0.5 flex flex-col gap-0.5">
+                          <UButton size="xs" label="Cacher" icon="i-heroicons-eye-slash" color="gray" variant="ghost" />
+                        </div>
+                      </template>
+                    </UPopover>
                   </div>
                 </header>
 

@@ -56,11 +56,9 @@ const handleModal = (media?: object) => {
                 {{ item.url }}
               </UButton>
             </div>
-            <ClientOnly>
-              <UDropdown :ui="{ item: { size: 'text-xs' }, width: 'w-auto' }" :items="[[{ label: 'Modifier', icon: 'i-heroicons-pencil-square', click: () => handleModal(item) }, { label: 'Supprimer', icon: 'i-heroicons-trash', color: 'red', click: () => deleteMedia(item.id) }]]" :popper="{ placement: 'bottom-end' }">
-                <UButton icon="i-heroicons-ellipsis-vertical" variant="link" size="xs" :padded="false" />
-              </UDropdown>
-            </ClientOnly>
+            <UDropdown :ui="{ item: { size: 'text-xs' }, width: 'w-auto' }" :items="[[{ label: 'Modifier', icon: 'i-heroicons-pencil-square', click: () => handleModal(item) }, { label: 'Supprimer', icon: 'i-heroicons-trash', color: 'red', click: () => deleteMedia(item.id) }]]" :popper="{ placement: 'bottom-end' }">
+              <UButton icon="i-heroicons-ellipsis-vertical" variant="link" size="xs" :padded="false" />
+            </UDropdown>
           </div>
         </template>
       </UBlogPost>

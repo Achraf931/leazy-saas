@@ -212,20 +212,18 @@ const onSubmit = async (state) => {
               <UTextarea placeholder="Description du chapitre" v-model="fields.description"/>
             </UFormGroup>
             <UFormGroup label="Discipline associé" name="discipline_id" required>
-              <ClientOnly>
-                <USelectMenu
-                  v-model="selected"
-                  :loading="loading"
-                  :searchable
-                  searchable-placeholder="Rechercher une discipline"
-                  class="w-full"
-                  placeholder="Sélectionner un discipline"
-                  option-attribute="name"
-                  trailing
-                  by="id"
-                  :searchable-lazy="true"
-                />
-              </ClientOnly>
+              <USelectMenu
+                v-model="selected"
+                :loading="loading"
+                :searchable
+                searchable-placeholder="Rechercher une discipline"
+                class="w-full"
+                placeholder="Sélectionner un discipline"
+                option-attribute="name"
+                trailing
+                by="id"
+                :searchable-lazy="true"
+              />
             </UFormGroup>
             <UButton :loading="pending" type="submit" size="xs" label="Sauvegarder" />
           </UForm>
@@ -248,17 +246,15 @@ const onSubmit = async (state) => {
                 <div class="flex gap-1.5 items-center">
                   <UButton v-if="selectedRows.length > 1" icon="i-heroicons-x-mark" color="red" size="xs" @click="deleteSelected" />
 
-                  <ClientOnly>
-                    <USelectMenu v-model="selectedColumns" :options="columns" multiple>
-                      <UButton
-                          icon="i-heroicons-view-columns"
-                          color="gray"
-                          size="xs"
-                      >
-                        Columns
-                      </UButton>
-                    </USelectMenu>
-                  </ClientOnly>
+                  <USelectMenu v-model="selectedColumns" :options="columns" multiple>
+                    <UButton
+                        icon="i-heroicons-view-columns"
+                        color="gray"
+                        size="xs"
+                    >
+                      Columns
+                    </UButton>
+                  </USelectMenu>
 
                   <UButton
                       icon="i-heroicons-funnel"

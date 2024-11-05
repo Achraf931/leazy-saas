@@ -76,29 +76,22 @@ const handleModal = (index) => {
     </UFormGroup>
 
     <UFormGroup label="Tags" required>
-      <ClientOnly>
-        <UInputMenu v-model="selectedTags" :options="tags" />
-      </ClientOnly>
+      <UInputMenu v-model="selectedTags" :options="tags" />
     </UFormGroup>
 
     <UFormGroup label="Thème" required>
-      <ClientOnly>
-        <UInputMenu v-model="selected" :options="themes" />
-      </ClientOnly>
+      <UInputMenu v-model="selected" :options="themes" />
     </UFormGroup>
 
     <UFormGroup label="Attribuer des classes" required>
-      <ClientOnly>
-        <UInputMenu v-model="selectedClasses" :options="classes" />
-      </ClientOnly>
+      <UInputMenu v-model="selectedClasses" :options="classes" />
     </UFormGroup>
 
     <h3 class="font-bold mb-2">Paramètres</h3>
 
     <UFormGroup>
       <UFormGroup label="Publié à partir du">
-        <ClientOnly>
-          <UInput type="date" />
+        <UInput type="date" />
 
           <!--          <UPopover :popper="{ placement: 'bottom-start' }">-->
 <!--            <UButton icon="i-heroicons-calendar-days-20-solid" :label="format(date, 'd MMM, yyy')" />-->
@@ -107,7 +100,6 @@ const handleModal = (index) => {
 <!--              <DatePicker v-model="date" is-required @close="close" />-->
 <!--            </template>-->
 <!--          </UPopover>-->
-        </ClientOnly>
       </UFormGroup>
     </UFormGroup>
 

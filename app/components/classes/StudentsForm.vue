@@ -31,9 +31,7 @@ async function onSubmit (event: FormSubmitEvent<any>) {
     </UFormGroup>
 
     <UFormGroup label="Role" name="role">
-      <ClientOnly>
-        <USelectMenu v-model="state.role" :options="['enseignant', 'élève']" :ui-menu="{ select: 'capitalize', option: { base: 'capitalize' } }" />
-      </ClientOnly>
+      <USelectMenu v-model="state.role" :options="['enseignant', 'élève']" :ui-menu="{ select: 'capitalize', option: { base: 'capitalize' } }" />
     </UFormGroup>
 
     <div class="flex justify-end gap-3">
