@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { FormError, FormSubmitEvent } from '#ui/types'
 import { isEmpty } from 'lodash-unified'
+import type { FormError, FormSubmitEvent } from '#ui/types'
 
 const { post, patch } = useApi('media')
 const documentId = computed(() => useRoute().params.id)

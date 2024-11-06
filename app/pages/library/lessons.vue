@@ -95,7 +95,7 @@ watch(q, () => {
           <CommonsSelectMenu @update:model-value="chapters = $event" endpoint="chapters" placeholder="Chapitres" />
           <CommonsSelectMenu @update:model-value="themes = $event" endpoint="themes" placeholder="Thèmes" />
 
-          <LazyUButton trailing-icon="i-heroicons-plus" @click="handleModal" label="Créer une leçon" />
+          <UButton trailing-icon="i-heroicons-plus" @click="handleModal" label="Créer une leçon" />
         </template>
       </UDashboardToolbar>
 

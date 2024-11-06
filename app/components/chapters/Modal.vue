@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { isEmpty } from 'lodash-unified'
+
 const { get, post, patch } = useApi('chapters')
 const emit = defineEmits(['close'])
 const localePath = useLocalePath()
@@ -56,10 +58,6 @@ const onSubmit = async (state) => {
     else return navigateTo(localePath({ name: 'library-chapters' }))
   } else pending.value = false
 }
-
-const onError = () => {
-  fields.image = 'https://designshack.net/wp-content/uploads/placeholder-image-368x247.png'
-}
 </script>
 
 <template>
@@ -71,15 +69,15 @@ const onError = () => {
       </div>
       <UForm class="space-y-4" :state="fields" :validate="validate" @submit="onSubmit">
         <UFormGroup label="Titre" name="name" required>
-          <UInput type="text" placeholder="Titre du chapitre" autofocus v-model="fields.name" />
+          <UInput type="text" placeholder="Ex. : Fondamentaux du SEO" autofocus v-model="fields.name" />
         </UFormGroup>
 
         <UFormGroup label="Description" name="description" hint="Optionnel">
-          <UTextarea placeholder="Description du chapitre" v-model="fields.description" />
+          <UTextarea placeholder="Ex. : Apprenez les premières étapes du SEO à travers plusieurs leçons pratiques" v-model="fields.description" />
         </UFormGroup>
 
         <UFormGroup label="Image" name="image" hint="Optionnel">
-          <NuxtImg :src="fields.image" fit="cover" class="w-full aspect-video rounded-lg mb-2" @error="onError" />
+          <NuxtImg v-if="!isEmpty(fields.image)" placeholder :src="fields.image" fit="cover" class="w-full aspect-video rounded-lg mb-2" />
           <UInput type="text" placeholder="URL de l'image" v-model="fields.image" />
         </UFormGroup>
 

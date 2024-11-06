@@ -24,8 +24,8 @@ setBreadcrumbs([
 </script>
 
 <template>
-  <div class="bg-white p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-    <div class="empty:before:content-['Titre de la leçon'] empty:before:pointer-events-none empty:before:text-[#adb5bd] font-bold px-4 lg:px-[calc((100%_-_(750px))_/_2)] mt-[25px] mb-5 text-3xl tracking-tight text-gray-900 dark:text-white sm:text-4xl lg:text-5xl outline-none ring-none">
+  <div class="p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+    <div class="font-bold px-4 lg:px-[calc((100%_-_(750px))_/_2)] mt-[25px] mb-5 text-3xl tracking-tight text-gray-900 dark:text-white sm:text-4xl lg:text-5xl outline-none ring-none">
       Titre de la leçon
     </div>
 

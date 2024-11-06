@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import { FormationsModal } from '#components'
+
 definePageMeta({
   title: 'Titre de la formation'
 })
 
+const modal = useModal()
 const localePath = useLocalePath()
 const { setBreadcrumbs } = useDashboard()
 const subjects = ref([])
@@ -66,6 +69,12 @@ const formations = ref([
     edit: localePath({ name: 'library-formations-id-edit', params: { id: 5 } })
   }
 ])
+
+const handleModal = () => {
+  modal.open(FormationsModal, {
+    onClose: () => modal.close()
+  })
+}
 </script>
 
 <template>
@@ -80,7 +89,7 @@ const formations = ref([
           <CommonsSelectMenu @update:model-value="subjects = $event" endpoint="subjects" placeholder="Matières" />
           <CommonsSelectMenu @update:model-value="classes = $event" endpoint="classes" placeholder="Classes" />
 
-          <UButton :to="localePath({ name: 'library-formations-new' })" label="Créer une formation" color="primary" icon="i-heroicons-plus" />
+          <UButton @click="handleModal" label="Créer une formation" color="primary" icon="i-heroicons-plus" />
         </template>
       </UDashboardToolbar>
 

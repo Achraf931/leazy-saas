@@ -50,8 +50,8 @@ const handleDelete = () => {
     class="text-xs"
   >
     <template #image>
-      <img v-if="lesson.image" class="cursor-pointer block object-cover w-full h-full transform transition-transform duration-200 hover:scale-105" :src="lesson.image" :alt="lesson.name">
-      <div v-else class="flex items-center justify-center bg-gray-200 dark:bg-gray-800 w-full h-full">
+      <NuxtImg v-if="lesson.image" class="cursor-pointer block object-cover w-full h-full transform transition-transform duration-200 hover:scale-105" :src="lesson.image" :alt="lesson.name" />
+      <div v-else class="flex items-center justify-center bg-gray-200 dark:bg-gray-900 w-full h-full">
         <UIcon name="i-heroicons-photo" class="w-24 h-24 text-white" />
       </div>
     </template>
@@ -64,7 +64,7 @@ const handleDelete = () => {
             <UButton icon="i-heroicons-ellipsis-vertical" variant="ghost" color="gray" :padded="false" />
 
             <template #item="{ item }">
-              <LazyUIcon :name="item.icon" class="flex-shrink-0 h-4 w-4" :class="item.label === 'Supprimer' ? 'text-red-500 dark:text-red-400' : ''" />
+              <UIcon :name="item.icon" class="flex-shrink-0 h-4 w-4" :class="item.label === 'Supprimer' ? 'text-red-500 dark:text-red-400' : ''" />
 
               <span class="truncate" :class="item.label === 'Supprimer' ? 'text-red-500 dark:text-red-400' : ''">{{ item.label }}</span>
             </template>

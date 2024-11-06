@@ -33,17 +33,17 @@ const { formation } = defineProps<{
 
         <div class="flex items-center justify-between flex-wrap gap-2">
           <div class="flex items-center gap-1">
-            <LazyUIcon name="i-heroicons-bars-3-bottom-right" class="w-3.5 h-3.5 text-primary" />
+            <UIcon name="i-heroicons-bars-3-bottom-right" class="w-3.5 h-3.5 text-primary" />
             <p class="text-gray-400 text-xs">28 leçons</p>
           </div>
 
           <div class="flex items-center gap-1">
-            <LazyUIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-primary" />
+            <UIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-primary" />
             <p class="text-gray-400 text-xs">16h</p>
           </div>
 
           <div class="flex items-center gap-1">
-            <LazyUIcon name="i-heroicons-user-group" class="w-3.5 h-3.5 text-primary" />
+            <UIcon name="i-heroicons-user-group" class="w-3.5 h-3.5 text-primary" />
             <p class="text-gray-400 text-xs">342</p>
           </div>
         </div>

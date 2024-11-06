@@ -66,7 +66,7 @@ const onSubmit = async (state) => {
       </div>
       <UForm class="space-y-4" :state="fields" :validate="validate" @submit="onSubmit">
         <UFormGroup label="Titre" name="name" required>
-          <UInput type="text" placeholder="Titre du thème" autofocus v-model="fields.name" />
+          <UInput type="text" placeholder="Ex. : SEO" autofocus v-model="fields.name" />
         </UFormGroup>
 
         <UFormGroup label="Discipline associé" required>
