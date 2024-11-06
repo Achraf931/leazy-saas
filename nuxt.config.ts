@@ -19,10 +19,6 @@ export default defineNuxtConfig({
   ui: {
     safelistColors: ['primary', 'red', 'orange', 'green']
   },
-  routeRules: {
-    // Temporary workaround for prerender regression. see https://github.com/nuxt/nuxt/issues/27490
-    '/': { prerender: true }
-  },
   devServer: {
     host: 'leazy.local'
   },
