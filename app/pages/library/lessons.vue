@@ -91,9 +91,15 @@ watch(q, () => {
         </template>
 
         <template #right>
-          <CommonsSelectMenu @update:model-value="levels = $event" endpoint="levels" placeholder="Niveaux" />
-          <CommonsSelectMenu @update:model-value="chapters = $event" endpoint="chapters" placeholder="Chapitres" />
-          <CommonsSelectMenu @update:model-value="themes = $event" endpoint="themes" placeholder="Thèmes" />
+          <Suspense>
+            <CommonsSelectMenu @update:model-value="levels = $event" endpoint="levels" placeholder="Niveaux" />
+          </Suspense>
+          <Suspense>
+            <CommonsSelectMenu @update:model-value="chapters = $event" endpoint="chapters" placeholder="Chapitres" />
+          </Suspense>
+          <Suspense>
+            <CommonsSelectMenu @update:model-value="themes = $event" endpoint="themes" placeholder="Thèmes" />
+          </Suspense>
 
           <UButton trailing-icon="i-heroicons-plus" @click="handleModal" label="Créer une leçon" />
         </template>

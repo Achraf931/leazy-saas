@@ -56,7 +56,9 @@ const handleModal = () => {
         </template>
 
         <template #right>
-          <CommonsSelectMenu @update:model-value="themes = $event" endpoint="themes" placeholder="Thèmes" />
+          <Suspense>
+            <CommonsSelectMenu @update:model-value="themes = $event" endpoint="themes" placeholder="Thèmes" />
+          </Suspense>
 
           <UButton trailing-icon="i-heroicons-plus" @click="handleModal" label="Créer un chapitre" />
         </template>

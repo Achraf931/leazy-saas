@@ -64,10 +64,14 @@ const handleModal = () => {
           <div class="col-start-1 col-end-13 row-start-3 row-end-4 flex items-end gap-4 p-4 z-10">
             <UInput icon="i-heroicons-magnifying-glass" placeholder="Rechercher un modèle" />
             <UFormGroup label="Niveaux" :ui="{ label: { base: 'font-semibold' } }">
-              <CommonsSelectMenu v-model="levels" endpoint="levels" placeholder="Niveaux" />
+              <Suspense>
+                <CommonsSelectMenu v-model="levels" endpoint="levels" placeholder="Niveaux" />
+              </Suspense>
             </UFormGroup>
             <UFormGroup label="Matières" :ui="{ label: { base: 'font-semibold' } }">
-              <CommonsSelectMenu v-model="levels" endpoint="levels" placeholder="Matières" />
+              <Suspense>
+                <CommonsSelectMenu v-model="levels" endpoint="levels" placeholder="Matières" />
+              </Suspense>
             </UFormGroup>
             <UButton trailing-icon="i-heroicons-plus" @click="handleModal" label="Créer sans modèle" class="ml-auto" />
           </div>

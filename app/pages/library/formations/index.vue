@@ -86,8 +86,12 @@ const handleModal = () => {
         </template>
 
         <template #right>
-          <CommonsSelectMenu @update:model-value="subjects = $event" endpoint="subjects" placeholder="Matières" />
-          <CommonsSelectMenu @update:model-value="classes = $event" endpoint="classes" placeholder="Classes" />
+          <Suspense>
+            <CommonsSelectMenu @update:model-value="subjects = $event" endpoint="subjects" placeholder="Matières" />
+          </Suspense>
+          <Suspense>
+            <CommonsSelectMenu @update:model-value="classes = $event" endpoint="classes" placeholder="Classes" />
+          </Suspense>
 
           <UButton @click="handleModal" label="Créer une formation" color="primary" icon="i-heroicons-plus" />
         </template>
