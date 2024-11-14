@@ -1,22 +1,24 @@
-
 <script setup lang="ts">
-import type { FormError, FormSubmitEvent } from '#ui/types'
+import { z } from 'zod'
+import type { FormSubmitEvent, Form } from '#ui/types'
 
 const emit = defineEmits(['close'])
 
-const state = reactive({
+const schema = z.object({
+  email: z.string().email('L\'email est invalide.'),
+  role: z.enum(['enseignant', 'élève'])
+})
+
+type Schema = z.output<typeof schema>
+
+const form = ref<Form<Schema>>()
+const state = reactive<Schema>({
   role: 'élève',
   email: undefined
 })
 
-// https://ui.nuxt.com/components/form
-const validate = (state: any): FormError[] => {
-  const errors = []
-  if (!state.email) errors.push({ path: 'email', message: 'Veuillez entrer un email.' })
-  return errors
-}
-
-async function onSubmit (event: FormSubmitEvent<any>) {
+const onSubmit = async (event: FormSubmitEvent<Schema>) => {
+  form.value?.clear()
   // Do something with data
   console.log(event.data)
 
@@ -25,13 +27,20 @@ async function onSubmit (event: FormSubmitEvent<any>) {
 </script>
 
 <template>
-  <UForm :validate="validate" :validate-on="['submit']" :state="state" class="space-y-4" @submit="onSubmit">
+  <UForm
+    ref="form"
+    :schema="schema"
+    :state="state"
+    :validate-on="['submit']"
+    class="space-y-4"
+    @submit="onSubmit"
+  >
     <UFormGroup label="Email" name="email">
-      <UInput v-model="state.email" type="email" placeholder="john.doe@example.com" autofocus />
+      <UInput v-model="state.email" name="email" type="email" placeholder="john.doe@example.com" autofocus />
     </UFormGroup>
 
     <UFormGroup label="Role" name="role">
-      <USelectMenu v-model="state.role" :options="['enseignant', 'élève']" :ui-menu="{ select: 'capitalize', option: { base: 'capitalize' } }" />
+      <USelectMenu v-model="state.role" name="role" :options="['enseignant', 'élève']" :ui-menu="{ select: 'capitalize', option: { base: 'capitalize' } }" />
     </UFormGroup>
 
     <div class="flex justify-end gap-3">

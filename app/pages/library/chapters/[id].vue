@@ -1,11 +1,23 @@
 <script setup lang="ts">
 import { formatDistanceToNow } from 'date-fns'
 import frLocale from 'date-fns/locale/fr'
+import { z } from 'zod'
 import { LessonsDeleteLessonModal, ChaptersDeleteChapterModal } from '#components'
+import type { FormSubmitEvent, Form } from '#ui/types'
 
 definePageMeta({
   title: 'Chapitres'
 })
+
+const schema = z.object({
+  id: z.any(),
+  name: z.string().min(1, 'Le titre est requis.'),
+  description: z.string().optional(),
+  theme_id: z.any().refine(option => option?.id !== null, { message: 'Le thème est requis.' }),
+  image: z.string().optional()
+})
+
+type Schema = z.output<typeof schema>
 
 const toast = useToast()
 const modal = useModal()
@@ -34,22 +46,14 @@ setBreadcrumbs([
   }
 ])
 
-const fields = reactive({
+const form = ref<Form<Schema>>()
+const state = reactive<Schema>({
   id: documentId.value,
   name: chapter.value?.name || '',
   description: chapter.value?.description || '',
   image: chapter.value?.image || 'https://designshack.net/wp-content/uploads/placeholder-image-368x247.png',
   theme_id: chapter.value?.theme_id || ''
 })
-
-const validate = (state) => {
-  const errors = []
-
-  if (!state.name) errors.push({ path: 'name', message: 'Le titre est requis' })
-  if (!state.theme_id) errors.push({ path: 'theme_id', message: 'Le thème est requis' })
-
-  return errors
-}
 
 const searchable = async (q: string) => {
   loading.value = true
@@ -179,12 +183,13 @@ const handleDeleteLesson = (lesson) => {
   })
 }
 
-const onSubmit = async (state) => {
+const onSubmit = async (event: FormSubmitEvent<Schema>) => {
   pending.value = true
-  const response = await patch(state.data)
+  form.value?.clear()
+  const response = await patch(event.data)
 
   if (response) {
-    toast.add({icon: 'i-heroicons-check-circle', title: 'Chapitre mis à jour', color: 'green'})
+    toast.add({ icon: 'i-heroicons-check-circle', title: 'Chapitre mis à jour', color: 'green' })
 
     pending.value = false
     return refresh()
@@ -224,24 +229,31 @@ const onSubmit = async (state) => {
         </div>
 
         <UCard :ui="{ base: 'overflow-scroll flex-1' }">
-          <UForm class="space-y-4" :state="fields" :validate="validate" @submit="onSubmit">
+          <UForm
+            ref="form"
+            :schema="schema"
+            :state="state"
+            class="space-y-4"
+            @submit="onSubmit"
+          >
             <h3 class="font-semibold">Détails</h3>
-            <UFormGroup label="Titre" name="title" required>
-              <UInput placeholder="Titre du chapitre" v-model="fields.name" />
+            <UFormGroup label="Titre" name="name" required>
+              <UInput placeholder="Titre du chapitre" name="name" v-model="state.name" />
             </UFormGroup>
             <UFormGroup label="Description" name="description" hint="Optionnel">
-              <UTextarea placeholder="Description du chapitre" v-model="fields.description"/>
+              <UTextarea placeholder="Description du chapitre" name="description" v-model="state.description"/>
             </UFormGroup>
             <UFormGroup label="Thème associé" name="theme_id" required>
               <USelectMenu
-                v-model="selected"
+                v-model="state.theme_id"
                 :loading="loading"
-                :searchable
+                :searchable="searchable"
                 searchable-placeholder="Rechercher un thème"
                 class="w-full"
+                name="theme_id"
                 placeholder="Sélectionner un thème"
                 option-attribute="name"
-                by="id"
+                value-attribute="id"
                 :searchable-lazy="true"
               />
             </UFormGroup>

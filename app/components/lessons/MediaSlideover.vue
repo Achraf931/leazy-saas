@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { LessonsMediaModal } from '#components'
 
+interface Props {
+  medias: object[]
+  overlay: boolean
+}
+
 const { del } = useApi('lessons')
 const toast = useToast()
 const modal = useModal()
 
-const props = defineProps<{
-  medias: object[]
-  overlay: boolean
-}>()
+const props = defineProps<Props>()
 
 const medias = useModel(props, 'medias')
 

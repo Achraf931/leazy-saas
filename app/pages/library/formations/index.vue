@@ -12,7 +12,7 @@ const subjects = ref([])
 const classes = ref([])
 const q = ref('')
 
-const { data: formations } = await useFetch('/api/formations', { default: () => [] })
+const { data: formations, status } = await useFetch('/api/formations', { default: () => [] })
 
 setBreadcrumbs([
   {
@@ -100,12 +100,18 @@ const handleModal = () => {
       </UDashboardToolbar>
 
       <UDashboardPanelContent>
+        <p v-if="status !== 'pending' && !formations.length" class="text-center text-gray-400 dark:text-white text-sm mt-4">Aucune leçon trouvée</p>
         <UBlogList orientation="horizontal" :ui="{ wrapper: 'p-px overflow-y-auto gap-4 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }">
-          <FormationsCard
-            v-for="formation in formations"
-            :key="formation.id"
-            :formation
-          />
+          <template v-if="status === 'pending'">
+            <USkeleton v-for="n in 5" :key="n" class="rounded-lg w-full h-40 sm:h-44 xl:h-48 2xl:h-52" />
+          </template>
+          <template v-else-if="status !== 'pending' && formations.length">
+            <FormationsCard
+              v-for="formation in formations"
+              :key="formation.id"
+              :formation
+            />
+          </template>
         </UBlogList>
       </UDashboardPanelContent>
     </UDashboardPanel>

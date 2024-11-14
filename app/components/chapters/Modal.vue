@@ -1,5 +1,12 @@
 <script setup lang="ts">
 import { isEmpty } from 'lodash-unified'
+import { z } from 'zod'
+import type { FormSubmitEvent, Form } from '#ui/types'
+
+interface Props {
+  chapter?: { id: number, name: string, description: string, image: string, theme_id?: number | null }
+  refresh?: () => void
+}
 
 const { get, post, patch } = useApi('chapters')
 const emit = defineEmits(['close'])
@@ -7,33 +14,23 @@ const localePath = useLocalePath()
 const toast = useToast()
 const loading = ref(false)
 const pending = ref(false)
-const selected = ref([])
-const { chapter, refresh } = defineProps({
-  chapter: {
-    type: Object,
-    required: false
-  },
-  refresh: {
-    type: Function,
-    required: false
-  }
+const { chapter, refresh } = defineProps<Props>()
+const schema = z.object({
+  name: z.string().min(1, 'Le titre est requis.'),
+  description: z.string().optional(),
+  theme_id: z.any().refine(option => option?.id !== null, { message: 'Le thème est requis.' }),
+  image: z.string().optional()
 })
 
-const fields = reactive({
+type Schema = z.output<typeof schema>
+
+const form = ref<Form<Schema>>()
+const state = reactive<Schema>({
   name: chapter?.name || '',
   description: chapter?.description || '',
-  theme_id: 1,
+  theme_id: chapter?.theme_id || null,
   image: chapter?.image || 'https://designshack.net/wp-content/uploads/placeholder-image-368x247.png'
 })
-
-const validate = (state) => {
-  const errors = []
-
-  if (!state.name) errors.push({ path: 'name', message: 'Le titre est requis' })
-  if (!state.theme_id) errors.push({ path: 'theme_id', message: 'Le thème est requis' })
-
-  return errors
-}
 
 const searchable = async (q: string) => {
   loading.value = true
@@ -45,9 +42,10 @@ const searchable = async (q: string) => {
   return 'data' in themes ? themes.data : themes
 }
 
-const onSubmit = async (state) => {
+const onSubmit = async (event: FormSubmitEvent<Schema>) => {
   pending.value = true
-  const response = await (chapter ? patch : post)(chapter ? { ...state.data, id: chapter.id } : state.data)
+  form.value?.clear()
+  const response = await (chapter ? patch : post)(chapter ? { ...event.data, id: chapter.id } : event.data)
 
   if (response) {
     toast.add({ icon: 'i-heroicons-check-circle', title: chapter ? 'Chapitre modifié' : 'Chapitre créé', color: 'green' })
@@ -67,30 +65,37 @@ const onSubmit = async (state) => {
         <p class="text-gray-900 dark:text-white font-semibold">{{ `${chapter ? 'Modifier' : 'Créer'} un chapitre` }}</p>
         <UButton icon="i-heroicons-x-mark" color="gray" variant="ghost" @click="emit('close')" />
       </div>
-      <UForm class="space-y-4" :state="fields" :validate="validate" @submit="onSubmit">
+      <UForm
+        ref="form"
+        :schema="schema"
+        :state="state"
+        class="space-y-4"
+        @submit="onSubmit"
+      >
         <UFormGroup label="Titre" name="name" required>
-          <UInput type="text" placeholder="Ex. : Fondamentaux du SEO" autofocus v-model="fields.name" />
+          <UInput type="text" name="name" placeholder="Ex. : Fondamentaux du SEO" autofocus v-model="state.name" />
         </UFormGroup>
 
         <UFormGroup label="Description" name="description" hint="Optionnel">
-          <UTextarea placeholder="Ex. : Apprenez les premières étapes du SEO à travers plusieurs leçons pratiques" v-model="fields.description" />
+          <UTextarea name="description" placeholder="Ex. : Apprenez les premières étapes du SEO à travers plusieurs leçons pratiques" v-model="state.description" />
         </UFormGroup>
 
         <UFormGroup label="Image" name="image" hint="Optionnel">
-          <NuxtImg v-if="!isEmpty(fields.image)" placeholder :src="fields.image" fit="cover" class="w-full aspect-video rounded-lg mb-2" />
-          <UInput type="text" placeholder="URL de l'image" v-model="fields.image" />
+          <NuxtImg v-if="!isEmpty(state.image)" placeholder :src="state.image" fit="cover" class="w-full aspect-video rounded-lg mb-2" />
+          <UInput type="text" name="image" placeholder="URL de l'image" v-model="state.image" />
         </UFormGroup>
 
-        <UFormGroup label="Thème associé" required>
+        <UFormGroup label="Thème associé" name="theme_id" required>
           <USelectMenu
-            v-model="selected"
+            v-model="state.theme_id"
             :loading="loading"
             :searchable="searchable"
             searchable-placeholder="Rechercher un thème"
             class="w-full"
+            name="theme_id"
             placeholder="Sélectionner un thème"
             option-attribute="name"
-            by="id"
+            value-attribute="id"
           />
         </UFormGroup>
 

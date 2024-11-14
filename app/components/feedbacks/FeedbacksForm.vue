@@ -1,39 +1,48 @@
 <script setup lang="ts">
-import type { FormError, FormSubmitEvent } from '#ui/types'
+import { z } from 'zod'
+import type { FormSubmitEvent, Form } from '#ui/types'
 
 const emit = defineEmits(['close'])
-
-const state = reactive({
-  object: undefined,
-  content: undefined
+const schema = z.object({
+  page: z.string().min(1, 'La page est requise.'),
+  object: z.string().min(1, 'L\'objet est requis.'),
+  content: z.string().min(1, 'Le contenu est requis.')
 })
 
+type Schema = z.output<typeof schema>
+
 const pageSelected = ref('Accueil')
+const form = ref<Form<Schema>>()
+const state = reactive<Schema>({
+  page: pageSelected.value || '',
+  object: '',
+  content: ''
+})
 
-const validate = (state: any): FormError[] => {
-  const errors = []
-  if (!state.object) errors.push({ path: 'object', message: 'Veuillez saisir un objet.' })
-  if (!state.content) errors.push({ path: 'content', message: 'Veuillez saisir une description.' })
-  return errors
-}
-
-async function onSubmit (event: FormSubmitEvent<any>) {
+const onSubmit = async (event: FormSubmitEvent<Schema>) => {
   // Do something with data
   emit('close')
 }
 </script>
 
 <template>
-  <UForm :validate="validate" :validate-on="['submit']" :state="state" class="space-y-4" @submit="onSubmit">
-    <UFormGroup label="Le problème se situe :" name="page">
-      <USelectMenu label="Page" :options="['Accueil', 'Librairie', 'Leçon (éditeur)', 'Leçons', 'Chapitres', 'Thèmes', 'Mon compte']" v-model="pageSelected" />
+  <UForm
+    ref="form"
+    :schema="schema"
+    :validate-on="['submit']"
+    :state="state"
+    class="space-y-4"
+    @submit="onSubmit"
+  >
+    <UFormGroup label="Le problème se situe :" name="page" required>
+      <USelectMenu label="Page" name="page" :options="['Accueil', 'Librairie', 'Leçon (éditeur)', 'Leçons', 'Chapitres', 'Thèmes', 'Mon compte']" v-model="pageSelected" />
     </UFormGroup>
-    <UFormGroup label="Objet" name="object">
-      <UInput v-model="state.object" placeholder="Ex.: Ma leçon ne se met pas à jour" autofocus />
+    <UFormGroup label="Objet" name="object" required>
+      <UInput v-model="state.object" name="object" placeholder="Ex.: Ma leçon ne se met pas à jour" autofocus />
     </UFormGroup>
 
-    <UFormGroup label="Feedback" name="content">
-      <UTextarea v-model="state.content" placeholder="Décrivez-nous le problème" />
+    <UFormGroup label="Feedback" name="content" required>
+      <UTextarea v-model="state.content" name="content" placeholder="Décrivez-nous le problème" />
     </UFormGroup>
 
     <div class="flex justify-end gap-3">
