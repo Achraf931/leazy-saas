@@ -1,10 +1,12 @@
 <script setup lang="ts">
-const tags = ['HTML', 'CSS', 'JavaScript', 'Vue.js', 'Nuxt.js', 'Tailwind CSS', 'Alpine.js', 'Vite', 'TypeScript', 'Node.js', 'Express', 'MongoDB', 'GraphQL', 'Apollo', 'Hasura', 'Firebase', 'AWS', 'Docker', 'Kubernetes', 'Jest', 'Cypress', 'Testing Library', 'Storybook', 'Figma', 'Adobe XD', 'Photoshop', 'Illustrator', 'After Effects', 'Premiere Pro', 'Blender', 'Unity', 'Unreal Engine', 'Cinema 4D', 'Maya', 'ZBrush', 'Substance Painter', 'Substance']
+defineProps(['formation'])
 </script>
 
 <template>
-  <UFormGroup label="Description" :ui="{ label: { base: 'font-semibold' } }" class="text-gray-500">
-    On sait depuis longtemps que travailler avec du texte lisible et contenant du sens est source de distractions, et empêche de se concentrer sur la mise en page elle-même. L'avantage du Lorem Ipsum sur un texte générique comme 'Du texte. Du texte. Du texte.' est qu'il possède une distribution de lettres plus ou moins normale, et en tout cas comparable avec celle du français standard. De nombreuses suites logicielles de mise en page ou éditeurs de sites Web ont fait du Lorem Ipsum leur faux texte par défaut, et une recherche pour 'Lorem Ipsum' vous conduira vers de nombreux sites qui n'en sont encore qu'à leur phase de construction. Plusieurs versions sont apparues avec le temps, parfois par accident, souvent intentionnellement (histoire d'y rajouter de petits clins d'oeil, voire des phrases embarassantes).
+  <UFormGroup label="Description" :ui="{ label: { base: 'font-semibold' } }" class="relative text-gray-500 w-max">
+    <p>
+      {{ formation.description }}
+    </p>
   </UFormGroup>
 
   <UFormGroup label="Ce que vous allez apprendre" :ui="{ label: { base: 'font-semibold' } }" class="text-gray-500">
@@ -43,7 +45,7 @@ const tags = ['HTML', 'CSS', 'JavaScript', 'Vue.js', 'Nuxt.js', 'Tailwind CSS', 
 
   <UFormGroup label="Tags" :ui="{ label: { base: 'font-semibold' } }">
     <div class="flex flex-wrap gap-1">
-      <UBadge v-for="tag in tags" :key="tag" :label="tag" color="gray" size="xs" />
+      <UBadge v-for="tag in formation.tags" :key="tag.id" :label="tag.name" color="gray" size="xs" />
     </div>
   </UFormGroup>
 

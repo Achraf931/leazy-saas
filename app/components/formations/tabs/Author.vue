@@ -1,5 +1,9 @@
+<script setup lang="ts">
+defineProps(['formation'])
+</script>
+
 <template>
   <div>
-    <p>Que l'auteur</p>
+    <p>{{ formation.author.name }}</p>
   </div>
 </template>

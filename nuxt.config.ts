@@ -132,6 +132,18 @@ export default defineNuxtConfig({
         en: '/library/formations/[id]/[lesson_id]',
         fr: '/bibliotheque/formations/[id]/[lesson_id]'
       },
+      'preview': {
+        en: '/preview',
+        fr: '/preview'
+      },
+      'preview/[id]': {
+        en: '/preview/[id]',
+        fr: '/preview/[id]'
+      },
+      'preview/[id]/[lesson_id]': {
+        en: '/preview/[id]/lesson/[lesson_id]',
+        fr: '/preview/[id]/lesson/[lesson_id]'
+      },
       'inbox': {
         en: '/inbox',
         fr: '/messages'
