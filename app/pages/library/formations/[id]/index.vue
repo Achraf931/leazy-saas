@@ -58,13 +58,13 @@ const pullFunction = () => {
           <UDivider orientation="vertical" type="dashed" class="flex-1" />
         </div>
 
-        <div class="bg-gray-100 p-2 rounded-md flex-1 space-y-4 border border-gray-200 dark:border-gray-700">
-          <UFormGroup label="Titre" name="title">
-            <UInput placeholder="Ex. : Les bases du marketing digital" />
+        <div class="bg-gray-100 dark:bg-gray-800 p-2 rounded-md flex-1 space-y-4 border border-gray-200 dark:border-gray-700">
+          <UFormGroup label="Titre" name="title" required>
+            <UInput name="title" placeholder="Ex. : Les bases du marketing digital" />
           </UFormGroup>
 
           <UFormGroup label="Courte description" name="description" description="Courte description visible dans la liste des formations" hint="Optionnel">
-            <UTextarea placeholder="Ex. : Apprenez les stratégies essentielles pour réussir dans le marketing digital et optimiser votre présence en ligne" />
+            <UTextarea name="description" placeholder="Ex. : Apprenez les stratégies essentielles pour réussir dans le marketing digital et optimiser votre présence en ligne" />
           </UFormGroup>
         </div>
       </div>
@@ -75,13 +75,13 @@ const pullFunction = () => {
           <UDivider orientation="vertical" type="dashed" class="flex-1" />
         </div>
 
-        <div class="bg-gray-100 p-2 rounded-md flex-1 space-y-4 border border-gray-200 dark:border-gray-700">
-          <UFormGroup label="Titre" name="title">
-            <UInput placeholder="Ex. : Les bases du marketing digital" />
+        <div class="bg-gray-100 dark:bg-gray-800 p-2 rounded-md flex-1 space-y-4 border border-gray-200 dark:border-gray-700">
+          <UFormGroup label="Titre" name="title" required>
+            <UInput name="title" placeholder="Ex. : Les bases du marketing digital" />
           </UFormGroup>
 
-          <UFormGroup label="Leçons" name="lessons" description="Organisez les leçons dans l'ordre souhaité">
-            <div class="bg-white rounded-md overflow-hidden relative">
+          <UFormGroup label="Leçons" name="lessons" description="Organisez les leçons dans l'ordre souhaité" hint="Optionnel">
+            <div class="rounded-md overflow-hidden relative">
               <TransitionGroup type="transition" :name="!dragging ? 'flip-list' : null">
                 <Draggable
                   :list="lessons"

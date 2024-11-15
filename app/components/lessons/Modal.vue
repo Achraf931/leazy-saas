@@ -1,36 +1,35 @@
 <script setup lang="ts">
+import { z } from 'zod'
+import type { FormSubmitEvent, Form } from '#ui/types'
+
+interface Props {
+  lesson?: { id: number, name: string, description: string }
+  refresh?: () => void
+}
+
 const { post, patch } = useApi('lessons')
 const emit = defineEmits(['close'])
 const localePath = useLocalePath()
 const toast = useToast()
 const pending = ref(false)
-const { lesson, refresh } = defineProps({
-  lesson: {
-    type: Object,
-    required: false
-  },
-  refresh: {
-    type: Function,
-    required: false
-  }
+const { lesson, refresh } = defineProps<Props>()
+const schema = z.object({
+  name: z.string().min(1, 'Le titre est requis.'),
+  description: z.string().optional()
 })
 
-const fields = reactive({
+type Schema = z.output<typeof schema>
+
+const form = ref<Form<Schema>>()
+const state = reactive<Schema>({
   name: lesson?.name || '',
   description: lesson?.description || ''
 })
 
-const validate = (state) => {
-  const errors = []
-
-  if (!state.name) errors.push({ path: 'name', message: 'Le titre est requis' })
-
-  return errors
-}
-
-const onSubmit = async (state) => {
+const onSubmit = async (event: FormSubmitEvent<Schema>) => {
   pending.value = true
-  const response = await (lesson ? patch : post)(lesson ? { ...state.data, id: lesson.id } : { ...state.data, content: '{}' })
+  form.value?.clear()
+  const response = await (lesson ? patch : post)(lesson ? { ...event.data, id: lesson.id } : { ...event.data, content: '{}', level_id: 1 })
 
   if (response) {
     toast.add({ icon: 'i-heroicons-check-circle', title: lesson ? 'Leçon modifiée' : 'Leçon créée', color: 'green' })
@@ -50,13 +49,23 @@ const onSubmit = async (state) => {
         <p class="text-gray-900 dark:text-white font-semibold">{{ `${lesson ? 'Modifier' : 'Créer'} une leçon` }}</p>
         <UButton icon="i-heroicons-x-mark" color="gray" variant="ghost" @click="emit('close')" />
       </div>
-      <UForm class="space-y-4" :state="fields" :validate="validate" @submit="onSubmit">
+      <UForm
+        ref="form"
+        class="space-y-4"
+        :schema="schema"
+        :state="state"
+        @submit="onSubmit"
+      >
         <UFormGroup label="Titre" name="name" required>
-          <UInput type="text" placeholder="Ex. : Technique de base en SEO" autofocus v-model="fields.name" />
+          <UInput type="text" name="name" placeholder="Ex. : Technique de base en SEO" autofocus v-model="state.name" />
         </UFormGroup>
 
         <UFormGroup label="Description" name="description" hint="Optionnel">
-          <UTextarea placeholder="Ex. : Apprenez les bases du SEO pour optimiser la visibilité de vos contenus sur les moteurs de recherche" v-model="fields.description" />
+          <UTextarea
+            v-model="state.description"
+            name="description"
+            placeholder="Ex. : Apprenez les bases du SEO pour optimiser la visibilité de vos contenus sur les moteurs de recherche"
+          />
         </UFormGroup>
 
         <div class="flex justify-end gap-3">

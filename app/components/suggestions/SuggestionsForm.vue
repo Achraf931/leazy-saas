@@ -1,34 +1,42 @@
 <script setup lang="ts">
-import type { FormError, FormSubmitEvent } from '#ui/types'
+import { z } from 'zod'
+import type { FormSubmitEvent, Form } from '#ui/types'
 
 const emit = defineEmits(['close'])
-
-const state = reactive({
-  title: undefined,
-  description: undefined
+const schema = z.object({
+  title: z.string().min(1, 'Le titre est requis.'),
+  description: z.string().min(1, 'La description est requise.')
 })
 
-const validate = (state: any): FormError[] => {
-  const errors = []
-  if (!state.title) errors.push({ path: 'title', message: 'Veuillez saisir un titre.' })
-  if (!state.description) errors.push({ path: 'description', message: 'Veuillez saisir une description.' })
-  return errors
-}
+type Schema = z.output<typeof schema>
 
-async function onSubmit (event: FormSubmitEvent<any>) {
+const form = ref<Form<Schema>>()
+const state = reactive<Schema>({
+  title: '',
+  description: ''
+})
+
+async function onSubmit(event: FormSubmitEvent<Schema>) {
   // Do something with data
   emit('close')
 }
 </script>
 
 <template>
-  <UForm :validate="validate" :validate-on="['submit']" :state="state" class="space-y-4" @submit="onSubmit">
-    <UFormGroup label="Titre" name="title">
-      <UInput v-model="state.title" placeholder="Ex.: La possibilité de changer le thème" autofocus />
+  <UForm
+    ref="form"
+    :schema="schema"
+    :validate-on="['submit']"
+    :state="state"
+    class="space-y-4"
+    @submit="onSubmit"
+  >
+    <UFormGroup label="Titre" name="title" required>
+      <UInput v-model="state.title" name="title" placeholder="Ex.: La possibilité de changer le thème" autofocus />
     </UFormGroup>
 
-    <UFormGroup label="Description" name="description">
-      <UTextarea v-model="state.description" placeholder="Décrivez-nous la fonctionnalité" />
+    <UFormGroup label="Description" name="description" required>
+      <UTextarea v-model="state.description" name="description" placeholder="Décrivez-nous la fonctionnalité" />
     </UFormGroup>
 
     <div class="flex justify-end gap-3">

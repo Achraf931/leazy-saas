@@ -1,36 +1,31 @@
 <script setup lang="ts">
+import { z } from 'zod'
+import type { FormSubmitEvent, Form } from '#ui/types'
+
+interface Props {
+  theme?: { id: number, name: string, discipline_id: number | null }
+  refresh?: () => void
+}
+
 const { get, post, patch } = useApi('themes')
 const emit = defineEmits(['close'])
 const localePath = useLocalePath()
 const toast = useToast()
 const pending = ref(false)
 const loading = ref(false)
-const selected = ref([])
-const { theme, refresh } = defineProps({
-  theme: {
-    type: Object,
-    required: false
-  },
-  refresh: {
-    type: Function,
-    required: false
-  }
+const { theme, refresh } = defineProps<Props>()
+const schema = z.object({
+  name: z.string().min(1, 'Le titre est requis.'),
+  discipline_id: z.any().refine(option => option?.id !== null, { message: 'La discipline est requise.' })
 })
 
+type Schema = z.output<typeof schema>
 
-const fields = reactive({
+const form = ref<Form<Schema>>()
+const state = reactive<Schema>({
   name: theme?.name || '',
-  discipline_id: theme?.discipline_id || ''
+  discipline_id: theme?.discipline_id || null
 })
-
-const validate = (state) => {
-  const errors = []
-
-  if (!state.name) errors.push({ path: 'name', message: 'Le titre est requis' })
-  if (!state.discipline_id) errors.push({ path: 'discipline_id', message: 'La discipline est requise' })
-
-  return errors
-}
 
 const searchable = async (q: string) => {
   loading.value = true
@@ -42,9 +37,10 @@ const searchable = async (q: string) => {
   return 'data' in disciplines ? disciplines.data : disciplines
 }
 
-const onSubmit = async (state) => {
+const onSubmit = async (event: FormSubmitEvent<Schema>) => {
   pending.value = true
-  const response = await (theme ? patch : post)(theme ? { ...state.data, id: theme.id } : state.data)
+  form.value?.clear()
+  const response = await (theme ? patch : post)(theme ? { ...event.data, id: theme.id } : event.data)
 
   if (response) {
     toast.add({ icon: 'i-heroicons-check-circle', title: theme ? 'Thème modifié' : 'Thème créé', color: 'green' })
@@ -64,21 +60,28 @@ const onSubmit = async (state) => {
         <p class="text-gray-900 dark:text-white font-semibold">{{ `${theme ? 'Modifier' : 'Créer'} un thème` }}</p>
         <UButton icon="i-heroicons-x-mark" color="gray" variant="ghost" @click="emit('close')" />
       </div>
-      <UForm class="space-y-4" :state="fields" :validate="validate" @submit="onSubmit">
+      <UForm
+        ref="form"
+        :schema="schema"
+        :state="state"
+        class="space-y-4"
+        @submit="onSubmit"
+      >
         <UFormGroup label="Titre" name="name" required>
-          <UInput type="text" placeholder="Ex. : SEO" autofocus v-model="fields.name" />
+          <UInput type="text" name="name" placeholder="Ex. : SEO" autofocus v-model="state.name" />
         </UFormGroup>
 
-        <UFormGroup label="Discipline associé" required>
+        <UFormGroup label="Discipline associé" name="discipline_id" required>
           <USelectMenu
-              v-model="selected"
-              :loading="loading"
-              :searchable="searchable"
-              searchable-placeholder="Rechercher une discipline"
-              class="w-full"
-              placeholder="Sélectionner un discipline"
-              option-attribute="name"
-              by="id"
+            v-model="state.discipline_id"
+            :loading="loading"
+            :searchable="searchable"
+            name="discipline_id"
+            searchable-placeholder="Rechercher une discipline"
+            class="w-full"
+            placeholder="Sélectionner un discipline"
+            option-attribute="name"
+            value-attribute="id"
           />
         </UFormGroup>
 

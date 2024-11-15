@@ -65,6 +65,7 @@ const handleModal = () => {
       </UDashboardToolbar>
 
       <UDashboardPanelContent>
+        <p v-if="status !== 'pending' && !filteredChapters.length" class="text-center text-gray-400 dark:text-white text-sm mt-4">Aucun chapitre trouvé</p>
         <UBlogList orientation="horizontal" :ui="{ wrapper: 'p-px overflow-y-auto gap-4 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }">
           <template v-if="status === 'pending'">
             <USkeleton v-for="n in 5" :key="n" class="rounded-lg w-full h-40 sm:h-44 xl:h-48 2xl:h-52" />
@@ -72,7 +73,6 @@ const handleModal = () => {
           <template v-else-if="status !== 'pending' && filteredChapters.length">
             <ChaptersCard v-for="chapter in filteredChapters" :key="chapter.id" :chapter :refresh />
           </template>
-          <p v-else class="text-center text-gray-400 dark:text-white text-sm mt-4">Aucun chapitre trouvé</p>
         </UBlogList>
       </UDashboardPanelContent>
 
