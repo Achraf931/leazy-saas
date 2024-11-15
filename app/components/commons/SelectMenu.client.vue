@@ -1,18 +1,26 @@
 <script setup lang="ts">
-const { endpoint, placeholder, searchable_attributes = 'name' } = defineProps<{ endpoint: string, placeholder?: string, searchable_attributes?: string | string[] }>()
+interface Props {
+  endpoint: string
+  placeholder?: string
+  searchable_attributes?: string | string[]
+}
+
+const {
+  endpoint,
+  placeholder,
+  searchable_attributes = 'name'
+} = defineProps<Props>()
 
 const { get } = useApi(endpoint)
 const loading = ref(false)
 const selected = ref([])
 const emit = defineEmits(['update:modelValue'])
 
-const search = async (q: string) => {
+const searchable = async (q: string) => {
   if (loading.value) return
 
   loading.value = true
-
   const items: any[] = await get(null, { q })
-
   loading.value = false
 
   return 'data' in items ? items.data : items
@@ -21,21 +29,26 @@ const search = async (q: string) => {
 
 <template>
   <USelectMenu
-      v-model="selected"
-      class="w-32"
-      :loading
-      :searchable="search"
-      searchable-placeholder="Rechercher..."
-      :placeholder="placeholder ?? 'Sélectionner'"
-      :option-attribute="searchable_attributes"
-      multiple
-      trailing
-      by="id"
-      :searchable-lazy="true"
-      @change="emit('update:modelValue', selected)"
+    :model-value="selected"
+    class="w-32"
+    :loading
+    :searchable="searchable"
+    searchable-placeholder="Rechercher..."
+    :placeholder="placeholder ?? 'Sélectionner'"
+    :option-attribute="searchable_attributes"
+    multiple
+    trailing
+    by="id"
+    :searchable-lazy="true"
+    @update:model-value="(val) => { selected = val; emit('update:modelValue', val) }"
   >
     <template #label>
-      <span v-if="selected.length" class="truncate">{{ placeholder }}: {{ selected.length }}</span>
+      <span
+        v-if="selected.length"
+        class="truncate"
+      >
+        {{ placeholder }}: {{ selected.length }}
+      </span>
     </template>
   </USelectMenu>
 </template>
