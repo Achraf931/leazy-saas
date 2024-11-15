@@ -10,7 +10,7 @@ export default defineNuxtConfig({
     '@nuxt/image',
     'nuxt-auth-sanctum'
   ],
-  ssr: true,
+  ssr: false,
   devtools: {
     enabled: false
   },
@@ -29,6 +29,12 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-07-11',
   typescript: {
     strict: false
+  },
+  icon: {
+    provider: 'server',
+    serverBundle: {
+      collections: ['heroicons', 'lucide', 'fluent', 'mdi', 'simple-icons']
+    }
   },
   eslint: {
     config: {

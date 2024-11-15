@@ -29,24 +29,23 @@ const filters = computed(() => ({
   end: range.value.end.toISOString()
 }))
 
-// Débounce sur le changement de tous les filtres
 const debouncedFilters = useDebounce(filters, 300)
 
 const { data: lessons, status, refresh, error } = await useAsyncData(
-    'lessons',
-    () =>
-        get(null, {
-          page: debouncedFilters.value.page,
-          ...(debouncedFilters.value.chapters && { chapter: debouncedFilters.value.chapters }),
-          ...(debouncedFilters.value.themes && { theme: debouncedFilters.value.themes }),
-          ...(debouncedFilters.value.search && { search: debouncedFilters.value.search }),
-          ...(debouncedFilters.value.levels && { level: debouncedFilters.value.levels }),
-          ...(debouncedFilters.value.start && { start: debouncedFilters.value.start }),
-          ...(debouncedFilters.value.end && { end: debouncedFilters.value.end })
-        }),
-    {
-      watch: [debouncedFilters]
-    }
+  'lessons',
+  () =>
+    get(null, {
+      page: debouncedFilters.value.page,
+      ...(debouncedFilters.value.chapters && { chapter: debouncedFilters.value.chapters }),
+      ...(debouncedFilters.value.themes && { theme: debouncedFilters.value.themes }),
+      ...(debouncedFilters.value.search && { search: debouncedFilters.value.search }),
+      ...(debouncedFilters.value.levels && { level: debouncedFilters.value.levels }),
+      ...(debouncedFilters.value.start && { start: debouncedFilters.value.start }),
+      ...(debouncedFilters.value.end && { end: debouncedFilters.value.end })
+    }),
+  {
+    watch: [debouncedFilters]
+  }
 )
 
 if (error.value) {
@@ -91,15 +90,9 @@ watch(q, () => {
         </template>
 
         <template #right>
-          <Suspense>
-            <CommonsSelectMenu @update:model-value="levels = $event" endpoint="levels" placeholder="Niveaux" />
-          </Suspense>
-          <Suspense>
-            <CommonsSelectMenu @update:model-value="chapters = $event" endpoint="chapters" placeholder="Chapitres" />
-          </Suspense>
-          <Suspense>
-            <CommonsSelectMenu @update:model-value="themes = $event" endpoint="themes" placeholder="Thèmes" />
-          </Suspense>
+          <CommonsSelectMenu @update:model-value="levels = $event" endpoint="levels" placeholder="Niveaux" />
+          <CommonsSelectMenu @update:model-value="chapters = $event" endpoint="chapters" placeholder="Chapitres" />
+          <CommonsSelectMenu @update:model-value="themes = $event" endpoint="themes" placeholder="Thèmes" />
 
           <UButton trailing-icon="i-heroicons-plus" @click="handleModal" label="Créer une leçon" />
         </template>
