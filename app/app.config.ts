@@ -41,9 +41,7 @@ export default defineAppConfig({
             const currentRoute = app.$router.currentRoute.value.path.replace(/\/$/, '')
             const maintenanceRoute = '/maintenance'
 
-            if (currentRoute === maintenanceRoute) {
-              return
-            }
+            if (currentRoute === maintenanceRoute) return
 
             await navigateTo(maintenanceRoute, { external: true })
           })

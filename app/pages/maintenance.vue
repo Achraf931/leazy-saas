@@ -9,22 +9,25 @@ const HEALTH_CHECK_URL = '/up',
 const client = useSanctumClient()
 const { refreshIdentity } = useSanctumAuth()
 
-const secondesBeforeRedirect = ref(0)
-const canRedirect = computed(() => secondesBeforeRedirect.value === 0)
+const loading = ref(false)
+const secondsBeforeRedirect = ref(0)
+const canRedirect = computed(() => secondsBeforeRedirect.value === 0 && !loading.value)
 
-const redirectButtonText = computed(() => canRedirect.value ? 'Réessayer' : 'Réessayer dans ' + secondesBeforeRedirect.value + 's')
+const redirectButtonText = computed(() => canRedirect.value ? 'Réessayer' : 'Réessayer dans ' + secondsBeforeRedirect.value + 's')
 
 const startTimer = () => {
-  secondesBeforeRedirect.value = 5
+  secondsBeforeRedirect.value = 5
 
   const interval = setInterval(() => {
-    secondesBeforeRedirect.value--
+    secondsBeforeRedirect.value--
 
-    if (secondesBeforeRedirect.value === 0) clearInterval(interval)
+    if (secondsBeforeRedirect.value === 0) clearInterval(interval)
   }, 1000)
 }
 
 const healthCheck = async () => {
+  loading.value = true
+
   try {
     await client(HEALTH_CHECK_URL)
 
@@ -34,11 +37,15 @@ const healthCheck = async () => {
       // Do nothing
     }
 
-    navigateTo(HOME_URL)
+    await navigateTo(HOME_URL)
   } catch {
     startTimer()
   }
+
+  loading.value = false
 }
+
+await useLazyAsyncData('healthcheck', healthCheck)
 </script>
 
 <template>
@@ -54,6 +61,7 @@ const healthCheck = async () => {
       :label="redirectButtonText"
       class="mx-auto mt-5"
       :disabled="!canRedirect"
+      :loading="loading"
       @click="healthCheck"
     />
   </div>
