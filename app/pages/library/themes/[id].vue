@@ -1,11 +1,21 @@
 <script setup lang="ts">
-import { ChaptersDeleteChapterModal, ThemesDeleteThemeModal } from '#components'
 import { formatDistanceToNow } from 'date-fns'
 import frLocale from 'date-fns/locale/fr'
+import { z } from 'zod'
+import { ChaptersDeleteChapterModal, ThemesDeleteThemeModal } from '#components'
+import type { FormSubmitEvent, Form } from '#ui/types'
 
 definePageMeta({
   title: 'Thèmes'
 })
+
+const schema = z.object({
+  id: z.any(),
+  name: z.string().min(1, 'Le titre est requis.'),
+  discipline_id: z.any().refine(option => option?.id !== null, { message: 'La discipline est requise.' })
+})
+
+type Schema = z.output<typeof schema>
 
 const toast = useToast()
 const modal = useModal()
@@ -15,7 +25,6 @@ const { get, patch, del } = useApi('themes')
 const documentId = computed(() => useRoute().params.id)
 const pending = ref(false)
 const loading = ref(false)
-const selected = ref([])
 const { data: theme, refresh, error } = await useAsyncData('theme', () => get(documentId.value))
 
 if (error.value) toast.add({ icon: 'i-heroicons-exclamation-circle', title: 'Erreur', description: 'Une erreur est survenue lors du chargement du thème', color: 'red', actions: [{ label: 'Réessayer', click: () => refresh() }] })
@@ -34,20 +43,12 @@ setBreadcrumbs([
   }
 ])
 
-const fields = reactive({
+const form = ref<Form<Schema>>()
+const state = reactive<Schema>({
   id: documentId.value,
   name: theme.value?.name || '',
-  discipline_id: theme.value?.discipline_id || ''
+  discipline_id: theme.value?.discipline_id || null
 })
-
-const validate = (state) => {
-  const errors = []
-
-  if (!state.name) errors.push({ path: 'name', message: 'Le titre est requis' })
-  if (!state.discipline_id) errors.push({ path: 'discipline_id', message: 'La discipline est requise' })
-
-  return errors
-}
 
 const columns = [{
   key: 'id',
@@ -158,9 +159,10 @@ const handleDeleteChapter = (chapter) => {
   })
 }
 
-const onSubmit = async (state) => {
+const onSubmit = async (event: FormSubmitEvent<Schema>) => {
   pending.value = true
-  const response = await patch(state.data)
+  form.value?.clear()
+  const response = await patch(event.data)
 
   if (response) {
     toast.add({ icon: 'i-heroicons-check-circle', title: 'Thème modifié', color: 'green' })
@@ -203,25 +205,29 @@ const onSubmit = async (state) => {
         </div>
 
         <UCard :ui="{ base: 'overflow-scroll flex-1' }">
-          <UForm class="space-y-4" :state="fields" :validate="validate" @submit="onSubmit">
+          <UForm
+            ref="form"
+            :schema="schema"
+            :state="state"
+            class="space-y-4"
+            @submit="onSubmit"
+          >
             <h3 class="font-semibold">Détails</h3>
-            <UFormGroup label="Titre" name="title" required>
-              <UInput placeholder="Titre du chapitre" v-model="fields.name" />
-            </UFormGroup>
-            <UFormGroup v-if="fields.description" label="Description" name="description" hint="Optionnel">
-              <UTextarea placeholder="Description du chapitre" v-model="fields.description"/>
+            <UFormGroup label="Titre" name="name" required>
+              <UInput placeholder="Titre du chapitre" name="name" v-model="state.name" />
             </UFormGroup>
             <UFormGroup label="Discipline associé" name="discipline_id" required>
               <USelectMenu
-                v-model="selected"
+                v-model="state.discipline_id"
                 :loading="loading"
-                :searchable
+                :searchable="searchable"
                 searchable-placeholder="Rechercher une discipline"
                 class="w-full"
+                name="discipline_id"
                 placeholder="Sélectionner un discipline"
                 option-attribute="name"
+                value-attribute="id"
                 trailing
-                by="id"
                 :searchable-lazy="true"
               />
             </UFormGroup>
@@ -232,13 +238,13 @@ const onSubmit = async (state) => {
 
           <UFormGroup label="Chapitres">
             <UCard
-                class="w-full"
-                :ui="{
-                  divide: 'divide-y divide-gray-200 dark:divide-gray-700',
-                  header: { padding: 'px-4 py-5' },
-                  body: { padding: '', base: 'divide-y divide-gray-200 dark:divide-gray-700' },
-                  footer: { padding: 'p-4' }
-                }"
+              class="w-full"
+              :ui="{
+                divide: 'divide-y divide-gray-200 dark:divide-gray-700',
+                header: { padding: 'px-4 py-5' },
+                body: { padding: '', base: 'divide-y divide-gray-200 dark:divide-gray-700' },
+                footer: { padding: 'p-4' }
+              }"
             >
               <div class="flex justify-between items-center w-full px-4 py-3 gap-1.5">
                 <UInput v-model="search" icon="i-heroicons-magnifying-glass-20-solid" placeholder="Rechercher..." size="xs" />
@@ -248,20 +254,20 @@ const onSubmit = async (state) => {
 
                   <USelectMenu v-model="selectedColumns" :options="columns" multiple>
                     <UButton
-                        icon="i-heroicons-view-columns"
-                        color="gray"
-                        size="xs"
+                      icon="i-heroicons-view-columns"
+                      color="gray"
+                      size="xs"
                     >
                       Columns
                     </UButton>
                   </USelectMenu>
 
                   <UButton
-                      icon="i-heroicons-funnel"
-                      color="gray"
-                      size="xs"
-                      :disabled="search === '' && selectedStatus.length === 0"
-                      @click="resetFilters"
+                    icon="i-heroicons-funnel"
+                    color="gray"
+                    size="xs"
+                    :disabled="search === '' && selectedStatus.length === 0"
+                    @click="resetFilters"
                   >
                     Reset
                   </UButton>
@@ -270,16 +276,16 @@ const onSubmit = async (state) => {
 
               <!-- Table -->
               <UTable
-                  v-model="selectedRows"
-                  v-model:sort="sort"
-                  :rows="filteredChapters"
-                  :columns="columnsTable"
-                  :loading="pending"
-                  sort-asc-icon="i-heroicons-arrow-up"
-                  sort-desc-icon="i-heroicons-arrow-down"
-                  sort-mode="manual"
-                  class="w-full"
-                  :ui="{ td: { base: 'max-w-[0] truncate', padding: 'px-2 py-2' }, th: { padding: 'px-2 py-1.5' } }"
+                v-model="selectedRows"
+                v-model:sort="sort"
+                :rows="filteredChapters"
+                :columns="columnsTable"
+                :loading="pending"
+                sort-asc-icon="i-heroicons-arrow-up"
+                sort-desc-icon="i-heroicons-arrow-down"
+                sort-mode="manual"
+                class="w-full"
+                :ui="{ td: { base: 'max-w-[0] truncate', padding: 'px-2 py-2' }, th: { padding: 'px-2 py-1.5' } }"
               >
                 <template #actions-data="{ row }">
                   <div class="flex items-center gap-2">

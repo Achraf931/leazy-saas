@@ -1,42 +1,37 @@
 <script setup lang="ts">
 import { isEmpty } from 'lodash-unified'
-import type { FormError, FormSubmitEvent } from '#ui/types'
+import { z } from 'zod'
+import type { FormSubmitEvent, Form } from '#ui/types'
+
+interface Props {
+  media?: { id: string, title: string, description: string, image: string, url: string }
+}
 
 const { post, patch } = useApi('media')
 const documentId = computed(() => useRoute().params.id)
 const toast = useToast()
 const pending = ref(false)
-const loading =ref(false)
-const props = defineProps({
-  media: {
-    type: Object,
-    default: () => ({
-      id: '',
-      title: '',
-      description: '',
-      image: '',
-      url: ''
-    })
-  }
+const loading = ref(false)
+const props = defineProps<Props>()
+const schema = z.object({
+  id: z.string().optional(),
+  title: z.string().min(1, 'Le titre est requis.'),
+  description: z.string().min(1, 'La description est requise.'),
+  image: z.string().optional(),
+  url: z.string().min(1, 'L\'URL est requise.').url('L\'URL n\'est pas valide')
 })
-
 const media = useModel(props, 'media')
 
-let state = reactive({
-  id: media.value.id || '',
-  title: media.value.title,
-  description: media.value.description,
-  image: media.value.image,
-  url: media.value.url
-})
+type Schema = z.output<typeof schema>
 
-const validate = (state: any): FormError[] => {
-  const errors = []
-  if (!state.title) errors.push({ path: 'title', message: 'Le titre est requis' })
-  if (!state.description) errors.push({ path: 'description', message: 'La description est requise' })
-  if (!state.url) errors.push({ path: 'url', message: 'L\'URL est requise' })
-  return errors
-}
+const form = ref<Form<Schema>>()
+let state = reactive<Schema>({
+  id: media.value.id || '',
+  title: media.value.title || '',
+  description: media.value.description || '',
+  image: media.value.image || '',
+  url: media.value.url || ''
+})
 
 const emit = defineEmits(['submited', 'close'])
 
@@ -46,10 +41,11 @@ const isValidUrl = (url) => {
   return urlRegex.test(url)
 }
 
-const handleMedia = async (event: FormSubmitEvent<any>) => {
+const handleMedia = async (event: FormSubmitEvent<Schema>) => {
   if (!event.data) return
   const media = event.data
   loading.value = true
+  form.value?.clear()
 
   const response = await (media.id ? patch : post)({
     lesson_id: documentId.value,
@@ -74,6 +70,7 @@ const handleMedia = async (event: FormSubmitEvent<any>) => {
 
 const autoFill = async () => {
   pending.value = true
+  form.value?.clear()
   const data = await $fetch('/api/opengraph', {
     method: 'POST',
     body: {
@@ -82,8 +79,8 @@ const autoFill = async () => {
   })
 
   if (data) {
-    state.image = data.image || state.image,
-    state.title = data.title || data.site_title || data.site_name || state.title,
+    state.image = data.image || state.image
+    state.title = data.title || data.site_title || data.site_name || state.title
     state.description = data.description || data.site_description || state.description
     return pending.value = false
   }
@@ -95,7 +92,13 @@ const autoFill = async () => {
 
 <template>
   <UModal>
-    <UForm class="p-4" @submit="handleMedia" :validate :state>
+    <UForm
+      ref="form"
+      :schema="schema"
+      :state="state"
+      class="p-4"
+      @submit="handleMedia"
+    >
       <div class="flex items-start justify-between gap-x-1.5 mb-5">
         <div>
           <p class="text-gray-900 dark:text-white font-semibold">
@@ -111,16 +114,16 @@ const autoFill = async () => {
       <div class="flex flex-col gap-2">
         <UFormGroup name="image" label="Image" hint="Optionnel">
           <NuxtImg v-if="!isEmpty(state.image)" class="rounded-lg w-full aspect-video object-cover" :src="state.image" :alt="state.title" />
-          <UInput v-model="state.image" placeholder="URL de l'image" class="mt-1" />
+          <UInput v-model="state.image" name="image" placeholder="URL de l'image" class="mt-1" />
         </UFormGroup>
         <UFormGroup label="Titre" name="title">
-          <UInput v-model="state.title" placeholder="Titre du média" />
+          <UInput v-model="state.title" name="title" placeholder="Titre du média" />
         </UFormGroup>
         <UFormGroup label="Description" name="description">
-          <UTextarea v-model="state.description" placeholder="Courte description du média" />
+          <UTextarea v-model="state.description" name="description" placeholder="Courte description du média" />
         </UFormGroup>
         <UFormGroup label="URL" name="url">
-          <UInput v-model="state.url" placeholder="https://blog.leazy.net" />
+          <UInput v-model="state.url" name="url" placeholder="https://blog.leazy.net" />
         </UFormGroup>
       </div>
 

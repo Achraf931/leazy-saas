@@ -10,6 +10,7 @@ export default defineNuxtConfig({
     '@nuxt/image',
     'nuxt-auth-sanctum'
   ],
+  ssr: true,
   devtools: {
     enabled: false
   },
@@ -186,30 +187,19 @@ export default defineNuxtConfig({
   },
   sanctum: {
     baseUrl: process.env.NUXT_API_URL || 'http://leazy.local:8000',
-    redirectIfAuthenticated: false,
     endpoints: {
       csrf: '/sanctum/csrf-cookie',
       login: '/api/login',
       logout: '/api/logout',
       user: '/api/me'
     },
-    csrf: {
-      cookie: 'XSRF-TOKEN',
-      header: 'X-XSRF-TOKEN'
-    },
-    client: {
-      retry: false
-    },
     redirect: {
-      keepRequestedRoute: false,
-      onLogin: '/',
       onLogout: '/connexion',
       onAuthOnly: '/connexion',
       onGuestOnly: '/'
     },
     globalMiddleware: {
-      enabled: true,
-      allow404WithoutAuth: true
+      enabled: true
     }
   }
 })

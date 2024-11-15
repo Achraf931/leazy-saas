@@ -1,36 +1,35 @@
 <script setup lang="ts">
+import { z } from 'zod'
+import type { FormSubmitEvent, Form } from '#ui/types'
+
+interface Props {
+  formation?: { id: number, name: string, description: string }
+  refresh?: () => void
+}
+
 const { post, patch } = useApi('formations')
 const emit = defineEmits(['close'])
 const localePath = useLocalePath()
 const toast = useToast()
 const pending = ref(false)
-const { formation, refresh } = defineProps({
-  formation: {
-    type: Object,
-    required: false
-  },
-  refresh: {
-    type: Function,
-    required: false
-  }
+const { formation, refresh } = defineProps<Props>()
+const schema = z.object({
+  name: z.string().min(1, 'Le titre est requis.'),
+  description: z.string().optional()
 })
 
-const fields = reactive({
+type Schema = z.output<typeof schema>
+
+const form = ref<Form<Schema>>()
+const state = reactive<Schema>({
   name: formation?.name || '',
   description: formation?.description || ''
 })
 
-const validate = (state) => {
-  const errors = []
-
-  if (!state.name) errors.push({ path: 'name', message: 'Le titre est requis' })
-
-  return errors
-}
-
-const onSubmit = async (state) => {
+const onSubmit = async (event: FormSubmitEvent<Schema>) => {
   pending.value = true
-  const response = await (formation ? patch : post)(formation ? { ...state.data, id: formation.id } : { ...state.data })
+  form.value?.clear()
+  const response = await (formation ? patch : post)(formation ? { ...event.data, id: formation.id } : { ...event.data })
 
   if (response) {
     toast.add({ icon: 'i-heroicons-check-circle', title: formation ? 'Formation modifiée' : 'Formation créée', color: 'green' })
@@ -50,13 +49,19 @@ const onSubmit = async (state) => {
         <p class="text-gray-900 dark:text-white font-semibold">{{ `${formation ? 'Modifier' : 'Créer'} une formation` }}</p>
         <UButton icon="i-heroicons-x-mark" color="gray" variant="ghost" @click="emit('close')" />
       </div>
-      <UForm class="space-y-4" :state="fields" :validate="validate" @submit="onSubmit">
+      <UForm
+        ref="form"
+        :schema="schema"
+        :state="state"
+        class="space-y-4"
+        @submit="onSubmit"
+      >
         <UFormGroup label="Titre" name="name" required>
-          <UInput type="text" placeholder="Ex. : Les bases du marketing digital" autofocus v-model="fields.name" />
+          <UInput type="text" name="name" placeholder="Ex. : Les bases du marketing digital" autofocus v-model="state.name" />
         </UFormGroup>
 
         <UFormGroup label="Description" name="description" description="Courte description visible dans la liste des formations" hint="Optionnel">
-          <UTextarea placeholder="Ex. : Apprenez les stratégies essentielles pour réussir dans le marketing digital et optimiser votre présence en ligne" v-model="fields.description" />
+          <UTextarea name="description" placeholder="Ex. : Apprenez les stratégies essentielles pour réussir dans le marketing digital et optimiser votre présence en ligne" v-model="state.description" />
         </UFormGroup>
 
         <div class="flex justify-end gap-3">

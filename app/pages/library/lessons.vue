@@ -106,6 +106,7 @@ watch(q, () => {
       </UDashboardToolbar>
 
       <UDashboardPanelContent>
+        <p v-if="status !== 'pending' && !lessons.data.length" class="text-center text-gray-400 dark:text-white text-sm mt-4">Aucune leçon trouvée</p>
         <UBlogList orientation="horizontal" :ui="{ wrapper: 'p-px overflow-y-auto gap-x-4 gap-y-6 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }">
           <template v-if="status === 'pending'">
             <USkeleton v-for="n in 5" :key="n" class="rounded-lg w-full h-40 sm:h-44 xl:h-48 2xl:h-52" />
@@ -113,7 +114,6 @@ watch(q, () => {
           <template v-else-if="status !== 'pending' && lessons.data.length">
             <LessonsCard v-for="lesson in lessons.data" :key="lesson.id" :lesson :refresh redirect />
           </template>
-          <p v-else class="text-center text-gray-400 dark:text-white text-sm mt-4">Aucune leçon trouvée</p>
         </UBlogList>
       </UDashboardPanelContent>
 
