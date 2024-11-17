@@ -43,7 +43,9 @@ const handleModal = (media?: object) => {
       </div>
       <UBlogPost v-for="(item, index) in medias" :key="index" :ui="{ wrapper: 'gap-y-0.5', title: 'text-sm', date: 'text-xs', authors: { wrapper: 'mt-0' }, image: { wrapper: 'pointer-events-auto' } }">
         <template #image>
-          <NuxtImg class="cursor-pointer block object-cover object-top w-full h-full transform transition-transform duration-200 hover:scale-105" :src="item.image" :alt="item.title" />
+          <NuxtLink :to="item.url" target="_blank">
+            <NuxtImg class="cursor-pointer block object-cover object-top w-full h-full transform transition-transform duration-200 hover:scale-105" :src="item.image" :alt="item.title" />
+          </NuxtLink>
         </template>
         <template #default>
           <div class="flex items-center justify-between">

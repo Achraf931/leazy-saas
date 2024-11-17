@@ -1,6 +1,6 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { z } from 'zod'
-import type { FormSubmitEvent, Form } from '#ui/types'
+import type { Form, FormSubmitEvent } from '#ui/types'
 
 interface Props {
   token?: string
@@ -50,58 +50,62 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
 <template>
   <UCard class="w-full max-w-sm">
     <UForm
-      ref="form"
-      :schema="schema"
-      :state="state"
-      class="space-y-6"
-      @submit="onSubmit"
+        ref="form"
+        :schema="schema"
+        :state="state"
+        class="space-y-6"
+        @submit="onSubmit"
     >
       <div class="text-center">
-        <UIcon name="i-heroicons-lock-closed" class="w-8 h-8 mb-2" />
+        <UIcon class="w-8 h-8 mb-2" name="i-heroicons-lock-closed"/>
         <h2 class="text-2xl text-gray-900 dark:text-white font-bold">Welcome back!</h2>
       </div>
       <span
-        v-if="props.token"
-        class="text-sm text-green-500"
+          v-if="props.token"
+          class="text-sm text-green-500"
       >
         Your password has been reset!
       </span>
 
       <UFormGroup label="E-mail" name="email">
         <UInput
-          v-model="state.email"
-          icon="i-heroicons-at-symbol"
-          autocomplete="username"
-          trailing
+            v-model="state.email"
+            autocomplete="username"
+            icon="i-heroicons-at-symbol"
+            trailing
         />
       </UFormGroup>
 
       <UFormGroup label="Mot de passe" name="password">
         <template #hint>
-          <NuxtLinkLocale to="/" class="text-sm text-primary">
+          <NuxtLinkLocale class="text-sm text-primary" to="/">
             Mot de passe oublié ?
           </NuxtLinkLocale>
         </template>
 
         <UInput
-          v-model="state.password"
-          type="password"
-          autocomplete="current-password"
-          icon="i-heroicons-eye"
-          trailing
+            v-model="state.password"
+            autocomplete="current-password"
+            icon="i-heroicons-eye"
+            trailing
+            type="password"
         />
       </UFormGroup>
 
       <UFormGroup name="remember_me">
-        <UCheckbox v-model="state.remember_me" name="remember_me" label="Se souvenir de moi" />
+        <UCheckbox v-model="state.remember_me" label="Se souvenir de moi" name="remember_me"/>
       </UFormGroup>
 
-      <UButton type="submit" :loading="loading" block>
+      <UButton :loading="loading" block type="submit">
         Me connecter
       </UButton>
 
       <div class="text-sm text-gray-500 dark:text-gray-400 mt-2 text-center">
-        En vous connectant, vous acceptez nos <NuxtLinkLocale to="/" class="text-primary">Conditions d'utilisation</NuxtLinkLocale> et notre <NuxtLinkLocale to="/" class="text-primary">Politique de confidentialité</NuxtLinkLocale>.
+        En vous connectant, vous acceptez nos
+        <NuxtLinkLocale class="text-primary" to="/">Conditions d'utilisation</NuxtLinkLocale>
+        et notre
+        <NuxtLinkLocale class="text-primary" to="/">Politique de confidentialité</NuxtLinkLocale>
+        .
       </div>
     </UForm>
   </UCard>

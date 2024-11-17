@@ -1,5 +1,10 @@
-<script setup lang="ts">
-import { LessonsDeleteLessonModal, LessonsMediaSlideover, LessonsCommentsSlideover } from '#components'
+<script lang="ts" setup>
+import {
+  CommonsModalLibrary,
+  LessonsCommentsSlideover,
+  LessonsDeleteLessonModal,
+  LessonsMediaSlideover
+} from '#components'
 import { isEqual } from 'lodash-unified'
 
 definePageMeta({
@@ -20,13 +25,22 @@ const pending = ref(false)
 const loading = ref(false)
 const pendingDraft = ref(false)
 const pendingVisibility = ref(false)
+const pendingNavigateLesson = reactive({
+  previous: false,
+  next: false
+})
 const unsavedChanges = ref(false)
 const showBackground = ref(false)
 const titleError = ref(false)
 
 const documentId = computed(() => useRoute().params.id)
+const isDraft = computed(() => lesson.value?.draft)
+const isPrivate = computed(() => lesson.value?.private)
 
 const { data: lesson, refresh } = await useAsyncData('lesson', () => get(documentId.value))
+
+// Temporary
+const background = ref('https://www.notion.so/images/page-cover/gradients_5.png')
 
 const initialName = lesson.value?.name
 const initialDescription = lesson.value?.description
@@ -54,33 +68,33 @@ const links = ref([
 
 const search = async (q: string) => {
   if (loading.value) return
-
+  
   loading.value = true
-
+  
   const items: any[] = await get(null, { q }, 'chapters')
-
+  
   loading.value = false
-
+  
   return 'data' in items ? items.data : items
 }
 
 const handleTitleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
   if (event.shiftKey) return
-
+  
   if (event.key === 'Enter') editor.value?.commands.focus()
-
+  
   if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
     const selection = window.getSelection()
-
+    
     if (selection?.rangeCount > 0) {
       const range = selection.getRangeAt(0)
       const { endOffset } = range
-
+      
       const textContent = event.currentTarget.textContent || ''
-
+      
       if (endOffset >= textContent.length) {
         editor.value?.commands.focus('start')
-
+        
         event.preventDefault()
       }
     }
@@ -107,7 +121,16 @@ const options = ref([
     label: 'Dupliquer',
     icon: 'i-heroicons-document-duplicate-20-solid',
     click: () => {
-      toast.add({ icon: 'i-heroicons-check-circle', title: 'Leçon dupliquée', description: 'Votre leçon a bien été dupliquée', color: 'green', actions: [{ label: 'Voir la leçon', click: () => localePath({ name: 'lesson_id', params: { id: documentId.value } }) }] })
+      toast.add({
+        icon: 'i-heroicons-check-circle',
+        title: 'Leçon dupliquée',
+        description: 'Votre leçon a bien été dupliquée',
+        color: 'green',
+        actions: [{
+          label: 'Voir la leçon',
+          click: () => localePath({ name: 'lesson_id', params: { id: documentId.value } })
+        }]
+      })
     }
   }], [{
     label: 'Importer',
@@ -147,86 +170,140 @@ const selectedChapter = computed({
 const chapter = computed({
   get: () => selectedChapter.value,
   set: async (label) => {
-    if (label.id) {
-      await patch({ id: documentId.value, chapter_id: label.id })
-      return refresh()
+    loading.value = true
+    
+    try {
+      if (label.id && (label.id !== selectedChapter.value?.id)) {
+        await patch({ id: documentId.value, chapter_id: label.id })
+        await refresh()
+        toast.add({
+          icon: 'i-heroicons-check-circle',
+          title: 'Chapitre mis à jour avec succès',
+          color: 'green'
+        })
+        return loading.value = false
+      }
+      
+      if (label.id) {
+        loading.value = false
+        return selectedChapter.value
+      }
+      
+      const response = await post({
+        name: label.name,
+        theme_id: 1,
+        image: 'https://excalidraw.com/og-image-2.png'
+      }, 'chapters')
+      
+      const lessonResponse = await patch({ id: documentId.value, chapter_id: response.id })
+      
+      if (lessonResponse) await refresh()
+      
+      toast.add({
+        icon: 'i-heroicons-check-circle',
+        title: 'Chapitre créé et assigné avec succès',
+        color: 'green'
+      })
+      
+      loading.value = false
+      selectedChapter.value = response
+    } catch (error) {
+      loading.value = false
+      toast.add({
+        icon: 'i-heroicons-x-circle',
+        title: 'Une erreur est survenue',
+        color: 'red'
+      })
     }
-
-    const response = await post({ name: label.name, theme_id: 1, image: 'https://excalidraw.com/og-image-2.png' }, 'chapters')
-    const lessonResponse = await patch({ id: documentId.value, chapter_id: response.id })
-
-    if (lessonResponse) await refresh()
-
-    return selectedChapter.value = response
   }
 })
 
-const goPrevLesson = async () => {
-  const response = await get(`${lesson.value?.chapter.id}/previous?current_order=${lesson.value?.order}`)
+const navigateLesson = async (direction: 'previous' | 'next') => {
+  if (pendingNavigateLesson.previous || pendingNavigateLesson.next) return
+  pendingNavigateLesson[direction] = true
+  const response = await get(`${lesson.value?.chapter.id}/${direction}?current_order=${lesson.value?.order}`)
   await navigateTo(localePath({ name: 'lesson_id', params: { id: response.id } }))
+  pendingNavigateLesson[direction] = false
 }
 
-const goNextLesson = async () => {
-  const response = await get(`${lesson.value?.chapter.id}/next?current_order=${lesson.value?.order}`)
-  await navigateTo(localePath({ name: 'lesson_id', params: { id: response.id } }))
-}
-
-const save = async (auto: boolean = false) => {
+const handleSave = async () => {
   if (!editor.value || !unsavedChanges.value) return
   if (!lesson.value.name) return titleError.value = true
   if (titleError.value) titleError.value = false
-
+  
   pending.value = true
-
+  
   const json = editor.value?.getJSON()
-
+  
   const response = await patch({
     ...lesson.value,
     id: documentId.value,
     name: lesson.value?.name,
     description: lesson.value?.description,
-    content: JSON.stringify(json)
+    content: JSON.stringify(json),
+    ...(background.value && { image: background.value })
   })
-
+  
   pending.value = false
-
+  
   if (response) {
     initialContent = JSON.parse(lesson.value?.content)
     unsavedChanges.value = false
-    if (!auto) return toast.add({ icon: 'i-heroicons-check-circle', title: 'Leçon enregistrée avec succès', color: 'green' })
+    return toast.add({ icon: 'i-heroicons-check-circle', title: 'Leçon enregistrée avec succès', color: 'green' })
   }
 }
 
 const handleDraft = async () => {
   pendingDraft.value = true
-  const response = await patch({ id: documentId.value, draft: !lesson.value?.draft })
-
+  const response = await patch({ id: documentId.value, draft: !isDraft.value })
+  
   if (response) {
-    toast.add({ icon: 'i-heroicons-check-circle', title: `Leçon ${lesson.value?.draft ? 'publiée' : 'mise en brouillon'} avec succès`, color: 'green' })
+    toast.add({
+      icon: 'i-heroicons-check-circle',
+      title: `Leçon ${isDraft.value ? 'publiée' : 'mise en brouillon'} avec succès`,
+      color: 'green'
+    })
     await refresh()
     return pendingDraft.value = false
   }
-
-  toast.add({ icon: 'i-heroicons-x-circle', title: `Erreur lors de la ${lesson.value?.draft ? 'publication' : 'mise en brouillon'} de la leçon`, color: 'red' })
+  
+  toast.add({
+    icon: 'i-heroicons-x-circle',
+    title: `Erreur lors de la ${isDraft.value ? 'publication' : 'mise en brouillon'} de la leçon`,
+    color: 'red'
+  })
   return pendingDraft.value = false
 }
 
 const handleVisibility = async () => {
   pendingVisibility.value = true
-  const response = await patch({ id: documentId.value, private: !lesson.value?.private })
-
+  const response = await patch({ id: documentId.value, private: !isPrivate.value })
+  
   if (response) {
-    toast.add({ icon: 'i-heroicons-check-circle', title: `Leçon ${lesson.value?.private ? 'rendu publique' : 'rendu privée'} avec succès`, color: 'green' })
+    toast.add({
+      icon: 'i-heroicons-check-circle',
+      title: `Leçon ${isPrivate.value ? 'rendu publique' : 'rendu privée'} avec succès`,
+      color: 'green'
+    })
     await refresh()
     return pendingVisibility.value = false
   }
-
-  toast.add({ icon: 'i-heroicons-x-circle', title: `Erreur lors de la ${lesson.value?.private ? 'mise en publique' : 'mise en privée'} de la leçon`, color: 'red' })
+  
+  toast.add({
+    icon: 'i-heroicons-x-circle',
+    title: `Erreur lors de la ${isPrivate.value ? 'mise en publique' : 'mise en privée'} de la leçon`,
+    color: 'red'
+  })
   return pendingVisibility.value = false
 }
 
 const onUpdate = (content) => {
   unsavedChanges.value = !isEqual(content, initialContent)
+}
+
+const handleLink = (url) => {
+  background.value = url
+  return modal.close()
 }
 
 const handleDelete = () => {
@@ -251,6 +328,13 @@ const handleComments = () => {
   })
 }
 
+const handleModal = (index) => {
+  modal.open(CommonsModalLibrary, {
+    index,
+    onSelect: ({ url }) => handleLink(url)
+  })
+}
+
 const onUpdateTitle = (event: InputEvent) => {
   lesson.value.name = (event.target as HTMLDivElement).innerText
   unsavedChanges.value = lesson.value.name !== initialName
@@ -264,18 +348,16 @@ const onUpdateDescription = (event: InputEvent) => {
 const handleBeforeUnload = (event: BeforeUnloadEvent) => {
   if (unsavedChanges.value) {
     event.returnValue = 'Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter ?'
-    save()
-  }
-  else delete event.returnValue
+    handleSave()
+  } else delete event.returnValue
 }
 
-onBeforeMount(() => {
-  window.addEventListener('beforeunload', handleBeforeUnload)
-})
+const handleWindowEvent = (event: string, callback: (event: BeforeUnloadEvent) => void) => {
+  window.addEventListener(event, callback)
+}
 
-onBeforeUnmount(() => {
-  window.removeEventListener('beforeunload', handleBeforeUnload)
-})
+onBeforeMount(() => handleWindowEvent('beforeunload', handleBeforeUnload))
+onBeforeUnmount(() => window.removeEventListener('beforeunload', handleBeforeUnload))
 </script>
 
 <template>
@@ -285,123 +367,201 @@ onBeforeUnmount(() => {
         <ToggleDrawer />
         <UBreadcrumb :links="links" :ui="{ active: 'truncate w-full max-w-32' }" />
       </template>
-
+      
       <template #badge>
         <UPopover :popper="{ placement: 'bottom-end' }">
-          <UBadge variant="subtle" size="xs" :color="lesson.draft ? 'orange' : 'green'">
-            {{ lesson.draft ? 'Brouillon' : 'Publié' }}
-            <UIcon name="i-heroicons-chevron-down-20-solid" class="w-4 h-4" />
+          <UBadge :color="isDraft ? 'orange' : 'green'" size="xs" variant="subtle">
+            {{ isDraft ? 'Brouillon' : 'Publié' }}
+            <UIcon class="w-4 h-4" name="i-heroicons-chevron-down-20-solid" />
           </UBadge>
-
+          
           <template #panel>
             <div class="flex items-center justify-center">
-              <UButton icon="i-heroicons-pencil-square" :label="lesson.draft ? 'Publier' : 'Mettre en brouillon'" color="gray" size="2xs" variant="ghost" @click="handleDraft" />
+              <UButton
+                :label="isDraft ? 'Publier' : 'Mettre en brouillon'" color="gray" icon="i-heroicons-pencil-square"
+                size="2xs" variant="ghost" @click="handleDraft"
+              />
             </div>
           </template>
         </UPopover>
       </template>
-
+      
       <template #right>
         <div class="flex items-center justify-end gap-1">
-          <UButton @click="save" size="xs" :disabled="!unsavedChanges" :loading="pending" variant="soft" :label="unsavedChanges ? 'Enregistrer' : 'Enregistré'" :icon="unsavedChanges ? 'i-lucide-save' : 'i-heroicons-check'" :color="unsavedChanges ? 'primary' : 'white'" />
-
+          <UButton
+            :color="unsavedChanges ? 'primary' : 'white'" :disabled="!unsavedChanges"
+            :icon="unsavedChanges ? 'i-lucide-save' : 'i-heroicons-check'"
+            :label="unsavedChanges ? 'Enregistrer' : 'Enregistré'" :loading="pending"
+            size="xs"
+            variant="soft" @click="handleSave"
+          />
+          
           <template v-if="lesson.chapter?.lessons_count">
             <div class="flex items-center gap-1">
               <UKbd>
-                {{ lesson.order + 1 }} / {{ lesson.chapter.lessons_count }}
+                {{ lesson.order }} / {{ lesson.chapter.lessons_count }}
               </UKbd>
-              <UTooltip text="Leçon précédente" :popper="{ placement: 'bottom' }">
-                <UButton icon="i-heroicons-chevron-left-20-solid" :disabled="(lesson.order + 1) === 1" @click="goPrevLesson" size="sm" variant="solid" :color="(lesson.order + 1) === 1 ? 'white' : 'primary'" :padded="false" square />
+              <UTooltip :popper="{ placement: 'bottom' }" text="Leçon précédente">
+                <UButton
+                  :color="lesson.order === 1 ? 'white' : 'primary'"
+                  :disabled="(lesson.order === 1) || pendingNavigateLesson.previous"
+                  :padded="false"
+                  :loading="pendingNavigateLesson.previous"
+                  icon="i-heroicons-chevron-left-20-solid"
+                  size="sm"
+                  square
+                  variant="solid"
+                  @click="navigateLesson('previous')"
+                />
               </UTooltip>
-              <UTooltip text="Leçon suivante" :popper="{ placement: 'bottom' }">
-                <UButton icon="i-heroicons-chevron-right-20-solid" :disabled="(lesson.order + 1) === lesson.chapter.lessons_count" @click="goNextLesson" size="sm" variant="solid" :color="(lesson.order + 1) === lesson.chapter.lessons_count ? 'white' : 'primary'" :padded="false" square />
+              <UTooltip :popper="{ placement: 'bottom' }" text="Leçon suivante">
+                <UButton
+                  :color="lesson.order === lesson.chapter.lessons_count ? 'white' : 'primary'"
+                  :disabled="(lesson.order === lesson.chapter.lessons_count) || pendingNavigateLesson.next"
+                  :padded="false"
+                  :loading="pendingNavigateLesson.next"
+                  icon="i-heroicons-chevron-right-20-solid"
+                  size="sm" square
+                  variant="solid" @click="navigateLesson('next')"
+                />
               </UTooltip>
             </div>
           </template>
-
-          <UDivider orientation="vertical" class="h-[16px] ml-2" :ui="{ border: { base: 'dark:border-gray-500' } }" />
-
-          <UTooltip text="Commentaires" :popper="{ placement: 'bottom' }">
-            <UButton @click="handleComments" icon="i-heroicons-chat-bubble-bottom-center-text" variant="ghost" color="gray" square />
+          
+          <UDivider :ui="{ border: { base: 'dark:border-gray-500' } }" class="h-[16px] ml-2" orientation="vertical" />
+          
+          <UTooltip :popper="{ placement: 'bottom' }" text="Commentaires">
+            <UButton
+              color="gray" icon="i-heroicons-chat-bubble-bottom-center-text" square variant="ghost"
+              @click="handleComments"
+            />
           </UTooltip>
-
-          <UTooltip text="Médias associés" :popper="{ placement: 'bottom' }">
-            <UButton @click="handleSlideover" icon="i-heroicons-rectangle-stack" variant="ghost" color="gray" square />
+          
+          <UTooltip :popper="{ placement: 'bottom' }" text="Médias associés">
+            <UButton color="gray" icon="i-heroicons-rectangle-stack" square variant="ghost" @click="handleSlideover" />
           </UTooltip>
-          <UDropdown :items="options" :popper="{ placement: 'bottom-start' }" :ui="{ item: { disabled: 'cursor-text select-text' } }">
-            <UButton color="gray" variant="ghost" trailing-icon="i-heroicons-ellipsis-horizontal-20-solid" />
-
+          <UDropdown
+            :items="options" :popper="{ placement: 'bottom-start' }"
+            :ui="{ item: { disabled: 'cursor-text select-text' } }"
+          >
+            <UButton color="gray" trailing-icon="i-heroicons-ellipsis-horizontal-20-solid" variant="ghost" />
+            
             <template #item="{ item }">
               <UIcon :name="item.icon" class="flex-shrink-0 h-5 w-5 text-gray-400 dark:text-gray-500" />
               <span class="truncate">{{ item.label }}</span>
               <template v-if="item.type === 'toggle'">
                 <UToggle v-if="item.id === 'hide-toolbar'" v-model="hideToolbar" class="ms-auto" size="sm" />
-                <UToggle v-else-if="item.id === 'draft'" @change="handleDraft" :model-value="lesson.draft" class="ms-auto" size="sm" :loading="pendingDraft" />
-                <UToggle v-else-if="item.id === 'private'" @change="handleVisibility" :model-value="lesson.private" class="ms-auto" size="sm" :loading="pendingVisibility" />
+                <UToggle
+                  v-else-if="item.id === 'draft'" :loading="pendingDraft" :model-value="lesson.draft" class="ms-auto"
+                  size="sm" @change="handleDraft"
+                />
+                <UToggle
+                  v-else-if="item.id === 'private'" :loading="pendingVisibility" :model-value="lesson.private"
+                  class="ms-auto" size="sm" @change="handleVisibility"
+                />
               </template>
             </template>
             <template #words>
-              <p class="text-xs">Nombre de mots :{{ new Intl.NumberFormat('fr-FR').format(editor.storage.characterCount.words()).replace(/\s/g, '&nbsp;') }}</p>
+              <p class="text-xs">Nombre de mots :{{
+                  new Intl.NumberFormat('fr-FR').format(editor.storage.characterCount.words()).replace(/\s/g, '&nbsp;')
+                }}</p>
             </template>
             <template #last-edited>
-              <p class="text-xs text-left">Dernière modification : {{ new Date(lesson.updated_at).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric' }) }}</p>
+              <p class="text-xs text-left">Dernière modification : {{
+                  new Date(lesson.updated_at).toLocaleDateString('fr-FR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: 'numeric'
+                  })
+                }}</p>
             </template>
           </UDropdown>
         </div>
       </template>
     </UDashboardNavbar>
-
+    
     <UDashboardPanelContent v-if="lesson" :ui="{ wrapper: 'p-0' }">
-      <div v-if="showBackground" class="p-4 pb-0 aspect-[16/2.5] opacity-50">
-        <NuxtImg src="https://www.notion.so/images/page-cover/gradients_5.png" alt="Discord" class="aspect-[16/2.5] w-full h-full rounded-xl" />
+      <div v-if="showBackground" class="p-4 pb-0 aspect-[16/2.5] group grid grid-cols-12">
+        <NuxtImg
+          alt="Discord"
+          class="cursor-pointer transition-all duration-150 ease-in-out group-hover:brightness-50 w-full rounded-xl col-span-12 row-span-2 col-start-1 row-start-1 aspect-[16/2.5] object-cover"
+          :src="background"
+          @click="handleModal('background')"
+        />
+        <div class="transition-all duration-150 ease-in-out hidden group-hover:block z-10 mt-4 mr-4 col-start-10 col-end-13 row-start-1">
+          <UButton label="Modifier l'image" color="white" variant="solid" @click="handleModal('background')" block />
+        </div>
       </div>
-
+      
       <div class="pt-8 lg:px-[calc((100%_-_(750px))_/_2)]">
         <div class="flex items-center gap-2 mb-4">
           <USelectMenu
             v-model="chapter"
-            by="id"
-            name="chapter"
+            :loading="loading"
             :searchable="search"
+            :searchable-lazy="true"
+            by="id"
+            clear-search-on-close
+            creatable
+            name="chapter"
             option-attribute="name"
-            searchable-placeholder="Rechercher un chapitre"
             placeholder="Sélectionner un chapitre"
             searchable
-            creatable
+            searchable-placeholder="Rechercher un chapitre"
             trailing
-            clear-search-on-close
-            :searchable-lazy="true"
-            :loading
           >
-            <UButton :label="selectedChapter.name" size="xs" leading-icon="i-lucide-notebook-text" trailing-icon="i-heroicons-chevron-down-20-solid" color="gray" variant="ghost" />
-
+            <UButton
+              :loading="loading"
+              class="truncate"
+              color="gray"
+              leading-icon="i-lucide-notebook-text"
+              size="xs"
+              trailing-icon="i-heroicons-chevron-down-20-solid"
+              variant="ghost"
+            >
+              Chapitre: {{ selectedChapter.name }}
+            </UButton>
+            
             <template #option="{ option }">
               <span class="truncate">{{ option.name }}</span>
             </template>
-
+            
             <template #option-create="{ option }">
-              <UIcon name="i-heroicons-plus" class="w-4 h-4" />
+              <UIcon class="w-4 h-4" name="i-heroicons-plus" />
               <span class="block truncate">{{ option.name }}</span>
             </template>
           </USelectMenu>
-          <UButton v-if="!showDescription" @click="showDescription = true" label="Ajouter une description" size="xs" leading-icon="i-lucide-text" color="gray" variant="ghost" />
-          <UButton v-if="!showBackground" label="Ajouter une couverture" @click="showBackground = true" size="xs" leading-icon="i-lucide-image" color="gray" variant="ghost" />
+          <UButton
+            v-if="!showDescription" color="gray" label="Ajouter une description" leading-icon="i-lucide-text"
+            size="xs" variant="ghost" @click="showDescription = true"
+          />
+          <UButton
+            v-if="!showBackground" color="gray" label="Ajouter une couverture" leading-icon="i-lucide-image"
+            size="xs" variant="ghost" @click="showBackground = true"
+          />
         </div>
         <div
-          contenteditable
-          @input="onUpdateTitle"
-          data-placeholder="Titre de la leçon"
-          class="inline-block w-full placeholder font-bold mb-5 text-3xl whitespace-pre-wrap tracking-tight text-gray-900 dark:text-white sm:text-4xl lg:text-5xl outline-none ring-none"
           :class="{ 'empty:before:!text-red-400': titleError }"
+          class="inline-block w-full placeholder font-bold mb-5 text-3xl whitespace-pre-wrap tracking-tight text-gray-900 dark:text-white sm:text-4xl lg:text-5xl outline-none ring-none"
+          contenteditable
+          data-placeholder="Titre de la leçon"
+          @blur="handleSave"
+          @input="onUpdateTitle"
           @keydown="handleTitleKeyDown"
-          @blur="save(true)"
         >
           {{ lesson.name }}
         </div>
-        <UTextarea v-if="showDescription" v-model="lesson.description" placeholder="Description de la leçon" variant="outline" @input="onUpdateDescription" @blur="save(true)" padded />
+        <UTextarea
+          v-if="showDescription" v-model="lesson.description" padded placeholder="Description de la leçon"
+          variant="outline" @blur="handleSave" @input="onUpdateDescription"
+        />
       </div>
-
-      <LeazyEditor ref="tiptap" v-model="content" output="json" :hide-toolbar="hideToolbar" class="flex-1" max-width="800" @update:model-value="onUpdate" @blur="save(true)" />
+      
+      <LeazyEditor
+        ref="tiptap" v-model="content" :hide-toolbar="hideToolbar" class="flex-1" max-width="800" output="json"
+        @blur="handleSave" @update:model-value="onUpdate"
+      />
     </UDashboardPanelContent>
   </UDashboardPanel>
 </template>

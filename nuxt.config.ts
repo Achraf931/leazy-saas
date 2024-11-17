@@ -10,7 +10,7 @@ export default defineNuxtConfig({
     '@nuxt/image',
     'nuxt-auth-sanctum'
   ],
-  ssr: false,
+  // ssr: false,
   devtools: {
     enabled: false
   },
