@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { ChaptersModal } from '#components'
+<script lang="ts" setup>
+import { CreateChapterModal } from '#components'
 import { sub } from 'date-fns'
 
 definePageMeta({
@@ -15,9 +15,20 @@ const page = ref(1)
 const range = ref<Range>({ start: sub(new Date(), { days: 14 }), end: new Date() })
 const themes = ref([])
 
-const { data: chapters, status, refresh, error } = await useLazyAsyncData('chapters', () => get(null, { page: page.value }), { watch: [page] })
+const {
+  data: chapters,
+  status,
+  refresh,
+  error
+} = await useLazyAsyncData('chapters', () => get(null, { page: page.value }), { watch: [page] })
 
-if (error.value) toast.add({ icon: 'i-heroicons-exclamation-circle', title: 'Erreur', description: 'Une erreur est survenue lors du chargement des chapitres', color: 'red', actions: [{ label: 'Réessayer', click: () => refresh() }] })
+if (error.value) toast.add({
+  icon: 'i-heroicons-exclamation-circle',
+  title: 'Erreur',
+  description: 'Une erreur est survenue lors du chargement des chapitres',
+  color: 'red',
+  actions: [{ label: 'Réessayer', click: () => refresh() }]
+})
 
 setBreadcrumbs([
   {
@@ -38,7 +49,7 @@ const filteredChapters = computed(() => {
 })
 
 const handleModal = () => {
-  modal.open(ChaptersModal, {
+  modal.open(CreateChapterModal, {
     refresh,
     onClose: () => modal.close()
   })
@@ -51,33 +62,44 @@ const handleModal = () => {
       <UDashboardToolbar>
         <template #left>
           <UInput v-model="q" icon="i-heroicons-magnifying-glass" placeholder="Rechercher un chapitre" />
-
-          <CommonsDateRangePicker v-model="range" class="ml-2.5" />
+          
+          <DateRangePicker v-model="range" class="ml-2.5" />
         </template>
-
+        
         <template #right>
           <Suspense>
-            <CommonsSelectMenu @update:model-value="themes = $event" endpoint="themes" placeholder="Thèmes" />
+            <FilterSelectMenu endpoint="themes" placeholder="Thèmes" @update:model-value="themes = $event" />
           </Suspense>
-
-          <UButton trailing-icon="i-heroicons-plus" @click="handleModal" label="Créer un chapitre" />
+          
+          <UButton label="Créer un chapitre" trailing-icon="i-heroicons-plus" @click="handleModal" />
         </template>
       </UDashboardToolbar>
-
+      
       <UDashboardPanelContent>
-        <p v-if="status !== 'pending' && !filteredChapters.length" class="text-center text-gray-400 dark:text-white text-sm mt-4">Aucun chapitre trouvé</p>
-        <UBlogList orientation="horizontal" :ui="{ wrapper: 'p-px overflow-y-auto gap-4 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }">
+        <p
+          v-if="status !== 'pending' && !filteredChapters.length"
+          class="text-center text-gray-400 dark:text-white text-sm mt-4"
+        >Aucun chapitre trouvé</p>
+        <UBlogList
+          :ui="{ wrapper: 'p-px overflow-y-auto gap-4 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }"
+          orientation="horizontal"
+        >
           <template v-if="status === 'pending'">
             <USkeleton v-for="n in 5" :key="n" class="rounded-lg w-full h-40 sm:h-44 xl:h-48 2xl:h-52" />
           </template>
           <template v-else-if="status !== 'pending' && filteredChapters.length">
-            <ChaptersCard v-for="chapter in filteredChapters" :key="chapter.id" :chapter :refresh />
+            <ChapterCard v-for="chapter in filteredChapters" :key="chapter.id" :chapter :refresh />
           </template>
         </UBlogList>
       </UDashboardPanelContent>
-
-      <div v-if="filteredChapters && chapters?.last_page > 1" class="p-2.5 flex items-center justify-center border-t border-gray-200 dark:border-gray-800">
-        <UPagination size="xs" show-first show-last :page-count="chapters.per_page" :total="chapters.total" v-model="page" :max="5" />
+      
+      <div
+        v-if="filteredChapters && chapters?.last_page > 1"
+        class="p-2.5 flex items-center justify-center border-t border-gray-200 dark:border-gray-800"
+      >
+        <UPagination
+          v-model="page" :max="5" :page-count="chapters.per_page" :total="chapters.total" show-first show-last size="xs"
+        />
       </div>
     </UDashboardPanel>
   </UDashboardPage>

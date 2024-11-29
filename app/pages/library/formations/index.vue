@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { FormationsModal } from '#components'
+<script lang="ts" setup>
+import { CreateFormationModal } from '#components'
 
 definePageMeta({
   title: 'Titre de la formation'
@@ -73,7 +73,7 @@ setBreadcrumbs([
 // ])
 
 const handleModal = () => {
-  modal.open(FormationsModal, {
+  modal.open(CreateFormationModal, {
     onClose: () => modal.close()
   })
 }
@@ -86,27 +86,33 @@ const handleModal = () => {
         <template #left>
           <UInput v-model="q" icon="i-heroicons-magnifying-glass" placeholder="Rechercher une formation" />
         </template>
-
+        
         <template #right>
           <Suspense>
-            <CommonsSelectMenu @update:model-value="subjects = $event" endpoint="subjects" placeholder="Matières" />
+            <FilterSelectMenu endpoint="subjects" placeholder="Matières" @update:model-value="subjects = $event" />
           </Suspense>
           <Suspense>
-            <CommonsSelectMenu @update:model-value="classes = $event" endpoint="classes" placeholder="Classes" />
+            <FilterSelectMenu endpoint="classes" placeholder="Classes" @update:model-value="classes = $event" />
           </Suspense>
-
-          <UButton @click="handleModal" label="Créer une formation" color="primary" icon="i-heroicons-plus" />
+          
+          <UButton color="primary" icon="i-heroicons-plus" label="Créer une formation" @click="handleModal" />
         </template>
       </UDashboardToolbar>
-
+      
       <UDashboardPanelContent>
-        <p v-if="status !== 'pending' && !formations.length" class="text-center text-gray-400 dark:text-white text-sm mt-4">Aucune leçon trouvée</p>
-        <UBlogList orientation="horizontal" :ui="{ wrapper: 'p-px overflow-y-auto gap-4 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }">
+        <p
+          v-if="status !== 'pending' && !formations.length"
+          class="text-center text-gray-400 dark:text-white text-sm mt-4"
+        >Aucune leçon trouvée</p>
+        <UBlogList
+          :ui="{ wrapper: 'p-px overflow-y-auto gap-4 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }"
+          orientation="horizontal"
+        >
           <template v-if="status === 'pending'">
             <USkeleton v-for="n in 5" :key="n" class="rounded-lg w-full h-40 sm:h-44 xl:h-48 2xl:h-52" />
           </template>
           <template v-else-if="status !== 'pending' && formations.length">
-            <FormationsCard
+            <FormationCard
               v-for="formation in formations"
               :key="formation.id"
               :formation

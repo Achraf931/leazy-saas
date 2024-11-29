@@ -1,9 +1,9 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { formatDistanceToNow } from 'date-fns'
 import frLocale from 'date-fns/locale/fr'
 import { z } from 'zod'
-import { LessonsDeleteLessonModal, ChaptersDeleteChapterModal } from '#components'
-import type { FormSubmitEvent, Form } from '#ui/types'
+import { ConfirmDeleteChapterModal, ConfirmDeleteLessonModal } from '#components'
+import type { Form, FormSubmitEvent } from '#ui/types'
 
 definePageMeta({
   title: 'Chapitres'
@@ -30,7 +30,13 @@ const pending = ref(false)
 const documentId = computed(() => useRoute().params.id)
 const { data: chapter, refresh, error } = await useAsyncData('chapter', () => get(documentId.value))
 
-if (error.value) toast.add({ icon: 'i-heroicons-exclamation-circle', title: 'Erreur', description: 'Une erreur est survenue lors du chargement du chapitre', color: 'red', actions: [{ label: 'Réessayer', click: () => refresh() }] })
+if (error.value) toast.add({
+  icon: 'i-heroicons-exclamation-circle',
+  title: 'Erreur',
+  description: 'Une erreur est survenue lors du chargement du chapitre',
+  color: 'red',
+  actions: [{ label: 'Réessayer', click: () => refresh() }]
+})
 
 setBreadcrumbs([
   {
@@ -57,11 +63,11 @@ const state = reactive<Schema>({
 
 const searchable = async (q: string) => {
   loading.value = true
-
+  
   const themes: any[] = await get(null, { q }, 'themes')
-
+  
   loading.value = false
-
+  
   return 'data' in themes ? themes.data : themes
 }
 
@@ -97,7 +103,7 @@ const columnsTable = computed(() => columns.filter((column) => selectedColumns.v
 // Selected Rows
 const selectedRows = ref([])
 
-function select (row) {
+function select(row) {
   const index = selectedRows.value.findIndex((item) => item.id === row.id)
   if (index === -1) {
     selectedRows.value.push(row)
@@ -147,8 +153,8 @@ const sortLessons = (lessons, column, direction) => {
 const filterLessons = (lessons, search) => {
   if (!search) return lessons
   return lessons.filter(lesson =>
-      lesson.name.toLowerCase().includes(search.toLowerCase()) ||
-      lesson.description.toLowerCase().includes(search.toLowerCase())
+    lesson.name.toLowerCase().includes(search.toLowerCase()) ||
+    lesson.description.toLowerCase().includes(search.toLowerCase())
   )
 }
 
@@ -167,7 +173,7 @@ const deleteSelected = async () => {
 }
 
 const handleDelete = () => {
-  modal.open(ChaptersDeleteChapterModal, {
+  modal.open(ConfirmDeleteChapterModal, {
     chapter: chapter.value,
     redirect: true,
     refresh,
@@ -176,7 +182,7 @@ const handleDelete = () => {
 }
 
 const handleDeleteLesson = (lesson) => {
-  modal.open(LessonsDeleteLessonModal, {
+  modal.open(ConfirmDeleteLessonModal, {
     lesson,
     refresh,
     onClose: () => modal.close()
@@ -187,14 +193,14 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
   pending.value = true
   form.value?.clear()
   const response = await patch(event.data)
-
+  
   if (response) {
     toast.add({ icon: 'i-heroicons-check-circle', title: 'Chapitre mis à jour', color: 'green' })
-
+    
     pending.value = false
     return refresh()
   }
-
+  
   pending.value = false
 }
 </script>
@@ -204,30 +210,32 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
     <UDashboardPanelContent>
       <div class="w-full flex items-center justify-between mb-4">
         <h1 class="font-bold text-xl">{{ chapter.name }}</h1>
-
-        <UButton icon="i-heroicons-trash" label="Supprimer" color="red" size="xs" @click="handleDelete" />
+        
+        <UButton color="red" icon="i-heroicons-trash" label="Supprimer" size="xs" @click="handleDelete" />
       </div>
-
+      
       <section class="flex-1 flex flex-col md:flex-row gap-5 p-px overflow-hidden w-full">
         <div class="flex flex-col gap-3">
           <NuxtImg
-              :src="chapter.image"
-              :alt="chapter.name"
-              class="rounded-lg w-full aspect-video max-w-auto object-cover md:max-w-72"
-              layout="responsive"
+            :alt="chapter.name"
+            :src="chapter.image"
+            class="rounded-lg w-full aspect-video max-w-auto object-cover md:max-w-72"
+            layout="responsive"
           />
-
+          
           <p v-if="chapter.description" class="text-sm">{{ chapter.description }}</p>
           <div class="flex items-center justify-start gap-1">
-            <UIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-gray-400" />
-            <p class="text-gray-400 text-xs">Créé {{ formatDistanceToNow(new Date(chapter.created_at), { locale: frLocale, addSuffix: true }) }}</p>
+            <UIcon class="w-3.5 h-3.5 text-gray-400" name="i-heroicons-clock" />
+            <p class="text-gray-400 text-xs">Créé
+              {{ formatDistanceToNow(new Date(chapter.created_at), { locale: frLocale, addSuffix: true }) }}</p>
           </div>
           <div class="flex items-center justify-start gap-1">
-            <UIcon name="i-heroicons-clock" class="w-3.5 h-3.5 text-gray-400" />
-            <p class="text-gray-400 text-xs">Modifié {{ formatDistanceToNow(new Date(chapter.updated_at), { locale: frLocale, addSuffix: true }) }}</p>
+            <UIcon class="w-3.5 h-3.5 text-gray-400" name="i-heroicons-clock" />
+            <p class="text-gray-400 text-xs">Modifié
+              {{ formatDistanceToNow(new Date(chapter.updated_at), { locale: frLocale, addSuffix: true }) }}</p>
           </div>
         </div>
-
+        
         <UCard :ui="{ base: 'overflow-scroll flex-1' }">
           <UForm
             ref="form"
@@ -238,102 +246,116 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
           >
             <h3 class="font-semibold">Détails</h3>
             <UFormGroup label="Titre" name="name" required>
-              <UInput placeholder="Titre du chapitre" name="name" v-model="state.name" />
+              <UInput v-model="state.name" name="name" placeholder="Titre du chapitre" />
             </UFormGroup>
-            <UFormGroup label="Description" name="description" hint="Optionnel">
-              <UTextarea placeholder="Description du chapitre" name="description" v-model="state.description"/>
+            <UFormGroup hint="Optionnel" label="Description" name="description">
+              <UTextarea v-model="state.description" name="description" placeholder="Description du chapitre" />
             </UFormGroup>
             <UFormGroup label="Thème associé" name="theme_id" required>
               <USelectMenu
                 v-model="state.theme_id"
                 :loading="loading"
                 :searchable="searchable"
-                searchable-placeholder="Rechercher un thème"
+                :searchable-lazy="true"
                 class="w-full"
                 name="theme_id"
-                placeholder="Sélectionner un thème"
                 option-attribute="name"
+                placeholder="Sélectionner un thème"
+                searchable-placeholder="Rechercher un thème"
                 value-attribute="id"
-                :searchable-lazy="true"
               />
             </UFormGroup>
-            <UButton size="xs" type="submit" label="Sauvegarder" />
+            <UButton label="Sauvegarder" size="xs" type="submit" />
           </UForm>
-
-          <UDivider orientation="horizontal" class="w-full my-5" />
-
+          
+          <UDivider class="w-full my-5" orientation="horizontal" />
+          
           <UFormGroup label="Leçons">
             <UCard
-                class="w-full"
-                :ui="{
+              :ui="{
                   divide: 'divide-y divide-gray-200 dark:divide-gray-700',
                   header: { padding: 'px-4 py-5' },
                   body: { padding: '', base: 'divide-y divide-gray-200 dark:divide-gray-700' },
                   footer: { padding: 'p-4' }
                 }"
+              class="w-full"
             >
               <div class="flex justify-between items-center w-full px-4 py-3 gap-1.5">
-                <UInput v-model="search" icon="i-heroicons-magnifying-glass-20-solid" placeholder="Rechercher..." size="xs" />
-
+                <UInput
+                  v-model="search" icon="i-heroicons-magnifying-glass-20-solid" placeholder="Rechercher..." size="xs"
+                />
+                
                 <div class="flex gap-1.5 items-center">
                   <UDropdown v-if="selectedRows.length > 1" :items="actions" :ui="{ width: 'w-36' }">
                     <UButton
-                        icon="i-heroicons-chevron-down"
-                        trailing
-                        color="gray"
-                        size="xs"
+                      color="gray"
+                      icon="i-heroicons-chevron-down"
+                      size="xs"
+                      trailing
                     >
                       Mark as
                     </UButton>
                   </UDropdown>
-
+                  
                   <USelectMenu v-model="selectedColumns" :options="columns" multiple>
                     <UButton
-                        icon="i-heroicons-view-columns"
-                        color="gray"
-                        size="xs"
+                      color="gray"
+                      icon="i-heroicons-view-columns"
+                      size="xs"
                     >
                       Columns
                     </UButton>
                   </USelectMenu>
-
+                  
                   <UButton
-                      icon="i-heroicons-funnel"
-                      color="gray"
-                      size="xs"
-                      :disabled="search === '' && selectedStatus.length === 0"
-                      @click="resetFilters"
+                    :disabled="search === '' && selectedStatus.length === 0"
+                    color="gray"
+                    icon="i-heroicons-funnel"
+                    size="xs"
+                    @click="resetFilters"
                   >
                     Reset
                   </UButton>
                 </div>
               </div>
-
+              
               <!-- Table -->
               <UTable
-                  v-model="selectedRows"
-                  v-model:sort="sort"
-                  :rows="filteredLessons"
-                  :columns="columnsTable"
-                  :loading="pending"
-                  sort-asc-icon="i-heroicons-arrow-up"
-                  sort-desc-icon="i-heroicons-arrow-down"
-                  sort-mode="manual"
-                  class="w-full"
-                  :ui="{ td: { base: 'max-w-[0] truncate', padding: 'px-2 py-2' }, th: { padding: 'px-2 py-1.5' } }"
+                v-model="selectedRows"
+                v-model:sort="sort"
+                :columns="columnsTable"
+                :loading="pending"
+                :rows="filteredLessons"
+                :ui="{ td: { base: 'max-w-[0] truncate', padding: 'px-2 py-2' }, th: { padding: 'px-2 py-1.5' } }"
+                class="w-full"
+                sort-asc-icon="i-heroicons-arrow-up"
+                sort-desc-icon="i-heroicons-arrow-down"
+                sort-mode="manual"
               >
                 <template #draft-data="{ row }">
-                  <UBadge size="xs" :label="row.draft ? 'Brouillon' : 'Publié'" :color="row.draft ? 'orange' : 'emerald'" variant="subtle" />
+                  <UBadge
+                    :color="row.draft ? 'orange' : 'emerald'" :label="row.draft ? 'Brouillon' : 'Publié'" size="xs"
+                    variant="subtle"
+                  />
                 </template>
-
+                
                 <template #private-data="{ row }">
-                  <UBadge size="xs" :label="row.private ? 'Privée' : 'Publique'" :color="row.private ? 'primary' : 'emerald'" variant="subtle" />
+                  <UBadge
+                    :color="row.private ? 'primary' : 'emerald'" :label="row.private ? 'Privée' : 'Publique'" size="xs"
+                    variant="subtle"
+                  />
                 </template>
-
+                
                 <template #actions-data="{ row }">
                   <div class="flex items-center gap-2">
-                    <UButton icon="i-heroicons-trash" variant="soft" label="Supprimer" color="red" size="xs" @click="handleDeleteLesson(row)" />
-                    <UButton :to="localePath({ name: 'lesson_id', params: { id: row.id } })" trailing-icon="i-heroicons-chevron-right-20-solid" variant="soft" label="Voir" size="xs" />
+                    <UButton
+                      color="red" icon="i-heroicons-trash" label="Supprimer" size="xs" variant="soft"
+                      @click="handleDeleteLesson(row)"
+                    />
+                    <UButton
+                      :to="localePath({ name: 'lesson_id', params: { id: row.id } })"
+                      label="Voir" size="xs" trailing-icon="i-heroicons-chevron-right-20-solid" variant="soft"
+                    />
                   </div>
                 </template>
               </UTable>

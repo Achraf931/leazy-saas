@@ -1,6 +1,18 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
 export default defineNuxtConfig({
+  components: [
+    {
+      path: '@/components',
+      pathPrefix: false
+    }
+  ],
+  runtimeConfig: {
+    public: {
+      CONVERT_APP_ID: process.env.NUXT_CONVERT_APP_ID,
+      JWT_CONVERT_TOKEN: process.env.NUXT_JWT_CONVERT_TOKEN
+    }
+  },
   extends: ['@nuxt/ui-pro', '@leazyhub/editor'],
   modules: [
     '@nuxt/eslint',

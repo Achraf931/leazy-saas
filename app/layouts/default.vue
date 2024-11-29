@@ -1,12 +1,18 @@
-<script setup lang="ts">
+<script lang="ts" setup>
+import { CreateFeedbackModal, CreateSuggestionModal } from '#components'
+
+const modal = useModal()
 const user = useSanctumUser()
 const route = useRoute()
-const {isNotificationsSlideoverOpen, isHelpSlideoverOpen, isDrawerSlideoverMode, isDrawerSlideoverOpen} = useDashboard()
-const {toggleDashboardSearch} = useUIState()
-const isNewFeedbackModalOpen = ref(false)
-const isNewSuggestionModalOpen = ref(false)
+const {
+  isNotificationsSlideoverOpen,
+  isHelpSlideoverOpen,
+  isDrawerSlideoverMode,
+  isDrawerSlideoverOpen
+} = useDashboard()
+const { toggleDashboardSearch } = useUIState()
 const localePath = useLocalePath()
-const {t} = useI18n()
+const { t } = useI18n()
 
 const links = computed(() => [{
   id: 'home',
@@ -46,36 +52,36 @@ const links = computed(() => [{
   id: 'kanban',
   label: 'Mes tâches',
   icon: 'i-heroicons-rectangle-stack',
-  to: localePath({name: 'kanban'})
+  to: localePath({ name: 'kanban' })
 }])
 
 const subLinks = ref([{
   id: 'library',
   label: t('drawer.library.label'),
   icon: 'i-heroicons-folder-open',
-  to: localePath({name: 'library'}),
+  to: localePath({ name: 'library' }),
   collapsible: false,
   exact: true,
   children: [
     {
       label: t('drawer.library.lessons'),
       exact: true,
-      to: localePath({name: 'library-lessons'})
+      to: localePath({ name: 'library-lessons' })
     },
     {
       label: t('drawer.library.chapters'),
-      to: localePath({name: 'library-chapters'}),
-      active: computed(() => route.path.startsWith(localePath({name: 'library-chapters'})))
+      to: localePath({ name: 'library-chapters' }),
+      active: computed(() => route.path.startsWith(localePath({ name: 'library-chapters' })))
     },
     {
       label: t('drawer.library.themes'),
-      to: localePath({name: 'library-themes'}),
-      active: computed(() => route.path.startsWith(localePath({name: 'library-themes'})))
+      to: localePath({ name: 'library-themes' }),
+      active: computed(() => route.path.startsWith(localePath({ name: 'library-themes' })))
     },
     {
-      label:'Formations',
-      to: localePath({name: 'library-formations'}),
-      active: computed(() => route.path.startsWith(localePath({name: 'library-formations'})))
+      label: 'Formations',
+      to: localePath({ name: 'library-formations' }),
+      active: computed(() => route.path.startsWith(localePath({ name: 'library-formations' })))
     }]
 }])
 
@@ -83,7 +89,7 @@ const otherLinks = computed(() => [{
   id: 'templates',
   label: 'Modèles',
   icon: 'i-heroicons-document-text',
-  to: localePath({name: 'templates'})
+  to: localePath({ name: 'templates' })
 }, {
   id: 'blog',
   label: t('drawer.community'),
@@ -101,9 +107,7 @@ const reportLinks = [
     id: 'feedbacks',
     label: t('drawer.feedbacks'),
     icon: 'i-heroicons-exclamation-triangle',
-    click: () => {
-      isNewFeedbackModalOpen.value = true
-    }
+    click: () => handleFeedbackModal()
   }
 ]
 
@@ -119,7 +123,7 @@ const groups = [
   {
     key: 'links',
     label: 'Aller à',
-    commands: [...links.value.map(link => ({...link, shortcuts: link.tooltip?.shortcuts})), ...subLinks.value]
+    commands: [...links.value.map(link => ({ ...link, shortcuts: link.tooltip?.shortcuts })), ...subLinks.value]
   },
   {
     key: 'help',
@@ -127,172 +131,159 @@ const groups = [
     commands: [...otherLinks.value, ...reportLinks, ...footerLinks]
   }
 ]
+
+const handleFeedbackModal = () => {
+  modal.open(CreateFeedbackModal, {
+    onClose: () => modal.close()
+  })
+}
+
+const handleSuggestionModal = () => {
+  modal.open(CreateSuggestionModal, {
+    onClose: () => modal.close()
+  })
+}
 </script>
 
 <template>
   <UDashboardLayout>
-    <USlideover v-if="isDrawerSlideoverMode" v-model="isDrawerSlideoverOpen" :overlay="false" side="left"
-                :ui="{ wrapper: 'top-[--header-height] h-[calc(100vh-var(--header-height))]', width: 'max-w-max' }">
+    <USlideover
+      v-if="isDrawerSlideoverMode" v-model="isDrawerSlideoverOpen" :overlay="false" :ui="{ wrapper: 'top-[--header-height] h-[calc(100vh-var(--header-height))]', width: 'max-w-max' }"
+      side="left"
+    >
       <template #default>
         <UDashboardPanel id="slideorder-drawer" :width="250" class="flex-1" collapsible>
           <UDashboardNavbar :ui="{ left: 'flex-1' }">
             <template #left>
-              <UserDropdown/>
+              <UserDropdown />
             </template>
           </UDashboardNavbar>
-
+          
           <UDashboardSidebar>
             <template #header>
               <div class="flex items-center gap-2 w-full">
-                <UButton :label="$t('commons.search')" class="flex-1" icon="i-heroicons-magnifying-glass" color="gray"
-                         @click="toggleDashboardSearch"/>
-                <UTooltip text="Notifications" :shortcuts="['N']">
-                  <UButton color="white" variant="soft" square @click="isNotificationsSlideoverOpen = true">
+                <UButton
+                  :label="$t('commons.search')" class="flex-1" color="gray" icon="i-heroicons-magnifying-glass"
+                  @click="toggleDashboardSearch"
+                />
+                <UTooltip :shortcuts="['N']" text="Notifications">
+                  <UButton color="white" square variant="soft" @click="isNotificationsSlideoverOpen = true">
                     <UChip color="red" inset>
-                      <UIcon name="i-heroicons-bell" class="w-5 h-5"/>
+                      <UIcon class="w-5 h-5" name="i-heroicons-bell" />
                     </UChip>
                   </UButton>
                 </UTooltip>
               </div>
             </template>
-
-            <UDashboardSidebarLinks :links="links"/>
-
-            <UDivider/>
-
-            <UDashboardSidebarLinks :links="subLinks"/>
-
-            <UDivider/>
-
-            <UDashboardSidebarLinks :links="otherLinks"/>
-
+            
+            <UDashboardSidebarLinks :links="links" />
+            
+            <UDivider />
+            
+            <UDashboardSidebarLinks :links="subLinks" />
+            
+            <UDivider />
+            
+            <UDashboardSidebarLinks :links="otherLinks" />
+            
             <div class="flex-1 flex items-end">
               <div
-                  class="suggestion-block cursor-pointer text-white w-full p-3 bg-primary-500 hover:bg-primary-600 rounded-lg"
-                  @click="isNewSuggestionModalOpen = true">
+                class="suggestion-block cursor-pointer text-white w-full p-3 bg-primary-500 hover:bg-primary-600 rounded-lg"
+                @click="handleSuggestionModal"
+              >
                 <div class="flex items-center gap-2">
-                  <UIcon name="i-heroicons-light-bulb" class="w-5 h-5"/>
+                  <UIcon class="w-5 h-5" name="i-heroicons-light-bulb" />
                   <h3 class="font-bold">Une idée ?</h3>
                 </div>
-                <p class="mt-2 text-left text-sm font-medium">Suggérer nous des fonctionnalités que vous aimeriez voir sur
+                <p class="mt-2 text-left text-sm font-medium">Suggérer nous des fonctionnalités que vous aimeriez voir
+                  sur
                   Leazy !</p>
               </div>
             </div>
-
-            <UDivider class="sticky bottom-0"/>
-
+            
+            <UDivider class="sticky bottom-0" />
+            
             <template #footer>
-              <UDashboardSidebarLinks :links="footerLinks"/>
+              <UDashboardSidebarLinks :links="footerLinks" />
             </template>
           </UDashboardSidebar>
         </UDashboardPanel>
       </template>
     </USlideover>
-    <UDashboardPanel v-else id="default-drawer" :width="250" :resizable="{ min: 200, max: 300 }" collapsible>
+    <UDashboardPanel v-else id="default-drawer" :resizable="{ min: 200, max: 300 }" :width="250" collapsible>
       <template #handle="{ onDrag }">
-        <UDashboardPanelHandle :ui="{ container: 'group-hover:bg-primary-500 dark:group-hover:bg-primary-400' }"
-                               @mousedown="onDrag"/>
+        <UDashboardPanelHandle
+          :ui="{ container: 'group-hover:bg-primary-500 dark:group-hover:bg-primary-400' }"
+          @mousedown="onDrag"
+        />
       </template>
-
+      
       <UDashboardNavbar :ui="{ left: 'flex-1' }">
         <template #left>
-          <UserDropdown/>
+          <UserDropdown />
         </template>
       </UDashboardNavbar>
-
+      
       <UDashboardSidebar>
         <template #header>
           <div class="flex items-center gap-2 w-full">
-            <UButton :label="$t('commons.search')" class="flex-1" icon="i-heroicons-magnifying-glass" color="gray"
-                     @click="toggleDashboardSearch"/>
-            <UTooltip text="Notifications" :shortcuts="['N']">
-              <UButton color="white" variant="soft" square @click="isNotificationsSlideoverOpen = true">
+            <UButton
+              :label="$t('commons.search')" class="flex-1" color="gray" icon="i-heroicons-magnifying-glass"
+              @click="toggleDashboardSearch"
+            />
+            <UTooltip :shortcuts="['N']" text="Notifications">
+              <UButton color="white" square variant="soft" @click="isNotificationsSlideoverOpen = true">
                 <UChip color="red" inset>
-                  <UIcon name="i-heroicons-bell" class="w-5 h-5"/>
+                  <UIcon class="w-5 h-5" name="i-heroicons-bell" />
                 </UChip>
               </UButton>
             </UTooltip>
           </div>
         </template>
-
-        <UDashboardSidebarLinks :links="links"/>
-
-        <UDivider/>
-
-        <UDashboardSidebarLinks :links="subLinks"/>
-
-        <UDivider/>
-
-        <UDashboardSidebarLinks :links="otherLinks"/>
-
-        <UDivider/>
-
-        <UDashboardSidebarLinks :links="reportLinks"/>
-
+        
+        <UDashboardSidebarLinks :links="links" />
+        
+        <UDivider />
+        
+        <UDashboardSidebarLinks :links="subLinks" />
+        
+        <UDivider />
+        
+        <UDashboardSidebarLinks :links="otherLinks" />
+        
+        <UDivider />
+        
+        <UDashboardSidebarLinks :links="reportLinks" />
+        
         <div class="flex-1 flex items-end">
           <div
-              class="suggestion-block cursor-pointer text-white w-full p-3 bg-primary-500 hover:bg-primary-600 rounded-lg"
-              @click="isNewSuggestionModalOpen = true">
+            class="suggestion-block cursor-pointer text-white w-full p-3 bg-primary-500 hover:bg-primary-600 rounded-lg"
+            @click="handleSuggestionModal"
+          >
             <div class="flex items-center gap-2">
-              <UIcon name="i-heroicons-light-bulb" class="w-5 h-5"/>
+              <UIcon class="w-5 h-5" name="i-heroicons-light-bulb" />
               <h3 class="font-bold">Une idée ?</h3>
             </div>
             <p class="mt-2 text-left text-sm font-medium">Suggérer nous des fonctionnalités que vous aimeriez voir sur
               Leazy !</p>
           </div>
         </div>
-
-        <UDivider class="sticky bottom-0"/>
-
+        
+        <UDivider class="sticky bottom-0" />
+        
         <template #footer>
-          <UDashboardSidebarLinks :links="footerLinks"/>
+          <UDashboardSidebarLinks :links="footerLinks" />
         </template>
       </UDashboardSidebar>
     </UDashboardPanel>
-
-    <slot/>
-
-    <UModal v-model="isNewFeedbackModalOpen" :ui="{ width: 'sm:max-w-md' }">
-      <UCard>
-        <div class="flex items-start justify-between gap-x-1.5 pb-4">
-          <div class="flex items-start gap-4">
-            <div>
-              <p class="text-gray-900 dark:text-white font-semibold">Nouveau feedback</p>
-              <p class="mt-1 text-gray-500 dark:text-gray-400 text-sm">Signalez-nous un problème rencontré</p>
-            </div>
-          </div>
-          <UButton icon="i-heroicons-x-mark" color="gray" variant="ghost" @click="isNewFeedbackModalOpen = false"/>
-        </div>
-        <!-- ~/components/feedbacks/FeedbacksForm.vue -->
-        <FeedbacksForm @close="isNewFeedbackModalOpen = false"/>
-      </UCard>
-    </UModal>
-
-    <UModal v-model="isNewSuggestionModalOpen" :ui="{ width: 'sm:max-w-md' }">
-      <UCard>
-        <div class="flex items-start justify-between gap-x-1.5 pb-4">
-          <div class="flex items-start gap-4">
-            <div>
-              <p class="text-gray-900 dark:text-white font-semibold">Suggérer une fonctionnalité</p>
-              <p class="mt-1 text-gray-500 dark:text-gray-400 text-sm">
-                Vous aimeriez voir certaines fonctionnalités sur Leazy ?
-                <br/>
-                Dites-le nous !
-              </p>
-            </div>
-          </div>
-          <UButton icon="i-heroicons-x-mark" color="gray" variant="ghost" @click="isNewSuggestionModalOpen = false"/>
-        </div>
-        <!-- ~/components/suggestions/SuggestionsForm.vue -->
-        <SuggestionsForm @close="isNewSuggestionModalOpen = false"/>
-      </UCard>
-    </UModal>
-
-    <HelpSlideover/>
-
-    <NotificationsSlideover/>
-
-    <LazyUDashboardSearch :groups="groups"/>
+    
+    <slot />
+    
+    <HelpSlideover />
+    
+    <NotificationSlideover />
+    
+    <LazyUDashboardSearch :groups="groups" />
   </UDashboardLayout>
 </template>
 

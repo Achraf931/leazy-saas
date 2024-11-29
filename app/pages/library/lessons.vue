@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LessonsModal } from '#components'
+import { CreateLessonModal } from '#components'
 import { sub } from 'date-fns'
 import { useDebounce } from '@vueuse/core'
 
@@ -69,7 +69,7 @@ setBreadcrumbs([
 ])
 
 const handleModal = () => {
-  modal.open(LessonsModal, {
+  modal.open(CreateLessonModal, {
     onClose: () => modal.close()
   })
 }
@@ -86,13 +86,19 @@ watch(q, () => {
         <template #left>
           <UInput v-model="q" icon="i-heroicons-magnifying-glass" placeholder="Rechercher une leçon" />
 
-          <CommonsDateRangePicker v-model="range" class="ml-2.5" />
+          <DateRangePicker v-model="range" class="ml-2.5" />
         </template>
 
         <template #right>
-          <CommonsSelectMenu @update:model-value="levels = $event" endpoint="levels" placeholder="Niveaux" />
-          <CommonsSelectMenu @update:model-value="chapters = $event" endpoint="chapters" placeholder="Chapitres" />
-          <CommonsSelectMenu @update:model-value="themes = $event" endpoint="themes" placeholder="Thèmes" />
+          <Suspense>
+            <FilterSelectMenu @update:model-value="levels = $event" endpoint="levels" placeholder="Niveaux" />
+          </Suspense>
+          <Suspense>
+            <FilterSelectMenu @update:model-value="chapters = $event" endpoint="chapters" placeholder="Chapitres" />
+          </Suspense>
+          <Suspense>
+            <FilterSelectMenu @update:model-value="themes = $event" endpoint="themes" placeholder="Thèmes" />
+          </Suspense>
 
           <UButton trailing-icon="i-heroicons-plus" @click="handleModal" label="Créer une leçon" />
         </template>
@@ -105,7 +111,7 @@ watch(q, () => {
             <USkeleton v-for="n in 5" :key="n" class="rounded-lg w-full h-40 sm:h-44 xl:h-48 2xl:h-52" />
           </template>
           <template v-else-if="status !== 'pending' && lessons.data.length">
-            <LessonsCard v-for="lesson in lessons.data" :key="lesson.id" :lesson :refresh redirect />
+            <LessonCard v-for="lesson in lessons.data" :key="lesson.id" :lesson :refresh redirect />
           </template>
         </UBlogList>
       </UDashboardPanelContent>
@@ -116,26 +122,3 @@ watch(q, () => {
     </UDashboardPanel>
   </UDashboardPage>
 </template>
-
-<style>
-.preview-editor {
-  margin: 0!important;
-
-  .tiptap.ProseMirror {
-    padding: 0!important;
-
-    & > * {
-      margin: 0!important;
-      padding: 0!important;
-      font-size: calc(300px/47.5)!important;
-      line-height: normal!important;
-    }
-
-    & img {
-      max-width: 100%!important;
-      height: auto!important;
-      object-fit: cover!important;
-    }
-  }
-}
-</style>

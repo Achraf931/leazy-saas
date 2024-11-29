@@ -2,10 +2,10 @@
 const route = useRoute()
 const router = useRouter()
 const q = ref('')
-const tabItems = [{
+const tabItems = [/*{
   icon: 'i-heroicons-calendar-days',
   file: 'Calendar'
-}, {
+},*/ {
   icon: 'i-heroicons-queue-list',
   file: 'Timeline'
 }]
@@ -25,8 +25,8 @@ const selectedTab = computed({
 })
 
 const componentMap = {
-  Calendar: defineAsyncComponent(() => import('@/components/agenda/Calendar.vue')),
-  Timeline: defineAsyncComponent(() => import('@/components/agenda/Timeline.vue'))
+  // Calendar: resolveComponent('Calendar'),
+  Timeline: resolveComponent('Timeline')
 }
 </script>
 

@@ -1,6 +1,6 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { z } from 'zod'
-import type { FormSubmitEvent, Form } from '#ui/types'
+import type { Form, FormSubmitEvent } from '#ui/types'
 
 interface User {
   id: number
@@ -40,11 +40,11 @@ const state = reactive<Schema>({
 
 function onFileChange(e: Event) {
   const input = e.target as HTMLInputElement
-
+  
   if (!input.files?.length) {
     return
   }
-
+  
   state.avatar = URL.createObjectURL(input.files[0])
 }
 
@@ -62,14 +62,16 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
 <template>
   <UDashboardPanelContent class="pb-24">
-    <UDashboardSection :title="$t('page.settings.general.theme.label')" :description="$t('page.settings.general.theme.description')">
+    <UDashboardSection
+      :description="$t('page.settings.general.theme.description')" :title="$t('page.settings.general.theme.label')"
+    >
       <template #links>
         <UColorModeSelect color="gray" />
       </template>
     </UDashboardSection>
-
+    
     <UDivider class="mb-4" />
-
+    
     <UForm
       ref="form"
       :schema="schema"
@@ -77,74 +79,92 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       :validate-on="['submit']"
       @submit="onSubmit"
     >
-      <UDashboardSection :title="$t('page.settings.general.profile.label')" :description="$t('page.settings.general.profile.description')">
+      <UDashboardSection
+        :description="$t('page.settings.general.profile.description')"
+        :title="$t('page.settings.general.profile.label')"
+      >
         <template #links>
-          <UButton type="submit" :label="$t('page.settings.general.profile.button')" color="black" />
+          <UButton :label="$t('page.settings.general.profile.button')" color="black" type="submit" />
         </template>
-
+        
         <UFormGroup
-          name="lastname"
-          :label="$t('page.settings.general.form.lastname.label')"
           :description="$t('page.settings.general.form.lastname.description')"
-          required
-          class="grid grid-cols-2 gap-2 items-center"
+          :label="$t('page.settings.general.form.lastname.label')"
           :ui="{ container: '' }"
+          class="grid grid-cols-2 gap-2 items-center"
+          name="lastname"
+          required
         >
-          <UInput v-model="state.lastname" name="lastname" autocomplete="off" icon="i-heroicons-user" size="md" />
+          <UInput v-model="state.lastname" autocomplete="off" icon="i-heroicons-user" name="lastname" size="md" />
         </UFormGroup>
-
+        
         <UFormGroup
-          name="firstname"
-          :label="$t('page.settings.general.form.firstname.label')"
           :description="$t('page.settings.general.form.firstname.description')"
-          required
+          :label="$t('page.settings.general.form.firstname.label')"
+          :ui="{ container: '' }"
           class="grid grid-cols-2 gap-2 items-center"
-          :ui="{ container: '' }"
-        >
-          <UInput v-model="state.firstname" name="firstname" autocomplete="off" icon="i-heroicons-user" size="md" />
-        </UFormGroup>
-
-        <UFormGroup
-          name="email"
-          :label="$t('page.settings.general.form.email.label')"
-          :description="$t('page.settings.general.form.email.description')"
+          name="firstname"
           required
-          class="grid grid-cols-2 gap-2"
-          :ui="{ container: '' }"
         >
-          <UInput v-model="state.email" name="email" type="email" autocomplete="off" icon="i-heroicons-envelope" size="md" />
+          <UInput v-model="state.firstname" autocomplete="off" icon="i-heroicons-user" name="firstname" size="md" />
         </UFormGroup>
-
-        <UFormGroup name="avatar" :label="$t('page.settings.general.form.avatar.label')" :description="$t('page.settings.general.form.avatar.description')" class="grid grid-cols-2 gap-2" :help="$t('page.settings.general.form.avatar.supported_ext')" :ui="{ container: 'flex flex-wrap items-center gap-3', help: 'mt-0' }">
-          <UAvatar :src="state.avatar" :alt="state.lastname" size="lg" />
-
-          <UButton :label="$t('page.settings.general.form.avatar.button')" color="white" size="md" @click="onFileClick" />
-
-          <UInput ref="fileRef" name="avatar" type="file" class="hidden" accept=".jpg, .jpeg, .png, .gif, .webp" @change="onFileChange" />
-        </UFormGroup>
-
+        
         <UFormGroup
-          name="password_current"
-          :label="$t('page.settings.general.form.password.label')"
+          :description="$t('page.settings.general.form.email.description')"
+          :label="$t('page.settings.general.form.email.label')"
+          :ui="{ container: '' }"
+          class="grid grid-cols-2 gap-2"
+          name="email"
+          required
+        >
+          <UInput
+            v-model="state.email" autocomplete="off" icon="i-heroicons-envelope" name="email" size="md" type="email"
+          />
+        </UFormGroup>
+        
+        <UFormGroup
+          :description="$t('page.settings.general.form.avatar.description')" :help="$t('page.settings.general.form.avatar.supported_ext')"
+          :label="$t('page.settings.general.form.avatar.label')" :ui="{ container: 'flex flex-wrap items-center gap-3', help: 'mt-0' }"
+          class="grid grid-cols-2 gap-2"
+          name="avatar"
+        >
+          <UAvatar :alt="state.lastname" :src="state.avatar" size="lg" />
+          
+          <UButton
+            :label="$t('page.settings.general.form.avatar.button')" color="white" size="md" @click="onFileClick"
+          />
+          
+          <UInput
+            ref="fileRef" accept=".jpg, .jpeg, .png, .gif, .webp" class="hidden" name="avatar" type="file"
+            @change="onFileChange"
+          />
+        </UFormGroup>
+        
+        <UFormGroup
           :description="$t('page.settings.general.form.password.description')"
-          class="grid grid-cols-2 gap-2"
+          :label="$t('page.settings.general.form.password.label')"
           :ui="{ container: '' }"
+          class="grid grid-cols-2 gap-2"
+          name="password_current"
         >
-          <UInput id="password_current" name="password_current" v-model="state.password_current" type="password" :placeholder="$t('page.settings.general.form.password.current')" size="md" />
+          <UInput
+            id="password_current" v-model="state.password_current" :placeholder="$t('page.settings.general.form.password.current')" name="password_current"
+            size="md" type="password"
+          />
         </UFormGroup>
         <UFormGroup
-          name="password_new"
-          class="grid grid-cols-2 gap-2"
           :ui="{ container: '' }"
+          class="grid grid-cols-2 gap-2"
+          name="password_new"
         >
           <UInput
             id="password_new"
             v-model="state.password_new"
-            type="password"
-            name="password_new"
             :placeholder="$t('page.settings.general.form.password.new')"
-            size="md"
             class="mt-2"
+            name="password_new"
+            size="md"
+            type="password"
           />
         </UFormGroup>
       </UDashboardSection>
