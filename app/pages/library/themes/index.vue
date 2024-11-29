@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { ThemesModal } from '#components'
+<script lang="ts" setup>
+import { CreateThemeModal } from '#components'
 import { sub } from 'date-fns'
 
 definePageMeta({
@@ -15,9 +15,20 @@ const page = ref(1)
 const q = ref('')
 const range = ref<Range>({ start: sub(new Date(), { days: 14 }), end: new Date() })
 
-const { data: themes, status, refresh, error } = await useLazyAsyncData('themes', () => get(null, { page: page.value }), { watch: [page] })
+const {
+  data: themes,
+  status,
+  refresh,
+  error
+} = await useLazyAsyncData('themes', () => get(null, { page: page.value }), { watch: [page] })
 
-if (error.value) toast.add({ icon: 'i-heroicons-exclamation-circle', title: 'Erreur', description: 'Une erreur est survenue lors du chargement des thèmes', color: 'red', actions: [{ label: 'Réessayer', click: () => refresh() }] })
+if (error.value) toast.add({
+  icon: 'i-heroicons-exclamation-circle',
+  title: 'Erreur',
+  description: 'Une erreur est survenue lors du chargement des thèmes',
+  color: 'red',
+  actions: [{ label: 'Réessayer', click: () => refresh() }]
+})
 
 setBreadcrumbs([
   {
@@ -36,7 +47,7 @@ const filteredThemes = computed(() => {
 })
 
 const handleModal = () => {
-  modal.open(ThemesModal, {
+  modal.open(CreateThemeModal, {
     refresh,
     onClose: () => modal.close()
   })
@@ -49,29 +60,40 @@ const handleModal = () => {
       <UDashboardToolbar>
         <template #left>
           <UInput v-model="q" icon="i-heroicons-magnifying-glass" placeholder="Rechercher un thème" />
-
-          <CommonsDateRangePicker v-model="range" class="ml-2.5" />
+          
+          <DateRangePicker v-model="range" class="ml-2.5" />
         </template>
-
+        
         <template #right>
-          <UButton trailing-icon="i-heroicons-plus" @click="handleModal" label="Créer un thème" />
+          <UButton label="Créer un thème" trailing-icon="i-heroicons-plus" @click="handleModal" />
         </template>
       </UDashboardToolbar>
-
+      
       <UDashboardPanelContent>
-        <p v-if="status !== 'pending' && !filteredThemes.length" class="text-center text-gray-400 dark:text-white text-sm mt-4">Aucun thème trouvé</p>
-        <UBlogList orientation="horizontal" :ui="{ wrapper: 'p-px overflow-y-auto gap-4 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }">
+        <p
+          v-if="status !== 'pending' && !filteredThemes.length"
+          class="text-center text-gray-400 dark:text-white text-sm mt-4"
+        >Aucun thème trouvé</p>
+        <UBlogList
+          :ui="{ wrapper: 'p-px overflow-y-auto gap-4 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }"
+          orientation="horizontal"
+        >
           <template v-if="status === 'pending'">
             <USkeleton v-for="n in 5" :key="n" class="rounded-lg w-full h-40 sm:h-44 xl:h-48 2xl:h-52" />
           </template>
           <template v-else-if="status !== 'pending' && filteredThemes.length">
-            <ThemesCard v-for="theme in filteredThemes" :key="theme.id" :theme :refresh />
+            <ThemeCard v-for="theme in filteredThemes" :key="theme.id" :refresh :theme />
           </template>
         </UBlogList>
       </UDashboardPanelContent>
-
-      <div v-if="filteredThemes.length && themes?.last_page > 1" class="p-2.5 flex items-center justify-center border-t border-gray-200 dark:border-gray-800">
-        <UPagination size="xs" show-first show-last :page-count="themes.per_page" :total="themes.total" v-model="page" :max="5" />
+      
+      <div
+        v-if="filteredThemes.length && themes?.last_page > 1"
+        class="p-2.5 flex items-center justify-center border-t border-gray-200 dark:border-gray-800"
+      >
+        <UPagination
+          v-model="page" :max="5" :page-count="themes.per_page" :total="themes.total" show-first show-last size="xs"
+        />
       </div>
     </UDashboardPanel>
   </UDashboardPage>

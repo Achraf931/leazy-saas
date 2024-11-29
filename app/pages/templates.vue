@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LessonsModal } from '#components'
+import { CreateLessonModal } from '#components'
 
 const localePath = useLocalePath()
 const toast = useToast()
@@ -35,7 +35,7 @@ const addFromTemplate = async (template) => {
 }
 
 const handleModal = () => {
-  modal.open(LessonsModal, {
+  modal.open(CreateLessonModal, {
     onClose: () => modal.close()
   })
 }
@@ -65,12 +65,12 @@ const handleModal = () => {
             <UInput icon="i-heroicons-magnifying-glass" placeholder="Rechercher un modèle" />
             <UFormGroup label="Niveaux" :ui="{ label: { base: 'font-semibold' } }">
               <Suspense>
-                <CommonsSelectMenu v-model="levels" endpoint="levels" placeholder="Niveaux" />
+                <FilterSelectMenu v-model="levels" endpoint="levels" placeholder="Niveaux" />
               </Suspense>
             </UFormGroup>
             <UFormGroup label="Matières" :ui="{ label: { base: 'font-semibold' } }">
               <Suspense>
-                <CommonsSelectMenu v-model="levels" endpoint="levels" placeholder="Matières" />
+                <FilterSelectMenu v-model="levels" endpoint="levels" placeholder="Matières" />
               </Suspense>
             </UFormGroup>
             <UButton trailing-icon="i-heroicons-plus" @click="handleModal" label="Créer sans modèle" class="ml-auto" />
@@ -97,7 +97,7 @@ const handleModal = () => {
           <section v-if="showLessons">
             <h2 class="font-bold text-lg mb-1">Modèles de leçons</h2>
             <UBlogList v-if="lessons?.data?.length" orientation="horizontal" :ui="{ wrapper: 'p-px gap-x-4 gap-y-6 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }">
-              <LessonsCard v-for="lesson in lessons.data" :key="lesson.id" @click="() => { preview.template = lesson; preview.open = true }" :lesson template />
+              <LessonCard v-for="lesson in lessons.data" :key="lesson.id" @click="() => { preview.template = lesson; preview.open = true }" :lesson template />
             </UBlogList>
             <p v-else class="text-center text-gray-400 dark:text-white text-sm mt-4">Aucun modèle de leçon trouvé</p>
           </section>
@@ -105,7 +105,7 @@ const handleModal = () => {
           <section v-if="showChapters">
             <h2 class="font-bold text-lg mb-1">Modèles de chapitres</h2>
             <UBlogList v-if="lessons?.data?.length" orientation="horizontal" :ui="{ wrapper: 'p-px gap-x-4 gap-y-6 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }">
-              <LessonsCard v-for="lesson in lessons.data" :key="lesson.id" @click="() => { preview.template = lesson; preview.open = true }" :lesson template />
+              <LessonCard v-for="lesson in lessons.data" :key="lesson.id" @click="() => { preview.template = lesson; preview.open = true }" :lesson template />
             </UBlogList>
             <p v-else class="text-center text-gray-400 dark:text-white text-sm mt-4">Aucun modèle de chapitre trouvé</p>
           </section>
@@ -113,7 +113,7 @@ const handleModal = () => {
           <section v-if="showFormations">
             <h2 class="font-bold text-lg mb-1">Modèles de formations</h2>
             <UBlogList v-if="lessons?.data?.length" orientation="horizontal" :ui="{ wrapper: 'p-px gap-x-4 gap-y-6 sm:grid sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' }">
-              <LessonsCard v-for="lesson in lessons.data" :key="lesson.id" @click="() => { preview.template = lesson; preview.open = true }" :lesson template />
+              <LessonCard v-for="lesson in lessons.data" :key="lesson.id" @click="() => { preview.template = lesson; preview.open = true }" :lesson template />
             </UBlogList>
             <p v-else class="text-center text-gray-400 dark:text-white text-sm mt-4">Aucun modèle de formation trouvé</p>
           </section>

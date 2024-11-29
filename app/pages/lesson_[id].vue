@@ -1,407 +1,315 @@
-<script setup lang="ts">
-import { LessonsDeleteLessonModal, LessonsMediaSlideover, LessonsCommentsSlideover } from '#components'
-import { isEqual } from 'lodash-unified'
+<script lang="ts" setup>
+import { MediaLibraryModal } from '#components'
 
 definePageMeta({
   pageTransition: false
 })
 
+const { comments, syncComments, openCommentSlideover } = useCommentSlideover()
 const modal = useModal()
 const toast = useToast()
-const localePath = useLocalePath()
-const { t } = useI18n()
 const { get, post, patch } = useApi('lessons')
-const slideover = useSlideover()
 const tiptap = useTemplateRef('tiptap')
 const hideToolbar = ref(false)
 const editor = computed(() => tiptap.value?.editor)
 
 const pending = ref(false)
 const loading = ref(false)
-const pendingDraft = ref(false)
-const pendingVisibility = ref(false)
-const unsavedChanges = ref(false)
+
 const showBackground = ref(false)
 const titleError = ref(false)
 
 const documentId = computed(() => useRoute().params.id)
 
-const { data: lesson, refresh } = await useAsyncData('lesson', () => get(documentId.value))
+const { data, refresh } = await useAsyncData('lesson', () => get(documentId.value))
+const lesson = reactive(data)
 
-const initialName = lesson.value?.name
-const initialDescription = lesson.value?.description
-let initialContent = JSON.parse(lesson.value?.content)
+// Temporary
+const background = ref('https://www.notion.so/images/page-cover/gradients_5.png')
+
 const showDescription = ref(lesson.value?.description)
 
-const content = computed({
-  get: () => JSON.parse(lesson.value?.content || '{}'),
-  set: (value) => lesson.value.content = JSON.stringify(value)
+const content = computed(() => JSON.parse(lesson.value?.content)?.value || {})
+
+const initializeComments = () => {
+  const commentsFromAPI = lesson.value?.content ? JSON.parse(lesson.value.content).comments : []
+  Object.assign(comments, commentsFromAPI)
+}
+
+onMounted(() => {
+  initializeComments()
 })
 
-const links = ref([
-  {
-    label: t('drawer.library.label'),
-    to: localePath({ name: 'library' })
-  },
-  {
-    label: t('drawer.library.lessons'),
-    to: localePath({ name: 'library-lessons' })
-  },
-  {
-    label: lesson.value?.name
-  }
-])
+const onDeleted = (comment_id) => {
+  console.log('onDeleted => comment_id', comment_id)
+  editor.value?.commands.unsetComment(comment_id)
+  handleSave()
+}
+
+const onUpdated = (comment) => {
+  syncComments([comment])
+  handleSave()
+}
+
+const onReplied = () => {
+  handleSave()
+}
+
+const onAdded = (comment) => {
+  openCommentSlideover({
+    onDeleted,
+    onUpdated,
+    onReplied
+  })
+  syncComments([comment])
+  handleSave()
+}
 
 const search = async (q: string) => {
   if (loading.value) return
-
+  
   loading.value = true
-
+  
   const items: any[] = await get(null, { q }, 'chapters')
-
+  
   loading.value = false
-
+  
   return 'data' in items ? items.data : items
 }
 
 const handleTitleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
   if (event.shiftKey) return
-
+  
   if (event.key === 'Enter') editor.value?.commands.focus()
-
+  
   if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
     const selection = window.getSelection()
-
+    
     if (selection?.rangeCount > 0) {
       const range = selection.getRangeAt(0)
       const { endOffset } = range
-
+      
       const textContent = event.currentTarget.textContent || ''
-
+      
       if (endOffset >= textContent.length) {
         editor.value?.commands.focus('start')
-
+        
         event.preventDefault()
       }
     }
   }
 }
 
-const options = ref([
-  [{
-    id: 'hide-toolbar',
-    label: 'Cacher le menu',
-    icon: 'i-heroicons-eye-slash',
-    type: 'toggle'
-  }, {
-    id: 'draft',
-    label: 'Brouillon',
-    icon: 'i-fluent-drafts-20-regular',
-    type: 'toggle'
-  }, {
-    id: 'private',
-    label: 'Privée',
-    icon: 'i-heroicons-lock-closed',
-    type: 'toggle'
-  }, {
-    label: 'Dupliquer',
-    icon: 'i-heroicons-document-duplicate-20-solid',
-    click: () => {
-      toast.add({ icon: 'i-heroicons-check-circle', title: 'Leçon dupliquée', description: 'Votre leçon a bien été dupliquée', color: 'green', actions: [{ label: 'Voir la leçon', click: () => localePath({ name: 'lesson_id', params: { id: documentId.value } }) }] })
-    }
-  }], [{
-    label: 'Importer',
-    icon: 'i-heroicons-arrow-down-tray'
-  }, {
-    label: 'Exporter en PDF',
-    icon: 'i-heroicons-document'
-  }, {
-    label: 'Exporter en HTML',
-    icon: 'i-heroicons-cursor-arrow-rays'
-  }, {
-    label: 'Imprimer',
-    icon: 'i-heroicons-printer',
-    click: () => {
-      editor.value?.commands.print()
-    }
-  }], [{
-    label: 'Supprimer',
-    icon: 'i-heroicons-trash-20-solid',
-    click: () => handleDelete()
-  }], [{
-    slot: 'words',
-    label: '',
-    disabled: true
-  }, {
-    slot: 'last-edited',
-    label: '',
-    disabled: true
-  }]
-])
-
-const selectedChapter = computed({
-  get: () => lesson.value?.chapter,
-  set: (value) => lesson.value.chapter = value
-})
-
 const chapter = computed({
-  get: () => selectedChapter.value,
+  get: () => lesson.value?.chapter,
   set: async (label) => {
-    if (label.id) {
-      await patch({ id: documentId.value, chapter_id: label.id })
-      return refresh()
+    loading.value = true
+    
+    try {
+      if (label.id && (label.id !== lesson.value?.chapter_id)) {
+        await patch({ id: documentId.value, chapter_id: label.id })
+        await refresh()
+        toast.add({
+          icon: 'i-heroicons-check-circle',
+          title: 'Chapitre mis à jour avec succès',
+          color: 'green'
+        })
+        return loading.value = false
+      }
+      
+      if (label.id) {
+        loading.value = false
+        return lesson.value.chapter
+      }
+      
+      const response = await post({
+        name: label.name,
+        theme_id: 1,
+        image: 'https://excalidraw.com/og-image-2.png'
+      }, 'chapters')
+      
+      const lessonResponse = await patch({ id: documentId.value, chapter_id: response.id })
+      
+      if (lessonResponse) await refresh()
+      
+      toast.add({
+        icon: 'i-heroicons-check-circle',
+        title: 'Chapitre créé et assigné avec succès',
+        color: 'green'
+      })
+      
+      loading.value = false
+    } catch (error) {
+      loading.value = false
+      toast.add({
+        icon: 'i-heroicons-x-circle',
+        title: 'Une erreur est survenue',
+        color: 'red'
+      })
     }
-
-    const response = await post({ name: label.name, theme_id: 1, image: 'https://excalidraw.com/og-image-2.png' }, 'chapters')
-    const lessonResponse = await patch({ id: documentId.value, chapter_id: response.id })
-
-    if (lessonResponse) await refresh()
-
-    return selectedChapter.value = response
   }
 })
 
-const goPrevLesson = async () => {
-  const response = await get(`${lesson.value?.chapter.id}/previous?current_order=${lesson.value?.order}`)
-  await navigateTo(localePath({ name: 'lesson_id', params: { id: response.id } }))
-}
-
-const goNextLesson = async () => {
-  const response = await get(`${lesson.value?.chapter.id}/next?current_order=${lesson.value?.order}`)
-  await navigateTo(localePath({ name: 'lesson_id', params: { id: response.id } }))
-}
-
-const save = async (auto: boolean = false) => {
-  if (!editor.value || !unsavedChanges.value) return
-  if (!lesson.value.name) return titleError.value = true
+const handleSave = async () => {
+  await nextTick()
+  if (!editor.value) return
+  if (!lesson.value.name) return (titleError.value = true)
   if (titleError.value) titleError.value = false
-
+  
+  const updatedContent = {
+    value: editor.value.getJSON(),
+    comments
+  }
+  
   pending.value = true
-
-  const json = editor.value?.getJSON()
-
-  const response = await patch({
-    ...lesson.value,
-    id: documentId.value,
-    name: lesson.value?.name,
-    description: lesson.value?.description,
-    content: JSON.stringify(json)
-  })
-
-  pending.value = false
-
-  if (response) {
-    initialContent = JSON.parse(lesson.value?.content)
-    unsavedChanges.value = false
-    if (!auto) return toast.add({ icon: 'i-heroicons-check-circle', title: 'Leçon enregistrée avec succès', color: 'green' })
+  
+  try {
+    const payload = Object.fromEntries(
+      Object.entries({
+        ...lesson.value,
+        id: documentId.value,
+        name: lesson.value?.name,
+        description: lesson.value?.description,
+        content: JSON.stringify(updatedContent),
+        ...(background.value && { image: background.value })
+      }).filter(([_, value]) => value != null)
+    )
+    
+    await patch(payload)
+  } catch (error) {
+    toast.add({ icon: 'i-heroicons-x-circle', title: 'Erreur lors de l\'enregistrement', color: 'red' })
+  } finally {
+    pending.value = false
   }
 }
 
-const handleDraft = async () => {
-  pendingDraft.value = true
-  const response = await patch({ id: documentId.value, draft: !lesson.value?.draft })
-
-  if (response) {
-    toast.add({ icon: 'i-heroicons-check-circle', title: `Leçon ${lesson.value?.draft ? 'publiée' : 'mise en brouillon'} avec succès`, color: 'green' })
-    await refresh()
-    return pendingDraft.value = false
-  }
-
-  toast.add({ icon: 'i-heroicons-x-circle', title: `Erreur lors de la ${lesson.value?.draft ? 'publication' : 'mise en brouillon'} de la leçon`, color: 'red' })
-  return pendingDraft.value = false
+const handleLink = (url) => {
+  background.value = url
+  return modal.close()
 }
 
-const handleVisibility = async () => {
-  pendingVisibility.value = true
-  const response = await patch({ id: documentId.value, private: !lesson.value?.private })
-
-  if (response) {
-    toast.add({ icon: 'i-heroicons-check-circle', title: `Leçon ${lesson.value?.private ? 'rendu publique' : 'rendu privée'} avec succès`, color: 'green' })
-    await refresh()
-    return pendingVisibility.value = false
-  }
-
-  toast.add({ icon: 'i-heroicons-x-circle', title: `Erreur lors de la ${lesson.value?.private ? 'mise en publique' : 'mise en privée'} de la leçon`, color: 'red' })
-  return pendingVisibility.value = false
-}
-
-const onUpdate = (content) => {
-  unsavedChanges.value = !isEqual(content, initialContent)
-}
-
-const handleDelete = () => {
-  modal.open(LessonsDeleteLessonModal, {
-    lesson: lesson.value,
-    redirect: true,
-    onClose: () => modal.close()
-  })
-}
-
-const handleSlideover = () => {
-  slideover.open(LessonsMediaSlideover, {
-    medias: lesson.value?.medias,
-    overlay: false
-  })
-}
-
-const handleComments = () => {
-  slideover.open(LessonsCommentsSlideover, {
-    lesson: lesson.value,
-    overlay: false
+const handleModal = (index) => {
+  modal.open(MediaLibraryModal, {
+    index,
+    onSelect: ({ url }) => handleLink(url)
   })
 }
 
 const onUpdateTitle = (event: InputEvent) => {
   lesson.value.name = (event.target as HTMLDivElement).innerText
-  unsavedChanges.value = lesson.value.name !== initialName
 }
 
 const onUpdateDescription = (event: InputEvent) => {
   lesson.value.description = (event.target as HTMLDivElement).innerText
-  unsavedChanges.value = lesson.value.description !== initialDescription
 }
 
-const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-  if (unsavedChanges.value) {
-    event.returnValue = 'Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter ?'
-    save()
-  }
-  else delete event.returnValue
-}
-
-onBeforeMount(() => {
-  window.addEventListener('beforeunload', handleBeforeUnload)
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('beforeunload', handleBeforeUnload)
-})
+useBeforeUnload(handleSave)
 </script>
 
 <template>
   <UDashboardPanel grow>
-    <UDashboardNavbar>
-      <template #title>
-        <ToggleDrawer />
-        <UBreadcrumb :links="links" :ui="{ active: 'truncate w-full max-w-32' }" />
-      </template>
-
-      <template #badge>
-        <UPopover :popper="{ placement: 'bottom-end' }">
-          <UBadge variant="subtle" size="xs" :color="lesson.draft ? 'orange' : 'green'">
-            {{ lesson.draft ? 'Brouillon' : 'Publié' }}
-            <UIcon name="i-heroicons-chevron-down-20-solid" class="w-4 h-4" />
-          </UBadge>
-
-          <template #panel>
-            <div class="flex items-center justify-center">
-              <UButton icon="i-heroicons-pencil-square" :label="lesson.draft ? 'Publier' : 'Mettre en brouillon'" color="gray" size="2xs" variant="ghost" @click="handleDraft" />
-            </div>
-          </template>
-        </UPopover>
-      </template>
-
-      <template #right>
-        <div class="flex items-center justify-end gap-1">
-          <UButton @click="save" size="xs" :disabled="!unsavedChanges" :loading="pending" variant="soft" :label="unsavedChanges ? 'Enregistrer' : 'Enregistré'" :icon="unsavedChanges ? 'i-lucide-save' : 'i-heroicons-check'" :color="unsavedChanges ? 'primary' : 'white'" />
-
-          <template v-if="lesson.chapter?.lessons_count">
-            <div class="flex items-center gap-1">
-              <UKbd>
-                {{ lesson.order + 1 }} / {{ lesson.chapter.lessons_count }}
-              </UKbd>
-              <UTooltip text="Leçon précédente" :popper="{ placement: 'bottom' }">
-                <UButton icon="i-heroicons-chevron-left-20-solid" :disabled="(lesson.order + 1) === 1" @click="goPrevLesson" size="sm" variant="solid" :color="(lesson.order + 1) === 1 ? 'white' : 'primary'" :padded="false" square />
-              </UTooltip>
-              <UTooltip text="Leçon suivante" :popper="{ placement: 'bottom' }">
-                <UButton icon="i-heroicons-chevron-right-20-solid" :disabled="(lesson.order + 1) === lesson.chapter.lessons_count" @click="goNextLesson" size="sm" variant="solid" :color="(lesson.order + 1) === lesson.chapter.lessons_count ? 'white' : 'primary'" :padded="false" square />
-              </UTooltip>
-            </div>
-          </template>
-
-          <UDivider orientation="vertical" class="h-[16px] ml-2" :ui="{ border: { base: 'dark:border-gray-500' } }" />
-
-          <UTooltip text="Commentaires" :popper="{ placement: 'bottom' }">
-            <UButton @click="handleComments" icon="i-heroicons-chat-bubble-bottom-center-text" variant="ghost" color="gray" square />
-          </UTooltip>
-
-          <UTooltip text="Médias associés" :popper="{ placement: 'bottom' }">
-            <UButton @click="handleSlideover" icon="i-heroicons-rectangle-stack" variant="ghost" color="gray" square />
-          </UTooltip>
-          <UDropdown :items="options" :popper="{ placement: 'bottom-start' }" :ui="{ item: { disabled: 'cursor-text select-text' } }">
-            <UButton color="gray" variant="ghost" trailing-icon="i-heroicons-ellipsis-horizontal-20-solid" />
-
-            <template #item="{ item }">
-              <UIcon :name="item.icon" class="flex-shrink-0 h-5 w-5 text-gray-400 dark:text-gray-500" />
-              <span class="truncate">{{ item.label }}</span>
-              <template v-if="item.type === 'toggle'">
-                <UToggle v-if="item.id === 'hide-toolbar'" v-model="hideToolbar" class="ms-auto" size="sm" />
-                <UToggle v-else-if="item.id === 'draft'" @change="handleDraft" :model-value="lesson.draft" class="ms-auto" size="sm" :loading="pendingDraft" />
-                <UToggle v-else-if="item.id === 'private'" @change="handleVisibility" :model-value="lesson.private" class="ms-auto" size="sm" :loading="pendingVisibility" />
-              </template>
-            </template>
-            <template #words>
-              <p class="text-xs">Nombre de mots :{{ new Intl.NumberFormat('fr-FR').format(editor.storage.characterCount.words()).replace(/\s/g, '&nbsp;') }}</p>
-            </template>
-            <template #last-edited>
-              <p class="text-xs text-left">Dernière modification : {{ new Date(lesson.updated_at).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric' }) }}</p>
-            </template>
-          </UDropdown>
-        </div>
-      </template>
-    </UDashboardNavbar>
-
+    <LessonToolbar
+      v-model="lesson"
+      :editor="editor"
+      @comment:added="onAdded"
+      @comment:updated="onUpdated"
+      @comment:replied="onReplied"
+      @comment:deleted="onDeleted"
+    />
+    
     <UDashboardPanelContent v-if="lesson" :ui="{ wrapper: 'p-0' }">
-      <div v-if="showBackground" class="p-4 pb-0 aspect-[16/2.5] opacity-50">
-        <NuxtImg src="https://www.notion.so/images/page-cover/gradients_5.png" alt="Discord" class="aspect-[16/2.5] w-full h-full rounded-xl" />
+      <div v-if="showBackground" class="p-4 pb-0 aspect-[16/2.5] group grid grid-cols-12">
+        <NuxtImg
+          :src="background"
+          alt="Discord"
+          class="cursor-pointer transition-all duration-150 ease-in-out group-hover:brightness-50 w-full rounded-xl col-span-12 row-span-2 col-start-1 row-start-1 aspect-[16/2.5] object-cover"
+          @click="handleModal('background')"
+        />
+        <div
+          class="transition-all duration-150 ease-in-out hidden group-hover:block z-10 mt-4 mr-4 col-start-10 col-end-13 row-start-1"
+        >
+          <UButton block color="white" label="Modifier l'image" variant="solid" @click="handleModal('background')" />
+        </div>
       </div>
-
+      
       <div class="pt-8 lg:px-[calc((100%_-_(750px))_/_2)]">
         <div class="flex items-center gap-2 mb-4">
           <USelectMenu
             v-model="chapter"
-            by="id"
-            name="chapter"
+            :loading="loading"
             :searchable="search"
-            option-attribute="name"
-            searchable-placeholder="Rechercher un chapitre"
-            placeholder="Sélectionner un chapitre"
-            searchable
-            creatable
-            trailing
-            clear-search-on-close
             :searchable-lazy="true"
-            :loading
+            by="id"
+            clear-search-on-close
+            creatable
+            name="chapter"
+            option-attribute="name"
+            placeholder="Sélectionner un chapitre"
+            searchable-placeholder="Rechercher un chapitre"
+            trailing
           >
-            <UButton :label="selectedChapter.name" size="xs" leading-icon="i-lucide-notebook-text" trailing-icon="i-heroicons-chevron-down-20-solid" color="gray" variant="ghost" />
-
+            <UButton
+              :loading="loading"
+              class="truncate"
+              color="gray"
+              leading-icon="i-lucide-notebook-text"
+              size="xs"
+              trailing-icon="i-heroicons-chevron-down-20-solid"
+              variant="ghost"
+            >
+              <template v-if="chapter">
+                Chapitre: {{ chapter.name }}
+              </template>
+              <template v-else>
+                Sélectionner un chapitre
+              </template>
+            </UButton>
+            
             <template #option="{ option }">
               <span class="truncate">{{ option.name }}</span>
             </template>
-
+            
             <template #option-create="{ option }">
-              <UIcon name="i-heroicons-plus" class="w-4 h-4" />
+              <UIcon class="w-4 h-4" name="i-heroicons-plus" />
               <span class="block truncate">{{ option.name }}</span>
             </template>
           </USelectMenu>
-          <UButton v-if="!showDescription" @click="showDescription = true" label="Ajouter une description" size="xs" leading-icon="i-lucide-text" color="gray" variant="ghost" />
-          <UButton v-if="!showBackground" label="Ajouter une couverture" @click="showBackground = true" size="xs" leading-icon="i-lucide-image" color="gray" variant="ghost" />
+          <UButton
+            v-if="!showDescription" color="gray" label="Ajouter une description" leading-icon="i-lucide-text"
+            size="xs" variant="ghost" @click="showDescription = true"
+          />
+          <UButton
+            v-if="!showBackground" color="gray" label="Ajouter une couverture" leading-icon="i-lucide-image"
+            size="xs" variant="ghost" @click="showBackground = true"
+          />
         </div>
         <div
-          contenteditable
-          @input="onUpdateTitle"
-          data-placeholder="Titre de la leçon"
-          class="inline-block w-full placeholder font-bold mb-5 text-3xl whitespace-pre-wrap tracking-tight text-gray-900 dark:text-white sm:text-4xl lg:text-5xl outline-none ring-none"
           :class="{ 'empty:before:!text-red-400': titleError }"
+          class="inline-block w-full placeholder font-bold mb-5 text-3xl whitespace-pre-wrap tracking-tight text-gray-900 dark:text-white sm:text-4xl lg:text-5xl outline-none ring-none"
+          contenteditable
+          data-placeholder="Titre de la leçon"
+          @blur="handleSave"
+          @input="onUpdateTitle"
           @keydown="handleTitleKeyDown"
-          @blur="save(true)"
         >
           {{ lesson.name }}
         </div>
-        <UTextarea v-if="showDescription" v-model="lesson.description" placeholder="Description de la leçon" variant="outline" @input="onUpdateDescription" @blur="save(true)" padded />
+        <UTextarea
+          v-if="showDescription" v-model="lesson.description" padded placeholder="Description de la leçon"
+          variant="outline" @blur="handleSave" @input="onUpdateDescription"
+        />
       </div>
-
-      <LeazyEditor ref="tiptap" v-model="content" output="json" :hide-toolbar="hideToolbar" class="flex-1" max-width="800" @update:model-value="onUpdate" @blur="save(true)" />
+      
+      <LeazyEditor
+        ref="tiptap"
+        v-model="content"
+        :hide-toolbar="hideToolbar"
+        class="flex-1"
+        max-width="800"
+        output="json"
+        @comment:added="onAdded"
+        @update:model-value="handleSave"
+      />
     </UDashboardPanelContent>
   </UDashboardPanel>
 </template>

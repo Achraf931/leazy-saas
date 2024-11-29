@@ -1,16 +1,12 @@
-<script setup lang="ts">
-import { KanbanModal } from '#components'
+<script lang="ts" setup>
+import { CreateTaskModal } from '#components'
 import Draggable from 'vuedraggable'
-import { useLocalStorage, useKeyModifier } from '@vueuse/core'
+import { useKeyModifier, useLocalStorage } from '@vueuse/core'
 import type { Column, Task } from '@/types'
 
 const modal = useModal()
 const q = ref('')
 const isLoading = ref(false)
-const fields = reactive({
-  title: undefined,
-  description: undefined
-})
 const columns = useLocalStorage<Column[]>('kanban', [
   {
     id: 1,
@@ -94,7 +90,7 @@ const updateTask = ({ task, column, id }) => {
       }
       return c
     })
-
+    
     const index = columns.value.findIndex(c => c.id === column.id)
     columns.value[index].tasks = columns.value[index].tasks.filter(t => t.id !== task.id)
   } else {
@@ -117,13 +113,13 @@ const onSubmit = async (task: any, id: number) => {
     description: task.description,
     createdAt: new Date()
   })
-
+  
   isLoading.value = false
   await modal.close()
 }
 
 const handleModal = (id: number) => {
-  modal.open(KanbanModal, {
+  modal.open(CreateTaskModal, {
     loading: isLoading.value,
     onCreate: task => onSubmit(task, id),
     onClose: () => modal.close()
@@ -134,34 +130,34 @@ const handleModal = (id: number) => {
 <template>
   <UDashboardPage :ui="{ wrapper: 'overflow-hidden' }">
     <UDashboardPanel
-      grow
       :ui="{ wrapper: 'overflow-hidden' }"
+      grow
     >
       <UDashboardNavbar>
         <template #title>
           <ToggleDrawer title="Mes tâches" />
         </template>
-
+        
         <template #right>
           <UInput
             v-model="q"
-            icon="i-heroicons-magnifying-glass-20-solid"
-            size="sm"
-            color="white"
             :trailing="false"
+            color="white"
+            icon="i-heroicons-magnifying-glass-20-solid"
             placeholder="Rechercher une tâche..."
+            size="sm"
           />
-
+          
           <UButton
             class="hidden"
-            label="Ajouter une colonne"
             color="black"
+            label="Ajouter une colonne"
             size="sm"
             @click="createColumn"
           />
         </template>
       </UDashboardNavbar>
-
+      
       <UDashboardPanelContent :ui="{ wrapper: 'flex-row overflow-x-auto overflow-y-hidden' }">
         <div class="flex flex-1 space-x-3">
           <div
@@ -174,38 +170,38 @@ const handleModal = (id: number) => {
             >
               <div class="flex items-center gap-2">
                 <UIcon
+                  :class="column.color"
                   :name="column.icon"
                   class="w-4 h-4"
-                  :class="column.color"
                   dynamic
                 />
                 <span class="text-sm font-medium">{{ column.title }}</span>
                 <span class="text-sm dark:text-gray-500 text-gray-400">{{ column.tasks.length }}</span>
               </div>
-
+              
               <div class="flex items-center -my-1">
                 <UButton
-                  size="xs"
-                  variant="ghost"
                   color="gray"
                   icon="i-heroicons-plus"
+                  size="xs"
+                  variant="ghost"
                   @click="handleModal(column.id)"
                 />
                 <UPopover :popper="{ placement: 'bottom-end' }">
                   <UButton
-                    size="xs"
-                    variant="ghost"
                     color="gray"
                     icon="i-heroicons-ellipsis-horizontal"
+                    size="xs"
+                    variant="ghost"
                   />
-
+                  
                   <template #panel>
                     <div class="p-0.5 flex flex-col gap-0.5">
                       <UButton
-                        size="xs"
-                        label="Cacher"
-                        icon="i-heroicons-eye-slash"
                         color="gray"
+                        icon="i-heroicons-eye-slash"
+                        label="Cacher"
+                        size="xs"
                         variant="ghost"
                       />
                     </div>
@@ -213,21 +209,21 @@ const handleModal = (id: number) => {
                 </UPopover>
               </div>
             </header>
-
+            
             <Draggable
               v-model="column.tasks"
-              :group="{ name: 'tasks', pull: alt ? 'clone' : true }"
               :animation="150"
+              :group="{ name: 'tasks', pull: alt ? 'clone' : true }"
               class="smooth-dnd-container vertical flex-1 pb-3 overflow-y-auto"
               item-key="id"
             >
               <template #item="{ element: task }: { element: Task }">
-                <KanbanTask
-                  :task="task"
+                <TaskCard
                   :column="column"
                   :columns="columns"
-                  @update="updateTask"
+                  :task="task"
                   @delete="column.tasks = column.tasks.filter((t) => t.id !== $event)"
+                  @update="updateTask"
                 />
               </template>
             </Draggable>

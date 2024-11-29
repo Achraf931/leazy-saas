@@ -13,5 +13,5 @@ const resetToken = route.query.reset as string | undefined
 </script>
 
 <template>
-  <AuthLoginForm :token="resetToken" />
+  <LoginForm :token="resetToken" />
 </template>

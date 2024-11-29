@@ -5,7 +5,7 @@ export const useApi = (endpoint: string) => {
     const localePath = useLocalePath()
 
     // GET Request
-    const get = async (id?: number, query?: Record<string, any>, custom_endpoint?: string) => {
+    const get = async (id?: string | number, query?: Record<string, any>, custom_endpoint?: string) => {
         try {
             if (id) return await client(`${baseURL}/${custom_endpoint ?? endpoint}/${id}`)
             return await client(`${baseURL}/${custom_endpoint ?? endpoint}`, { query })
@@ -35,6 +35,7 @@ export const useApi = (endpoint: string) => {
 
     // PATCH Request
     const patch = async (lesson: object, custom_endpoint?: string) => {
+        console.log(lesson)
         try {
             return await client(`${baseURL}/${custom_endpoint ?? endpoint}/${lesson.id}`, { method: 'PATCH', body: lesson })
         } catch (err) {

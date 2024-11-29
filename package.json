@@ -1,5 +1,5 @@
 {
-  "name": "nuxt-app",
+  "name": "leazy-saas",
   "private": true,
   "type": "module",
   "scripts": {
@@ -17,13 +17,14 @@
     "@iconify-json/lucide": "^1.2.11",
     "@iconify-json/mdi": "^1.2.1",
     "@iconify-json/simple-icons": "^1.2.10",
-    "@leazyhub/editor": "^0.0.93105",
+    "@leazyhub/editor": "^0.0.93111",
     "@nuxt/fonts": "^0.7.2",
     "@nuxt/image": "^1.8.1",
     "@nuxt/ui-pro": "^1.4.4",
     "@nuxtjs/i18n": "^9.0.0",
     "@vueuse/nuxt": "^11.2.0",
     "date-fns": "^3.6.0",
+    "html2pdf.js": "^0.10.2",
     "nuxt": "^3.14.0",
     "nuxt-auth-sanctum": "^0.5.1",
     "openai": "^4.70.3",
@@ -42,5 +43,8 @@
     "tailwindcss-animate": "^1.0.7",
     "vue-tsc": "^2.1.10"
   },
-  "packageManager": "bun@1.1.29"
+  "packageManager": "bun@1.1.29",
+  "trustedDependencies": [
+    "@parcel/watcher"
+  ]
 }
